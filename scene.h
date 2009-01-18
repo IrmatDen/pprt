@@ -37,7 +37,7 @@ public:
 	void		addLight(LightPtr l)						{ lights.push_back(l); }
 
 	void		render(const std::string &filename);
-	Color4		trace(Ray r, int maxRecurse = 10, bool returnBackground = false);
+	Color4		trace(const Ray &eye, int maxRecurse = 10, bool returnBackground = false);
 
 	bool		collide(const Ray &r, float &t);
 

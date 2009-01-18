@@ -90,12 +90,14 @@ void Scene::render(const std::string &filename)
 	img.save(filename.c_str());
 }
 
-Color4 Scene::trace(Ray r, int maxRecurse, bool returnBackground)
+Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 {
 	float reflCoef = 1;
 	int currRecurse = 0;
 	Color4 out;
 	bool hitSomething = false;
+
+	Ray ray = eye;
 
 	while (currRecurse < maxRecurse && reflCoef > 0)
 	{
@@ -104,7 +106,7 @@ Color4 Scene::trace(Ray r, int maxRecurse, bool returnBackground)
 
 		for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
 		{
-			if ((*it)->hit(r, t))
+			if ((*it)->hit(ray, t))
 				nearestObj = *it;
 		}
 
@@ -113,7 +115,7 @@ Color4 Scene::trace(Ray r, int maxRecurse, bool returnBackground)
 
 		hitSomething = true;
 
-		Vec3f p = r.origin + r.dir * t;
+		Vec3f p = ray.origin + ray.dir * t;
 		Vec3f n;
 
 		nearestObj->normalAt(p, n);
@@ -122,10 +124,14 @@ Color4 Scene::trace(Ray r, int maxRecurse, bool returnBackground)
 			const Light &light = **it;
 			// Slightly shift the origin to avoid hitting the same object
 			p += n * 0.001f;
+
+			// Check if the current light is occluded
 			Vec3f L2P = light.pos - p;
 			t = L2P.length();
 			Ray r(p, L2P.normalize());
-			if (!collide(r, t))
+			bool lightOccluded = collide(r, t);
+
+			if (!lightOccluded)
 				out += nearestObj->material().shade(p, n, light) * reflCoef;
 			else
 				out += nearestObj->material().ambient * reflCoef;
@@ -133,8 +139,8 @@ Color4 Scene::trace(Ray r, int maxRecurse, bool returnBackground)
 
 		currRecurse++;
 		reflCoef  *= nearestObj->material().reflexivity;
-		r.origin = p;
-		r.dir = r.dir - 2 * r.dir.dot(n) * n;
+		ray.origin = p;
+		ray.dir = ray.dir - 2 * ray.dir.dot(n) * n;
 	}
 
 	if (!hitSomething && returnBackground)

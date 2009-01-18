@@ -177,6 +177,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\disk.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -212,6 +216,10 @@
 			</File>
 			<File
 				RelativePath=".\color4.h"
+				>
+			</File>
+			<File
+				RelativePath=".\disk.h"
 				>
 			</File>
 			<File

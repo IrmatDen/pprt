@@ -43,6 +43,7 @@ public:
 	type		dot(const_ref v) const					{ return x * v.x + y * v.y + z * v.z; }
 	value		cross(const_ref v) const				{ value out(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x); return out; }
 	type		length() const;
+	type		squaredLength() const					{ return dot(*this); }
 	ref			normalize()								{ type l = length(); if (l > 0.00001f) *this /= length(); return *this; }
 	ref			reflect(const_ref n)					{ *this - 2 * dot(n) * n; return *this; }
 	value		reflect(const_ref n) const				{ value v = *this - 2 * dot(n) * n; return v; }

@@ -13,7 +13,7 @@ public:
 	virtual bool			hit(const Ray &ray, float &t) const;
 	virtual void			normalAt(const Vec3f &p, Vec3f &n) const	{ n = this->n; }
 
-private:
+protected:
 	Vec3f		n;
 	float		d;
 	bool		oneSided;

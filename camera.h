@@ -1,19 +1,28 @@
 #ifndef CRT_CAMERA_H
 #define CRT_CAMERA_H
 
-#include "vector3.h"
+#include "ray.h"
 
 class Camera
 {
 public:
-	Vec3f	pos;
-	Vec3f	dir;
-	Vec3f	up, right;
-	float	halfFrustumAngle;
-
-	void		project(int x, int y, Vec3f &dir)
+	Camera()
+		:target(0, 0, 1), up(0, 1, 0), fov(60)
 	{
 	}
+
+	void		init();
+	void		project(float x, float y, Ray &r) const;
+
+public:
+	Vec3f	pos;
+	Vec3f	target;
+	Vec3f	up;
+	float	fov;
+
+private:
+	// Define the camera frame
+	Vec3f u, v, w;
 };
 
 #endif

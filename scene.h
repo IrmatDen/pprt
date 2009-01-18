@@ -9,6 +9,7 @@
 #include "color4.h"
 #include "geometry.h"
 #include "light.h"
+#include "camera.h"
 
 class Scene
 {
@@ -21,19 +22,6 @@ public:
 		Png,
 		Tiff
 	};
-	
-	struct Camera
-	{
-		Camera()
-			:target(0, 0, 1), up(0, 1, 0), fov(60)
-		{
-		}
-
-		Vec3f pos;
-		Vec3f target;
-		Vec3f up;
-		float fov;
-	};
 
 public:
 	Scene(int width, int height)
@@ -41,7 +29,7 @@ public:
 	{
 	}
 
-	Camera&		camera()									{ return cam; }
+	Camera&		camera();
 
 	void		setBackground(const Color4 &bg)				{ background = bg; }
 
@@ -54,21 +42,8 @@ public:
 	bool		collide(const Ray &r, float &t);
 
 private:
-	void		setupCamData();
-
-	// Set ray direction from screen coordinates.
-	void		createRay(float x, float y, Ray &r);
-
-private:
 	typedef std::vector<GeometryPtr> Geometries;
 	typedef std::vector<LightPtr> Lights;
-
-private:
-	struct CamData
-	{
-		// u & v will be pre-modified by defined fov.
-		Vec3f u, v, w;
-	};
 
 private:
 	int						resX, resY;
@@ -76,7 +51,6 @@ private:
 	Color4					background;
 
 	Camera					cam;
-	CamData					camData;
 
 	Geometries				objects;
 	Lights					lights;

@@ -6,12 +6,13 @@
 #include "plane.h"
 #include "light.h"
 #include "scene.h"
+#include "camera.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-	Scene scn(1024, 768);
+	Scene scn(800, 600);
 	scn.setBackground(Color4(0, 0, 0, 0));
 
 	scn.camera().fov = 45;

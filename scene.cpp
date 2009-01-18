@@ -7,9 +7,6 @@
 #include <tbb/parallel_for.h>
 
 #include "scene.h"
-#include "geometry.h"
-
-#define PIOVER180 0.017453292519943295769236907684886
 
 class TraceScanLine
 {
@@ -36,9 +33,9 @@ public:
 				float fx = x * 1.0f / scene.resX * 2 - 1;
 				float fy = 1 - y * 1.0f / scene.resY * 2;
 
-				scene.createRay(fx, fy, ray);
+				scene.cam.project(fx, fy, ray);
 
-				Color4 col = scene.trace(ray, 10, true);
+				Color4 col = scene.trace(ray, 3, true);
 
 				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
@@ -53,13 +50,18 @@ private:
 	fipImage	&	img;
 };
 
+Camera&	  Scene::camera()
+{
+	return cam;
+}
+
 void Scene::render(const std::string &filename)
 {
 
 	fipImage img(FIT_BITMAP, (WORD)resX, (WORD)resY, 32);
 	BYTE *imgData = img.accessPixels();
 
-	setupCamData();
+	cam.init();
 
 	tbb::task_scheduler_init tbbInit;
 	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());
@@ -73,7 +75,7 @@ void Scene::render(const std::string &filename)
 			float fx = x * 1.0f / resX * 2 - 1;
 			float fy = 1 - y * 1.0f / resY * 2;
 
-			createRay(fx, fy, r);
+			cam.project(fx, fy, r);
 
 			Color4 col = trace(r, 10, true);
 
@@ -86,32 +88,6 @@ void Scene::render(const std::string &filename)
 
 	img.flipVertical();
 	img.save(filename.c_str());
-}
-
-void Scene::setupCamData()
-{
-	float angleOfView = tan(float(PIOVER180) * 0.5f * cam.fov);
-	
-	cam.up.normalize();
-	
-	camData.w = cam.target - cam.pos;
-	camData.w.normalize();
-
-	camData.u = cam.up.cross(camData.w);
-	camData.u.normalize();
-	camData.u *= angleOfView;
-
-	camData.v = camData.w.cross(camData.u);
-	camData.v.normalize();
-	camData.v *= angleOfView;
-}
-
-void Scene::createRay(float x, float y, Ray &r)
-{
-	r.dir = x * camData.u +
-			y * camData.v +
-			camData.w;
-	r.dir.normalize();
 }
 
 Color4 Scene::trace(Ray r, int maxRecurse, bool returnBackground)

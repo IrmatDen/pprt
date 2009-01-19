@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+using namespace boost::spirit;
+
 void CommentReadAction(char const *first, char const *last)
 {
 	std::string str(first, last);
@@ -25,18 +27,18 @@ public:
 		definition(RibSyntax const &self)
 		{
 			// Comments may be any chars, numbers, space or tabs until end of line, and on 0..n lines.
-			comment = (boost::spirit::ch_p('#') >> *(boost::spirit::alnum_p | boost::spirit::blank_p))[&CommentReadAction];
-			multilineComment = *(comment >> boost::spirit::eol_p);
-			comments = (multilineComment | comment);
+			comment = (ch_p('#') >> *print_p)[&CommentReadAction];
+			multilineComment = *(comment >> eol_p);
+			comments = (multilineComment | comment) >> *eol_p;
 
 			// Grammar root.
-			base_expression = comments >> boost::spirit::end_p;
+			base_expression = comments;
 		}
 
-		const boost::spirit::rule<ScannerT>& start() const	{ return base_expression; }
+		const rule<ScannerT>& start() const	{ return base_expression; }
 
-		boost::spirit::rule<ScannerT> comment, multilineComment, comments;
-		boost::spirit::rule<ScannerT> base_expression;
+		rule<ScannerT> comment, multilineComment, comments;
+		rule<ScannerT> base_expression;
 	};
 };
 
@@ -49,8 +51,8 @@ public:
 
 	bool parseString(const std::string &input)
 	{
-		boost::spirit::parse_info<> info;
-		info = boost::spirit::parse(input.c_str(), syntax);
+		parse_info<> info;
+		info = parse(input.c_str(), syntax);
 
 		return info.full;
 	}

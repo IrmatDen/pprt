@@ -87,9 +87,10 @@ int main(int argc, char **argv)
 	cout << end - begin << " ms";
 	cin.get();*/
 
-	string ribCommentSample = "# comment\n#anOther 1\ttest\n";
+	string ribCommentSample = "# disk1.rib\n# setting a perspective view\n\n";
 	RibParser ribParser;
 	bool parseRes = ribParser.parseString(ribCommentSample);
+	cout << parseRes << endl;
 
 	return 0;
 }

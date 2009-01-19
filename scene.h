@@ -29,6 +29,8 @@ public:
 	{
 	}
 
+	void		loadFromRib(std::string filename);
+
 	Camera&		camera();
 
 	void		setBackground(const Color4 &bg)				{ background = bg; }

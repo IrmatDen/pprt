@@ -243,6 +243,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ribparser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\scene.h"
 				>
 			</File>

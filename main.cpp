@@ -1,6 +1,8 @@
 #include <windows.h>
 
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #include "sphere.h"
 #include "plane.h"
@@ -9,11 +11,13 @@
 #include "camera.h"
 #include "disk.h"
 
+#include "ribparser.h"
+
 using namespace std;
 
 int main(int argc, char **argv)
 {
-	Scene scn(800, 600);
+	Scene scn(1280, 1024);
 	scn.setBackground(Color4(0, 0, 0, 0));
 
 	scn.camera().fov = 45;
@@ -34,7 +38,7 @@ int main(int argc, char **argv)
 	l->color = Color4(1, 1, 1, 1);
 	scn.addLight(l);*/
 
-	GeometryPtr s(new Sphere(1, Vec3f(0, -0.8f, 5)));
+	/*GeometryPtr s(new Sphere(1, Vec3f(0, -0.8f, 5)));
 	s->material().ambient = Color4(0.1f, 0, 0, 1);
 	s->material().diffuse = Color4(1, 0, 0, 1);
 	s->material().reflexivity = 0.5f;
@@ -81,7 +85,11 @@ int main(int argc, char **argv)
     __int64 end = timeGetTime();
 
 	cout << end - begin << " ms";
-	cin.get();
+	cin.get();*/
+
+	string ribCommentSample = "# comment\n#anOther 1\ttest\n";
+	RibParser ribParser;
+	bool parseRes = ribParser.parseString(ribCommentSample);
 
 	return 0;
 }

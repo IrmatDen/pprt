@@ -7,6 +7,7 @@
 #include <tbb/parallel_for.h>
 
 #include "scene.h"
+//#include "ribparser.h"
 
 class TraceScanLine
 {
@@ -35,7 +36,7 @@ public:
 
 				scene.cam.project(fx, fy, ray);
 
-				Color4 col = scene.trace(ray, 3, true);
+				Color4 col = scene.trace(ray, 10, true);
 
 				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
@@ -50,7 +51,11 @@ private:
 	fipImage	&	img;
 };
 
-Camera&	  Scene::camera()
+void Scene::loadFromRib(std::string filename)
+{
+}
+
+Camera& Scene::camera()
 {
 	return cam;
 }

@@ -28,8 +28,8 @@ public:
 		{
 			// Comments may be any chars, numbers, space or tabs until end of line, and on 0..n lines.
 			comment = (ch_p('#') >> *print_p)[&CommentReadAction];
-			multilineComment = *(comment >> eol_p);
-			comments = (multilineComment | comment) >> *eol_p;
+			multilineComment = *(comment >> +eol_p);
+			comments = (multilineComment | comment);
 
 			// Grammar root.
 			base_expression = comments;

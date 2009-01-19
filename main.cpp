@@ -1,7 +1,6 @@
 #include <windows.h>
 
 #include <iostream>
-#include <sstream>
 #include <string>
 
 #include "sphere.h"
@@ -10,8 +9,6 @@
 #include "scene.h"
 #include "camera.h"
 #include "disk.h"
-
-#include "ribparser.h"
 
 using namespace std;
 
@@ -87,10 +84,17 @@ int main(int argc, char **argv)
 	cout << end - begin << " ms";
 	cin.get();*/
 
-	string ribCommentSample = "# disk1.rib\n# setting a perspective view\n\n";
-	RibParser ribParser;
-	bool parseRes = ribParser.parseString(ribCommentSample);
-	cout << parseRes << endl;
+	string ribFile = "RibSamples\\00_comment.rib";
+
+	bool ribLoaded = scn.loadFromRib(ribFile);
+	if (!ribLoaded)
+	{
+		cout << "Loading " << ribFile << " failed!" << endl;
+		return 1;
+	}
+
+	cout << endl << "Parsed \"" << ribFile << "\" successfully!" << endl;
+	cin.get();
 
 	return 0;
 }

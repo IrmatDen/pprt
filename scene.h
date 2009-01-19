@@ -29,7 +29,7 @@ public:
 	{
 	}
 
-	void		loadFromRib(std::string filename);
+	bool		loadFromRib(const std::string &filename);
 
 	Camera&		camera();
 

@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 	cout << end - begin << " ms";
 	cin.get();*/
 
-	string ribFile = "RibSamples\\00_comment.rib";
+	string ribFile = "RibSamples\\01_display.rib";
 
 	bool ribLoaded = scn.loadFromRib(ribFile);
 	if (!ribLoaded)

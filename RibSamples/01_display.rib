@@ -1,0 +1,5 @@
+# disk1.rib
+# setting a perspective view
+ 
+Display "disk1" "framebuffer" "rgba" # This is a sample EOL comment
+ 

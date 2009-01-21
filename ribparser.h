@@ -42,6 +42,19 @@ namespace RibParser
 	};
 	std::vector<std::string> display_a::params;
 
+	struct projection_a
+	{
+		void operator()(const iterator_t &/*first*/, const iterator_t &/*last*/) const
+		{
+			std::cout << "Projection token found, params:" << std::endl;
+			for (std::vector<std::string>::iterator it = params.begin() ; it != params.end(); ++it)
+				std::cout << *it << std::endl;
+		}
+
+		static std::vector<std::string> params;
+	};
+	std::vector<std::string> projection_a::params;
+
 	struct RibSyntax : public boost::spirit::grammar<RibSyntax>
 	{
 	public:
@@ -57,6 +70,7 @@ namespace RibParser
 				// Generic rules
 				ending = *blank_p >> !comment >> eol_p; 
 				string = ch_p('"') >> (+((alnum_p | punct_p) - '"')) >> ch_p('"');
+				variable = string | real_p;
 
 				// Comment definition
 				comment = (ch_p('#') >> *(anychar_p - eol_p))[&CommentReadAction];
@@ -71,8 +85,15 @@ namespace RibParser
 							*(blank_p >> string[push_back_a(display_a::params)])			// options
 						  )[display_a()];
 
+				// Projection
+				projectionMode = ch_p('"') >> (str_p("perspective") | str_p ("orthographic")) >> ch_p('"');
+				projection = (str_p("Projection") >> blank_p >>
+								projectionMode [push_back_a(projection_a::params)] >>		// projection mode
+								*(blank_p >> variable[push_back_a(projection_a::params)])		// options
+							  )[projection_a()];
+
 				// Grammar line & root.
-				element = display;
+				element = display | projection;
 				line = *blank_p >> !element >> ending >> *blank_p;
 				base_expression = *line;
 			}
@@ -80,11 +101,12 @@ namespace RibParser
 			const rule<ScannerT>& start() const	{ return base_expression; }
 
 			// Generic types
-			rule<ScannerT> ending, string;
+			rule<ScannerT> ending, string, variable;
 
 			// Specific elements
 			rule<ScannerT> comment;
 			rule<ScannerT> display, displayType, displayMode;
+			rule<ScannerT> projection, projectionMode;
 
 			// General description
 			rule<ScannerT> element, line, base_expression;

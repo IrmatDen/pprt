@@ -16,19 +16,16 @@ namespace RibParser
 	typedef scanner<iterator_t>			scanner_t;
 	typedef rule<scanner_t>				rule_t;
 
-	enum RiToken
-	{
-		DisplayName,
-		DisplayType,
-		DisplayMode
-	};
-
+	//----------------------------------------------------
+	// Comment statement action
 	void CommentReadAction(const iterator_t &first, const iterator_t &last)
 	{
 		std::string str(first, last);
 		std::cout << "Comment read: " << str << std::endl;
 	}
 
+	//----------------------------------------------------
+	// Display statement action
 	struct display_a
 	{
 		void operator()(const iterator_t &/*first*/, const iterator_t &/*last*/) const
@@ -42,6 +39,8 @@ namespace RibParser
 	};
 	std::vector<std::string> display_a::params;
 
+	//------------------------------------------------------
+	// Projection statement action
 	struct projection_a
 	{
 		void operator()(const iterator_t &/*first*/, const iterator_t &/*last*/) const
@@ -55,6 +54,8 @@ namespace RibParser
 	};
 	std::vector<std::string> projection_a::params;
 
+	//------------------------------------------------------
+	// Rib syntax
 	struct RibSyntax : public boost::spirit::grammar<RibSyntax>
 	{
 	public:
@@ -113,6 +114,8 @@ namespace RibParser
 		};
 	};
 
+	//------------------------------------------------------
+	// Rib parser
 	class Parser
 	{
 	public:

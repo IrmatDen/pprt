@@ -48,6 +48,7 @@ private:
 	typedef std::vector<LightPtr> Lights;
 
 private:
+	std::string				name;
 	int						resX, resY;
 
 	Color4					background;

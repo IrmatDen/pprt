@@ -25,11 +25,17 @@ public:
 
 public:
 	Scene(int width, int height)
-		: resX(width), resY(height)
+		: resX(width), resY(height), storeZ(false),
+		background(0, 0, 0, 0)
 	{
 	}
 
-	bool		loadFromRib(const std::string &filename);
+	bool		loadScnFile(const std::string &filename);
+
+	void		setOutputFile(const std::string &outFile)	{ outName = outFile; }
+	void		setWidth(int width)							{ resX = width; }
+	void		setHeight(int height)						{ resY = height; }
+	void		storeZValues(bool store)					{ storeZ = store; }
 
 	Camera&		camera();
 
@@ -48,8 +54,9 @@ private:
 	typedef std::vector<LightPtr> Lights;
 
 private:
-	std::string				name;
+	std::string				outName;
 	int						resX, resY;
+	bool					storeZ;
 
 	Color4					background;
 

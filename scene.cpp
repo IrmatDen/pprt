@@ -7,7 +7,7 @@
 #include <tbb/parallel_for.h>
 
 #include "scene.h"
-#include "ribparser.h"
+#include "scnparser.h"
 
 class TraceScanLine
 {
@@ -51,10 +51,10 @@ private:
 	fipImage	&	img;
 };
 
-bool Scene::loadFromRib(const std::string &filename)
+bool Scene::loadScnFile(const std::string &filename)
 {
-	RibParser::Parser ribParser;
-	bool parseRes = ribParser.parseFile(filename);
+	ScnParser::Parser scnParser(*this);
+	bool parseRes = scnParser.parseFile(filename);
 
 	return parseRes;
 }

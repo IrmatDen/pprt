@@ -8,6 +8,8 @@ public:
 	Color4(float _r, float _g, float _b, float _a) : r(_r), g(_g), b(_b), a(_a)		{}
 	Color4(float v, float _a = 1)	: r(v), g(v), b(v), a(_a)						{}
 
+	Color4&		operator=(const Color4 &v)											{ r=v.r; g=v.g; b=v.b; a=v.a; return *this; }
+
 public:
 	Color4&		clamp()
 	{

@@ -1,0 +1,14 @@
+# Required
+# Output "path/to/filename" resX resY [+z]
+# +z is an optionnal token; if provided, a .z file will be generated (containing resX * resY fp values)
+Output "sphere.png" 800 600 +z
+
+# Background <RGBA tuple>
+# If not provided, default is (0,0,0,0)
+Background (0, 1, 0, 0.5)
+
+# CamLookAt position target_point
+CamLookAt <0, 0, -10> <0, 0, 0>
+
+# OmniLight position rgba
+OmniDirLight <-4, -1.5, 3> (1, 1, 1, 1)

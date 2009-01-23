@@ -84,16 +84,16 @@ int main(int argc, char **argv)
 	cout << end - begin << " ms";
 	cin.get();*/
 
-	string ribFile = "RibSamples\\02_projection.rib";
+	string scnFile = "ScnSamples\\sphere.scn";
 
-	bool ribLoaded = scn.loadFromRib(ribFile);
-	if (!ribLoaded)
+	bool scnLoaded = scn.loadScnFile(scnFile);
+	if (!scnLoaded)
 	{
-		cout << "Loading " << ribFile << " failed!" << endl;
+		cout << "Loading " << scnFile << " failed!" << endl;
 		return 1;
 	}
 
-	cout << endl << "Parsed \"" << ribFile << "\" successfully!" << endl;
+	cout << endl << "Parsed \"" << scnFile << "\" successfully!" << endl;
 	cin.get();
 
 	return 0;

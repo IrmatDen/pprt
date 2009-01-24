@@ -4,17 +4,6 @@
 // IMPORTANT: this file can't be used alone, it's only to be included in scnparser.h which
 // contains the good includes and typedefs!
 
-#include <boost/array.hpp>
-
-//---------------------------------------------------------------------------------------------------------
-// Scene actors
-member_function_ptr<void, Scene, const std::string&>	scn_output_file		= bind(&Scene::setOutputFile);
-member_function_ptr<void, Scene, int>					scn_set_width		= bind(&Scene::setWidth);
-member_function_ptr<void, Scene, int>					scn_set_height		= bind(&Scene::setHeight);
-member_function_ptr<void, Scene, bool>					scn_store_z			= bind(&Scene::storeZValues);
-member_function_ptr<void, Scene, const Color4&>			scn_set_background	= bind(&Scene::setBackground);
-//----------------------------------------------------------------------------------------------------------
-
 //-----------------------------------------------------------------------------------------------------------
 // Material actor
 
@@ -67,7 +56,6 @@ Color4	newPointLight_a::color;
 //-----------------------------------------------------------------------------------------------------------
 // Geometries actors
 
-#include "Geometry.h"
 #include "Sphere.h"
 
 struct newSphere_a
@@ -78,6 +66,8 @@ struct newSphere_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		MaterialPtr m = scene.getMaterialByName(matName);
+		if (!m)
+			return;
 
 		GeometryPtr g(new Sphere((float)radius, pos));
 		g->material() = m;

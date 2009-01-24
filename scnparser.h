@@ -57,13 +57,13 @@ namespace ScnParser
 							|	camLookAt;
 
 					output = ( "Output"	>> +blank_p >>
-								string	[scn_output_file(var(self.scene), CONSTRUCT_STR)]  >> +blank_p >>	// filepath
-								uint_p	[scn_set_width (var(self.scene), arg1)]	>> +blank_p >>				// width
-								uint_p	[scn_set_height(var(self.scene), arg1)]	>>							// height
-								!(blank_p >> str_p("+z")[scn_store_z(var(self.scene), true)])				// store Z?
+								string	[bind(&Scene::setOutputFile)(var(self.scene), CONSTRUCT_STR)]  >> +blank_p >>	// filepath
+								uint_p	[bind(&Scene::setWidth) (var(self.scene), arg1)]	>> +blank_p >>				// width
+								uint_p	[bind(&Scene::setHeight)(var(self.scene), arg1)]	>>							// height
+								!(blank_p >> str_p("+z")[bind(&Scene::storeZValues)(var(self.scene), true)])				// store Z?
 							  );
 
-					background = "Background" >> +blank_p >> color4_p[scn_set_background(var(self.scene), arg1)];
+					background = "Background" >> +blank_p >> color4_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
 
 					camLookAt = "CamLookAt"	>> +blank_p >> vec3f_p[assign_a(self.scene.camera().pos)] >> +blank_p
 														>> vec3f_p[assign_a(self.scene.camera().target)];
@@ -95,8 +95,8 @@ namespace ScnParser
 								| lights
 								| material
 								| geometries;
-					line = *blank_p >> !element >> ending >> *blank_p;
-					base_expression = *line;
+					statement = *blank_p >> !element >> ending >> *blank_p;
+					base_expression = *statement;
 			}
 
 			const rule<ScannerT>& start() const	{ return base_expression; }
@@ -113,7 +113,7 @@ namespace ScnParser
 			rule<ScannerT> geometries, sphere;
 
 			// General description
-			rule<ScannerT> element, line, base_expression;
+			rule<ScannerT> element, statement, base_expression;
 		};
 	};
 

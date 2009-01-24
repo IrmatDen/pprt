@@ -7,9 +7,6 @@
 #include <cmath>
 #include <limits>
 
-#undef min
-#undef max
-
 namespace tools
 {
 	//! Extract a number from a scanner
@@ -51,8 +48,7 @@ namespace tools
 	//! Extract a float from a scanner
 	template<typename ScannerT>
 	int	scanFloat(ScannerT const &scan, float &out, float bounding = false,
-				  float minBound = std::numeric_limits<float>::min() + std::numeric_limits<float>::epsilon(),
-				  float maxBound = std::numeric_limits<float>::max() - std::numeric_limits<float>::epsilon())
+				  float minBound = 0, float maxBound = 0)
 	{
 		if (scan.at_end())
 			return -1;

@@ -17,14 +17,6 @@ class Scene
 	friend class TraceScanLine;
 
 public:
-	enum OutputFormat
-	{
-		Jpeg,
-		Png,
-		Tiff
-	};
-
-public:
 	Scene(int width, int height)
 		: resX(width), resY(height), storeZ(false),
 		background(0, 0, 0, 0)

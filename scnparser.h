@@ -45,7 +45,7 @@ namespace ScnParser
 			definition(ScnSyntax const &self)
 			{
 				// Generic rules
-				ending					= *blank_p >> !comment >> eol_p; 
+				ending		= *blank_p >> !comment >> eol_p; 
 
 				string		= '"' >> (+((alnum_p | punct_p) - '"')) >> '"';
 				variable	= string | real_p;
@@ -55,22 +55,30 @@ namespace ScnParser
 
 				// Output definition
 				outputPath = +((alnum_p | punct_p) - '"');
-				output = ( "Output"	>> blank_p >>
-							'"' >> outputPath[scn_output_file(var(self.scene), CONSTRUCT_STR)] >> '"' >> blank_p >>	// filepath
-								   uint_p	 [scn_set_width (var(self.scene), arg1)]	>> blank_p >>				// width
+				output = ( "Output"	>> +blank_p >>
+							'"' >> outputPath[scn_output_file(var(self.scene), CONSTRUCT_STR)] >> '"' >> +blank_p >>	// filepath
+								   uint_p	 [scn_set_width (var(self.scene), arg1)]	>> +blank_p >>				// width
 								   uint_p	 [scn_set_height(var(self.scene), arg1)]	>>							// height
 							!(blank_p >> str_p("+z")[scn_store_z(var(self.scene), true)])							// store Z?
 						  );
 
 				// Background statement
-				background = str_p("Background ") >> color4_p[scn_set_background(var(self.scene), arg1)];
+				background = str_p("Background") >> +blank_p >> color4_p[scn_set_background(var(self.scene), arg1)];
 
 				// CamLookAt statement
-				camLookAt = str_p("CamLookAt ") >> vec3f_p[assign_a(self.scene.camera().pos)] >> blank_p
-												>> vec3f_p[assign_a(self.scene.camera().target)];
+				camLookAt = str_p("CamLookAt")	>> +blank_p >> vec3f_p[assign_a(self.scene.camera().pos)] >> +blank_p
+															>> vec3f_p[assign_a(self.scene.camera().target)];
+
+				// PointLight statement
+				pointLight = (str_p("PointLight") >> +blank_p	>> vec3f_p[assign_a(newPointLight_a::pos)] >> +blank_p
+																>> color4_p[assign_a(newPointLight_a::color)]
+							  )[newPointLight_a(self.scene)];
 				
-				// Grammar line & root.
-				element = output | background | camLookAt;
+				// Grammar line definition & root.
+				element =	  output
+							| camLookAt
+							| background
+							| pointLight;
 				line = *blank_p >> !element >> ending >> *blank_p;
 				base_expression = *line;
 			}
@@ -86,6 +94,7 @@ namespace ScnParser
 			rule<ScannerT> output, outputPath;
 			rule<ScannerT> background;
 			rule<ScannerT> camLookAt;
+			rule<ScannerT> pointLight;
 
 			// General description
 			rule<ScannerT> element, line, base_expression;

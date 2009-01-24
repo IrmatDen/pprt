@@ -88,13 +88,10 @@ int main(int argc, char **argv)
 
 	bool scnLoaded = scn.loadScnFile(scnFile);
 	if (!scnLoaded)
-	{
 		cout << "Loading " << scnFile << " failed!" << endl;
-		return 1;
-	}
-
-	cout << endl << "Parsed \"" << scnFile << "\" successfully!" << endl;
+	else
+		cout << endl << "Parsed \"" << scnFile << "\" successfully!" << endl;
 	cin.get();
 
-	return 0;
+	return !scnLoaded;
 }

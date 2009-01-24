@@ -15,4 +15,26 @@ member_function_ptr<void, Scene, bool>					scn_store_z			= bind(&Scene::storeZVa
 member_function_ptr<void, Scene, const Color4&>			scn_set_background	= bind(&Scene::setBackground);
 //----------------------------------------------------------------------------------------------------------
 
+//---------------------------------------------------------------------------------------------------------
+// Light actors
+struct newPointLight_a
+{
+	newPointLight_a(Scene &scn) : scene(scn) {}
+	
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		LightPtr l(new Light);
+		l->pos		= pos;
+		l->color	= color;
+		scene.addLight(l);
+	}
+
+	Scene			&	scene;
+	static Vec3f		pos;
+	static Color4		color;
+};
+Vec3f	newPointLight_a::pos;
+Color4	newPointLight_a::color;
+//----------------------------------------------------------------------------------------------------------
+
 #endif

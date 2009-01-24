@@ -14,7 +14,7 @@ namespace tools
 {
 	//! Extract a number from a scanner
 	template<typename ScannerT>
-	int	scanNumber(ScannerT const &scan, int &out)
+	int	scanNumber(ScannerT const &scan, int &out, bool *negative = 0)
 	{
 		if (scan.at_end())
 			return -1;
@@ -23,13 +23,15 @@ namespace tools
 		char ch = *scan;
 
 		// check sign
-		bool negative = false;
+		if (negative)
+			*negative = false;
 		if (!scan.at_end() && (ch = *scan, ch == '-'))
 		{
 			++scan;
 			++matchedLen;
 			ch = *scan;
-			negative = true;
+			if (negative)
+				*negative = true;
 		}
 
 		if (ch < '0' || ch > '9')
@@ -43,27 +45,25 @@ namespace tools
 			++matchedLen;
 		} while (!scan.at_end() && (ch = *scan, ch >= '0' && ch <= '9'));
 
-		if (negative)
-			out = -out;
-
 		return matchedLen;
 	}
 
 	//! Extract a float from a scanner
 	template<typename ScannerT>
-	int	scanFloat(ScannerT const &scan, float &out,
-				  float minBound = std::numeric_limits<float>::min(),
-				  float maxBound = std::numeric_limits<float>::max())
+	int	scanFloat(ScannerT const &scan, float &out, float bounding = false,
+				  float minBound = std::numeric_limits<float>::min() + std::numeric_limits<float>::epsilon(),
+				  float maxBound = std::numeric_limits<float>::max() - std::numeric_limits<float>::epsilon())
 	{
 		if (scan.at_end())
 			return -1;
 
 		int matchedLen = 0;
 		int matched;
+		bool negative;
 
 		// Scan integer part
 		int int_part;
-		matched = scanNumber(scan, int_part);
+		matched = scanNumber(scan, int_part, &negative);
 		if (matched == -1)
 			return -1;
 		matchedLen += matched;
@@ -74,8 +74,15 @@ namespace tools
 			return -1;
 		if (*scan == ',')
 		{
+			// Check min/max boundary
+			if (bounding && (out < minBound || out > maxBound))
+				return -1;
+
 			++scan;
 			++matchedLen;
+			if (negative)
+				out = -out;
+
 			return matchedLen;
 		}
 
@@ -85,8 +92,17 @@ namespace tools
 
 		char ch = *scan;
 		if (ch != '.')
+		{
+			// Check min/max boundary
+			if (bounding && (out < minBound || out > maxBound))
+				return -1;
+
+			if (negative)
+				out = -out;
+
 			return matchedLen;
-		scan++;
+		}
+		++scan;
 
 		// Scan fractional part
 		int frac_part;
@@ -102,8 +118,11 @@ namespace tools
 			out += float(frac_part) / decal;
 
 		// Check min/max boundary
-		if (out < minBound || out > maxBound)
+		if (bounding && (out < minBound || out > maxBound))
 			return -1;
+
+		if (negative)
+			out = -out;
 
 		return matchedLen;
 	}
@@ -202,7 +221,7 @@ struct vec3f_parser
 		float res[3];
 		for (int i = 0; i < 3; i++)
 		{
-			int matched = tools::scanFloat(scan, res[i], 0, 1);
+			int matched = tools::scanFloat(scan, res[i]);
 			if (matched == -1)
 				return -1;
 			len += matched;

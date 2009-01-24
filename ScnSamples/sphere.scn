@@ -11,4 +11,4 @@ Background (0, 1, 0, 0.5)
 CamLookAt <0, 0, -10> <0, 0, 0>
 
 # OmniLight position rgba
-OmniDirLight <-4, -1.5, 3> (1, 1, 1, 1)
+PointLight <-4, -1.5, 3> (1, 1, 1, 1)

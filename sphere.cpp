@@ -3,26 +3,26 @@
 
 #include "sphere.h"
 
-bool Sphere::hit(const Ray &ray, float &t) const
+bool Sphere::hit(const Ray &ray, double &t) const
 {
-	const Vec3f dist	= pos - ray.origin;
+	const Vec3d dist	= pos - ray.origin;
 
-	const float b		= ray.dir.dot(dist);
-	const float d		= b*b - dist.dot(dist) + r*r;
+	const double b		= ray.dir.dot(dist);
+	const double d		= b*b - dist.dot(dist) + r*r;
 
 	if (d < 0)
 		return false;
 
-	const float t0		= b - sqrtf(d);
-	const float t1		= b + sqrtf(d);
+	const double t0		= b - sqrt(d);
+	const double t1		= b + sqrt(d);
 
-	if (t0 > std::numeric_limits<float>::epsilon() && t0 < t)
+	if (t0 > 0 && t0 < t)
 	{
 		t = t0;
 		return true;
 	}
 
-	if (t1 > std::numeric_limits<float>::epsilon() && t1 < t)
+	if (t1 > 0 && t1 < t)
 	{
 		t = t1;
 		return true;
@@ -31,7 +31,7 @@ bool Sphere::hit(const Ray &ray, float &t) const
 	return false;
 }
 
-void Sphere::normalAt(const Vec3f &p, Vec3f &n) const
+void Sphere::normalAt(const Vec3d &p, Vec3d &n) const
 {
 	n = p - pos;
 	n.normalize();

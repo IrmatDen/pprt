@@ -7,11 +7,11 @@ class Ray
 {
 public:
 	Ray() {}
-	Ray(const Vec3f &o, const Vec3f &d) : origin(o), dir(d)	{}
+	Ray(const Vec3d &o, const Vec3d &d) : origin(o), dir(d)	{}
 	Ray(const Ray &r) : origin(r.origin), dir(r.dir) {}
 
 public:
-	Vec3f origin, dir;
+	Vec3d origin, dir;
 };
 
 #endif

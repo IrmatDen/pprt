@@ -226,10 +226,10 @@ struct color4_parser
 };
 functor_parser<color4_parser> color4_p;
 
-//! Build a Vec3f out of the scanner
-struct vec3f_parser
+//! Build a Vec3d out of the scanner
+struct Vec3d_parser
 {
-	typedef Vec3f		result_t;
+	typedef Vec3d		result_t;
 
 	//! \todo throw malformed exception
 	template <typename ScannerT>
@@ -280,6 +280,6 @@ struct vec3f_parser
 		return len;
 	}
 };
-functor_parser<vec3f_parser> vec3f_p;
+functor_parser<Vec3d_parser> Vec3d_p;
 
 #endif

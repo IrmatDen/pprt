@@ -6,10 +6,10 @@
 class Disk : public Plane
 {
 public:
-	Disk(float radius = 1, const Vec3f &position = Vec3f(), const Vec3f &normal = Vec3f(0, 1, 0));
+	Disk(float radius = 1, const Vec3d &position = Vec3d(), const Vec3d &normal = Vec3d(0, 1, 0));
 
-	virtual bool			hit(const Ray &ray, float &t) const;
-	virtual void			normalAt(const Vec3f &p, Vec3f &n) const	{ n = this->n; }
+	virtual bool			hit(const Ray &ray, double &t) const;
+	virtual void			normalAt(const Vec3d &p, Vec3d &n) const	{ n = this->n; }
 
 private:
 	float r;

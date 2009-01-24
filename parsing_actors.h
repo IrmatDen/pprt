@@ -19,6 +19,11 @@ struct newMaterial_a
 		m->color		= color;
 		m->reflexivity	= (float)reflexivity;
 		scene.addMaterial(m);
+
+		// Reset fields to allow for defaults
+		name = "";
+		color = Color4(0, 0);
+		reflexivity = 0;
 	}
 
 	Scene			&	scene;
@@ -43,6 +48,10 @@ struct newPointLight_a
 		l->pos		= pos;
 		l->color	= color;
 		scene.addLight(l);
+
+		// Reset fields to allow for defaults
+		pos = Vec3f(0);
+		color = Color4(0, 0);
 	}
 
 	Scene			&	scene;
@@ -57,7 +66,6 @@ Color4	newPointLight_a::color;
 // Geometries actors
 
 #include "Sphere.h"
-
 struct newSphere_a
 {
 	newSphere_a(Scene &scn) : scene(scn) {}
@@ -66,12 +74,17 @@ struct newSphere_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		MaterialPtr m = scene.getMaterialByName(matName);
-		if (!m)
-			return;
+		if (m)
+		{
+			GeometryPtr g(new Sphere((float)radius, pos));
+			g->material() = m;
+			scene.addGeometry(g);
+		}
 
-		GeometryPtr g(new Sphere((float)radius, pos));
-		g->material() = m;
-		scene.addGeometry(g);
+		// Reset fields to allow for defaults
+		pos = Vec3f(0);
+		radius = 0;
+		matName = "";
 	}
 
 	Scene			&	scene;
@@ -82,6 +95,42 @@ struct newSphere_a
 double		newSphere_a::radius;
 Vec3f		newSphere_a::pos;
 std::string	newSphere_a::matName;
+
+
+
+#include "Plane.h"
+struct newPlane_a
+{
+	newPlane_a(Scene &scn) : scene(scn) {}
+	
+	//! \todo throw material not found
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		MaterialPtr m = scene.getMaterialByName(matName);
+		if (m)
+		{
+			GeometryPtr g(new Plane(normal.normalize(), (float)offset, !twoSided));
+			g->material() = m;
+			scene.addGeometry(g);
+		}
+
+		// Reset fields to allow for defaults
+		normal = Vec3f(0);
+		offset = 0;
+		twoSided = false;
+		matName = "";
+	}
+
+	Scene			&	scene;
+	static Vec3f		normal;
+	static double		offset;
+	static bool			twoSided;
+	static std::string	matName;
+};
+Vec3f		newPlane_a::normal;
+double		newPlane_a::offset;
+bool		newPlane_a::twoSided;
+std::string	newPlane_a::matName;
 //-----------------------------------------------------------------------------------------------------------
 
 #endif

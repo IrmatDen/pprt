@@ -46,7 +46,7 @@ namespace ScnParser
 			{
 				// Generic rules
 				ending		= *blank_p >> !comment >> eol_p; 
-				string		= +(alnum_p | punct_p);
+				string		= +(alnum_p | punct_p | '_');
 
 				// Comment definition
 				comment = ('#' >> *(anychar_p - eol_p));
@@ -84,11 +84,18 @@ namespace ScnParser
 							   )[newMaterial_a(self.scene)];
 
 				// Geometry definitions
-					geometries = sphere;
+					geometries =	sphere
+								|	plane;
 					sphere =	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)] >> +blank_p >>
 															vec3f_p[assign_a(newSphere_a::pos)] >> +blank_p >>
 															(+alnum_p)[assign_a(newSphere_a::matName)]
 								)[newSphere_a(self.scene)];
+
+					plane = 	(	"Plane" >> +blank_p >> vec3f_p[assign_a(newPlane_a::normal)] >> +blank_p >>
+															real_p[assign_a(newPlane_a::offset)] >> +blank_p >>
+															!("TwoSided" >> +blank_p)[assign_a(newPlane_a::twoSided, true)] >>
+															(+alnum_p)[assign_a(newPlane_a::matName)]
+								)[newPlane_a(self.scene)];
 				
 				// Grammar line definition & root.
 					element =	  scene
@@ -110,7 +117,7 @@ namespace ScnParser
 			rule<ScannerT> scene, output, background, camLookAt;
 			rule<ScannerT> lights, pointLight;
 			rule<ScannerT> material;
-			rule<ScannerT> geometries, sphere;
+			rule<ScannerT> geometries, sphere, plane;
 
 			// General description
 			rule<ScannerT> element, statement, base_expression;

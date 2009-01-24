@@ -17,7 +17,7 @@ class Scene
 	friend class TraceScanLine;
 
 public:
-	Scene(int width, int height)
+	Scene(int width=0, int height=0)
 		: resX(width), resY(height), storeZ(false),
 		background(0, 0, 0, 0)
 	{

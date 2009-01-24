@@ -123,6 +123,25 @@ namespace tools
 		return matchedLen;
 	}
 
+	//! Eat whitespaces
+	template<typename ScannerT>
+	int eatWhitespaces(ScannerT const &scan)
+	{
+		if (scan.at_end())
+			return -1;
+
+		char ch;
+		int matchedLen		= 0;
+
+		while (!scan.at_end() && (ch = *scan, ch == ' '))
+		{
+			++matchedLen;
+			++scan;
+		}
+
+		return matchedLen;
+	}
+
 	//! Eat all whitespaces and comma
 	template<typename ScannerT>
 	int eatSeparator(ScannerT const &scan)
@@ -169,10 +188,15 @@ struct color4_parser
 		++scan;
 		++len;
 
+		int matched = tools::eatWhitespaces(scan);
+		if (matched == -1)
+			return -1;
+		len += matched;
+
 		float res[4];
 		for (int i = 0; i < 4; i++)
 		{
-			int matched = tools::scanFloat(scan, res[i], 0, 1);
+			matched = tools::scanFloat(scan, res[i], 0, 1);
 			if (matched == -1)
 				return -1;
 			len += matched;
@@ -181,6 +205,11 @@ struct color4_parser
 				return -1;
 			len += matched;
 		}
+
+		matched = tools::eatWhitespaces(scan);
+		if (matched == -1)
+			return -1;
+		len += matched;
 
 		if (scan.at_end() || *scan != ')')
 			return -1;
@@ -216,6 +245,11 @@ struct vec3f_parser
 		++scan;
 		++len;
 
+		int matched = tools::eatWhitespaces(scan);
+		if (matched == -1)
+			return -1;
+		len += matched;
+
 		float res[3];
 		for (int i = 0; i < 3; i++)
 		{
@@ -228,6 +262,11 @@ struct vec3f_parser
 				return -1;
 			len += matched;
 		}
+
+		matched = tools::eatWhitespaces(scan);
+		if (matched == -1)
+			return -1;
+		len += matched;
 
 		if (scan.at_end() || *scan != '>')
 			return -1;

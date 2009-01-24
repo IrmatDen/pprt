@@ -150,7 +150,7 @@ Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 		{
 			const Light &light = **it;
 			// Slightly shift the origin to avoid hitting the same object
-			p += n * 0.001f;
+			p += n * 0.000012f;
 
 			// Check if the current light is occluded
 			Vec3f L2P = light.pos - p;

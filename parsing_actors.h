@@ -131,6 +131,42 @@ Vec3f		newPlane_a::normal;
 double		newPlane_a::offset;
 bool		newPlane_a::twoSided;
 std::string	newPlane_a::matName;
+
+
+
+#include "Disk.h"
+struct newDisk_a
+{
+	newDisk_a(Scene &scn) : scene(scn) {}
+	
+	//! \todo throw material not found
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		MaterialPtr m = scene.getMaterialByName(matName);
+		if (m)
+		{
+			GeometryPtr g(new Disk((float)radius, pos, normal.normalize()));
+			g->material() = m;
+			scene.addGeometry(g);
+		}
+
+		// Reset fields to allow for defaults
+		radius = 0;
+		pos = Vec3f(0);
+		normal = Vec3f(0);
+		matName = "";
+	}
+
+	Scene			&	scene;
+	static double		radius;
+	static Vec3f		pos;
+	static Vec3f		normal;
+	static std::string	matName;
+};
+double		newDisk_a::radius;
+Vec3f		newDisk_a::pos;
+Vec3f		newDisk_a::normal;
+std::string	newDisk_a::matName;
 //-----------------------------------------------------------------------------------------------------------
 
 #endif

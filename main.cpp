@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	s->material().reflexivity = 0.9f;
 	scn.addGeometry(s);*/
 
-	string scnFile = "ScnSamples\\spheres_plane.scn";
+	string scnFile = "ScnSamples\\spheres_plane_disk.scn";
 
 	bool scnLoaded = scn.loadScnFile(scnFile);
 	if (!scnLoaded)

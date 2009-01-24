@@ -280,6 +280,14 @@
 				RelativePath=".\ScnSamples\sphere.scn"
 				>
 			</File>
+			<File
+				RelativePath=".\ScnSamples\spheres_plane.scn"
+				>
+			</File>
+			<File
+				RelativePath=".\ScnSamples\spheres_plane_disk.scn"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -14,16 +14,16 @@ public:
 
 	const Vec3f&			position() const	{ return pos; }
 
-	const Material&			material() const	{ return mat; }
-	Material&				material()			{ return mat; }
+	const MaterialPtr		material() const	{ return mat; }
+	MaterialPtr&			material()			{ return mat; }
 
 protected:
 	Geometry()								{}
 	Geometry(const Vec3f &p) : pos(p)		{}
 
 protected:
-	Vec3f		pos;
-	Material	mat;
+	Vec3f			pos;
+	MaterialPtr		mat;
 };
 
 typedef boost::shared_ptr<Geometry> GeometryPtr;

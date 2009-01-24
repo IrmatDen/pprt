@@ -1,6 +1,10 @@
 #ifndef CRT_MATERIAL_H
 #define CRT_MATERIAL_H
 
+#include <string>
+
+#include <boost/shared_ptr.hpp>
+
 #include "vector3.h"
 #include "color4.h"
 
@@ -13,9 +17,13 @@ public:
 	Color4		shade(const Vec3f &p, const Vec3f &n, const Light &l) const;
 
 public:
-	Color4		ambient;
-	Color4		diffuse;
-	float		reflexivity;
+	std::string		name;
+	Color4			color;
+	float			reflexivity;
 };
+
+typedef boost::shared_ptr<Material> MaterialPtr;
+
+bool operator==(MaterialPtr m1, const std::string &name);
 
 #endif

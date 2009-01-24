@@ -90,7 +90,16 @@ int main(int argc, char **argv)
 	if (!scnLoaded)
 		cout << "Loading " << scnFile << " failed!" << endl;
 	else
+	{
 		cout << endl << "Parsed \"" << scnFile << "\" successfully!" << endl;
+		cout << "Start rendering..." << endl;
+		__int64 begin = timeGetTime();
+		scn.render();
+		__int64 end = timeGetTime();
+		cout << "Finished rendering, time: " << end - begin << " ms" << endl;
+	}
+	
+	cout << endl << "Press return to quit..." << endl;
 	cin.get();
 
 	return !scnLoaded;

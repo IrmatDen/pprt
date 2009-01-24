@@ -1,4 +1,8 @@
 #include <limits>
+#include <algorithm>
+
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/bind.hpp>
 
 #include <FreeImagePlus.h>
 
@@ -59,12 +63,26 @@ bool Scene::loadScnFile(const std::string &filename)
 	return parseRes;
 }
 
+MaterialPtr	Scene::getMaterialByName(const std::string &name)
+{
+	using namespace boost::lambda;
+
+	Materials::iterator matIt = std::find_if(materials.begin(),
+											 materials.end(),
+											 _1 == name
+											);
+	if (matIt != materials.end())
+		return *matIt;
+
+	return MaterialPtr((Material*)0);
+}
+
 Camera& Scene::camera()
 {
 	return cam;
 }
 
-void Scene::render(const std::string &filename)
+void Scene::render()
 {
 
 	fipImage img(FIT_BITMAP, (WORD)resX, (WORD)resY, 32);
@@ -96,7 +114,7 @@ void Scene::render(const std::string &filename)
 	}*/
 
 	img.flipVertical();
-	img.save(filename.c_str());
+	img.save(outName.c_str());
 }
 
 Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
@@ -141,13 +159,11 @@ Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 			bool lightOccluded = collide(r, t);
 
 			if (!lightOccluded)
-				out += nearestObj->material().shade(p, n, light) * reflCoef;
-			else
-				out += nearestObj->material().ambient * reflCoef;
+				out += (*nearestObj->material()).shade(p, n, light) * reflCoef;
 		}
 
 		currRecurse++;
-		reflCoef  *= nearestObj->material().reflexivity;
+		reflCoef  *= (*nearestObj->material()).reflexivity;
 		ray.origin = p;
 		ray.dir = ray.dir - 2 * ray.dir.dot(n) * n;
 	}

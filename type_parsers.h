@@ -69,7 +69,7 @@ namespace tools
 		matchedLen += matched;
 		out = float(int_part);
 
-		// Check if we reached the a separator (comma)
+		// Check if we reached a separator (comma)
 		if (scan.at_end())
 			return -1;
 		if (*scan == ',')
@@ -159,6 +159,7 @@ struct color4_parser
 {
 	typedef Color4		result_t;
 
+	//! \todo throw malformed exception
 	template <typename ScannerT>
 	int operator()(ScannerT const &scan, result_t &result) const
 	{
@@ -205,6 +206,7 @@ struct vec3f_parser
 {
 	typedef Vec3f		result_t;
 
+	//! \todo throw malformed exception
 	template <typename ScannerT>
 	int operator()(ScannerT const &scan, result_t &result) const
 	{

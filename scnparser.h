@@ -12,20 +12,20 @@
 
 using namespace boost::spirit;
 using namespace phoenix;
+
+typedef char						char_t;
+typedef file_iterator<char_t>		iterator_t;
+typedef scanner<iterator_t>			scanner_t;
+typedef rule<scanner_t>				rule_t;
+	
+#include "parsing_actors.h"
+#include "type_parsers.h"
 				
 //! Deferred string construction based on 2 iterators.
 #define CONSTRUCT_STR			construct_<std::string>(arg1, arg2)
 
 namespace ScnParser
 {
-	typedef char						char_t;
-	typedef file_iterator<char_t>		iterator_t;
-	typedef scanner<iterator_t>			scanner_t;
-	typedef rule<scanner_t>				rule_t;
-	
-	#include "parsing_actors.h"
-	#include "type_parsers.h"
-
 	//------------------------------------------------------
 	// Scn syntax
 	struct ScnSyntax : public grammar<ScnSyntax>
@@ -46,55 +46,71 @@ namespace ScnParser
 			{
 				// Generic rules
 				ending		= *blank_p >> !comment >> eol_p; 
-
-				string		= '"' >> (+((alnum_p | punct_p) - '"')) >> '"';
-				variable	= string | real_p;
+				string		= +(alnum_p | punct_p);
 
 				// Comment definition
 				comment = ('#' >> *(anychar_p - eol_p));
 
-				// Output definition
-				outputPath = +((alnum_p | punct_p) - '"');
-				output = ( "Output"	>> +blank_p >>
-							'"' >> outputPath[scn_output_file(var(self.scene), CONSTRUCT_STR)] >> '"' >> +blank_p >>	// filepath
-								   uint_p	 [scn_set_width (var(self.scene), arg1)]	>> +blank_p >>				// width
-								   uint_p	 [scn_set_height(var(self.scene), arg1)]	>>							// height
-							!(blank_p >> str_p("+z")[scn_store_z(var(self.scene), true)])							// store Z?
-						  );
+				// Scene definition
+					scene =		output
+							|	background
+							|	camLookAt;
 
-				// Background statement
-				background = str_p("Background") >> +blank_p >> color4_p[scn_set_background(var(self.scene), arg1)];
+					output = ( "Output"	>> +blank_p >>
+								string	[scn_output_file(var(self.scene), CONSTRUCT_STR)]  >> +blank_p >>	// filepath
+								uint_p	[scn_set_width (var(self.scene), arg1)]	>> +blank_p >>				// width
+								uint_p	[scn_set_height(var(self.scene), arg1)]	>>							// height
+								!(blank_p >> str_p("+z")[scn_store_z(var(self.scene), true)])				// store Z?
+							  );
 
-				// CamLookAt statement
-				camLookAt = str_p("CamLookAt")	>> +blank_p >> vec3f_p[assign_a(self.scene.camera().pos)] >> +blank_p
-															>> vec3f_p[assign_a(self.scene.camera().target)];
+					background = "Background" >> +blank_p >> color4_p[scn_set_background(var(self.scene), arg1)];
 
-				// PointLight statement
-				pointLight = (str_p("PointLight") >> +blank_p	>> vec3f_p[assign_a(newPointLight_a::pos)] >> +blank_p
-																>> color4_p[assign_a(newPointLight_a::color)]
-							  )[newPointLight_a(self.scene)];
+					camLookAt = "CamLookAt"	>> +blank_p >> vec3f_p[assign_a(self.scene.camera().pos)] >> +blank_p
+														>> vec3f_p[assign_a(self.scene.camera().target)];
+
+				// Lights definitions
+					lights = pointLight;
+					pointLight = ("PointLight" >> +blank_p	>> vec3f_p[assign_a(newPointLight_a::pos)] >> +blank_p
+															>> color4_p[assign_a(newPointLight_a::color)]
+								  )[newPointLight_a(self.scene)];
+
+				// Material definition
+					material = ("Material" >> +blank_p >> (+alnum_p)[assign_a(newMaterial_a::name)] >> ending >>
+								'{' >> ending >>
+									+(	(*blank_p >> "Color"		>> +blank_p >> color4_p[assign_a(newMaterial_a::color)] >> ending) |
+										(*blank_p >> "Reflexivity"	>> +blank_p >> real_p[assign_a(newMaterial_a::reflexivity)] >> ending)
+									) >>
+								'}'
+							   )[newMaterial_a(self.scene)];
+
+				// Geometry definitions
+					geometries = sphere;
+					sphere =	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)] >> +blank_p >>
+															vec3f_p[assign_a(newSphere_a::pos)] >> +blank_p >>
+															(+alnum_p)[assign_a(newSphere_a::matName)]
+								)[newSphere_a(self.scene)];
 				
 				// Grammar line definition & root.
-				element =	  output
-							| camLookAt
-							| background
-							| pointLight;
-				line = *blank_p >> !element >> ending >> *blank_p;
-				base_expression = *line;
+					element =	  scene
+								| lights
+								| material
+								| geometries;
+					line = *blank_p >> !element >> ending >> *blank_p;
+					base_expression = *line;
 			}
 
 			const rule<ScannerT>& start() const	{ return base_expression; }
 
 			// Generic types
 			rule<ScannerT> ending;
-			rule<ScannerT> string, variable;
+			rule<ScannerT> string;
 
 			// Specific elements
 			rule<ScannerT> comment;
-			rule<ScannerT> output, outputPath;
-			rule<ScannerT> background;
-			rule<ScannerT> camLookAt;
-			rule<ScannerT> pointLight;
+			rule<ScannerT> scene, output, background, camLookAt;
+			rule<ScannerT> lights, pointLight;
+			rule<ScannerT> material;
+			rule<ScannerT> geometries, sphere;
 
 			// General description
 			rule<ScannerT> element, line, base_expression;

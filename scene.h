@@ -5,11 +5,12 @@
 #include <string>
 #include <cmath>
 
-#include "ray.h"
+#include "camera.h"
 #include "color4.h"
 #include "geometry.h"
 #include "light.h"
-#include "camera.h"
+#include "material.h"
+#include "ray.h"
 
 class Scene
 {
@@ -42,15 +43,19 @@ public:
 	void		setBackground(const Color4 &bg)				{ background = bg; }
 
 	void		addGeometry(GeometryPtr obj)				{ objects.push_back(obj); }
+	void		addMaterial(MaterialPtr mat)				{ materials.push_back(mat); }
 	void		addLight(LightPtr l)						{ lights.push_back(l); }
 
-	void		render(const std::string &filename);
+	MaterialPtr	getMaterialByName(const std::string &name);
+
+	void		render();
 	Color4		trace(const Ray &eye, int maxRecurse = 10, bool returnBackground = false);
 
 	bool		collide(const Ray &r, float &t);
 
 private:
 	typedef std::vector<GeometryPtr> Geometries;
+	typedef std::vector<MaterialPtr> Materials;
 	typedef std::vector<LightPtr> Lights;
 
 private:
@@ -63,6 +68,7 @@ private:
 	Camera					cam;
 
 	Geometries				objects;
+	Materials				materials;
 	Lights					lights;
 };
 

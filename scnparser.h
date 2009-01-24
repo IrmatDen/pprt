@@ -22,30 +22,13 @@ namespace ScnParser
 	typedef file_iterator<char_t>		iterator_t;
 	typedef scanner<iterator_t>			scanner_t;
 	typedef rule<scanner_t>				rule_t;
-
-	//------------------------------------------------------
-	// Background scene color from 4 reals
-	struct scn_background_a
-	{
-		scn_background_a(Scene *scn = NULL) : scene(scn) {}
-
-		void operator()(const iterator_t&, const iterator_t&) const
-		{
-			if (scene)
-			{
-				Color4 bgCol((float)channel_values[0], (float)channel_values[1], (float)channel_values[2], (float)channel_values[3]);
-				scene->setBackground(bgCol);
-			}
-		}
-
-		Scene *scene;
-		static std::vector<double> channel_values;
-	};
-	std::vector<double> scn_background_a::channel_values;
+	
+	#include "parsing_actors.h"
+	#include "type_parsers.h"
 
 	//------------------------------------------------------
 	// Scn syntax
-	struct ScnSyntax : public boost::spirit::grammar<ScnSyntax>
+	struct ScnSyntax : public grammar<ScnSyntax>
 	{
 	private:
 		// Scene to load the file into.
@@ -62,40 +45,32 @@ namespace ScnParser
 			definition(ScnSyntax const &self)
 			{
 				// Generic rules
-				ending		= *blank_p >> !comment >> eol_p; 
+				ending					= *blank_p >> !comment >> eol_p; 
+
 				string		= '"' >> (+((alnum_p | punct_p) - '"')) >> '"';
 				variable	= string | real_p;
-				r01			= limit_d(0, 1)[real_p];
 
 				// Comment definition
 				comment = ('#' >> *(anychar_p - eol_p));
 
 				// Output definition
-				member_function_ptr<void, Scene, const std::string&>	scn_output_file	= bind(&Scene::setOutputFile);
-				member_function_ptr<void, Scene, int>					scn_set_width	= bind(&Scene::setWidth);
-				member_function_ptr<void, Scene, int>					scn_set_height	= bind(&Scene::setHeight);
-				member_function_ptr<void, Scene, bool>					scn_store_z		= bind(&Scene::storeZValues);
-
 				outputPath = +((alnum_p | punct_p) - '"');
 				output = ( "Output"	>> blank_p >>
 							'"' >> outputPath[scn_output_file(var(self.scene), CONSTRUCT_STR)] >> '"' >> blank_p >>	// filepath
-							uint_p		[scn_set_width(var(self.scene), arg1)]	>> blank_p >>						// width
-							uint_p		[scn_set_height(var(self.scene), arg1)]	>>									// height
-							!(blank_p >> str_p("+z")[scn_store_z(var(self.scene), true)])					// store Z?
+								   uint_p	 [scn_set_width (var(self.scene), arg1)]	>> blank_p >>				// width
+								   uint_p	 [scn_set_height(var(self.scene), arg1)]	>>							// height
+							!(blank_p >> str_p("+z")[scn_store_z(var(self.scene), true)])							// store Z?
 						  );
 
 				// Background statement
-				//! FUCKING limit_d breaks the parsing done by real_p, and ask the functor to accept 2 iterators (not working).
-				background = str_p("Background ") >>
-								'(' >>(real_p[push_back_a(scn_background_a::channel_values)] >> !blank_p >> ',' >> !blank_p >>
-									   real_p[push_back_a(scn_background_a::channel_values)] >> !blank_p >> ',' >> !blank_p >>
-									   real_p[push_back_a(scn_background_a::channel_values)] >> !blank_p >> ',' >> !blank_p >>
-									   real_p[push_back_a(scn_background_a::channel_values)]
-								      )[scn_background_a(&self.scene)]
-								 >> ')';
+				background = str_p("Background ") >> color4_p[scn_set_background(var(self.scene), arg1)];
 
+				// CamLookAt statement
+				camLookAt = str_p("CamLookAt ") >> vec3f_p[assign_a(self.scene.camera().pos)] >> blank_p
+												>> vec3f_p[assign_a(self.scene.camera().target)];
+				
 				// Grammar line & root.
-				element = output | background;
+				element = output | background | camLookAt;
 				line = *blank_p >> !element >> ending >> *blank_p;
 				base_expression = *line;
 			}
@@ -103,13 +78,14 @@ namespace ScnParser
 			const rule<ScannerT>& start() const	{ return base_expression; }
 
 			// Generic types
-			rule<ScannerT> ending, string, variable;
-			rule<ScannerT> r01;	// real value in [0, 1]
+			rule<ScannerT> ending;
+			rule<ScannerT> string, variable;
 
 			// Specific elements
 			rule<ScannerT> comment;
 			rule<ScannerT> output, outputPath;
 			rule<ScannerT> background;
+			rule<ScannerT> camLookAt;
 
 			// General description
 			rule<ScannerT> element, line, base_expression;

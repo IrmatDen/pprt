@@ -14,7 +14,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	string scnFile = "ScnSamples\\spheres_plane_disk.scn";
+	string scnFile = "ScnSamples/spheres_plane_disk.scn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);

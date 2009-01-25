@@ -65,12 +65,12 @@ namespace ScnParser
 
 					background = "Background" >> +blank_p >> color4_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
 
-					camLookAt = "CamLookAt"	>> +blank_p >> Vec3d_p[assign_a(self.scene.camera().pos)] >> +blank_p
-														>> Vec3d_p[assign_a(self.scene.camera().target)];
+					camLookAt = "CamLookAt"	>> +blank_p >> vec3_p[assign_a(self.scene.camera().pos)] >> +blank_p
+														>> vec3_p[assign_a(self.scene.camera().target)];
 
 				// Lights definitions
 					lights = pointLight;
-					pointLight = ("PointLight" >> +blank_p	>> Vec3d_p[assign_a(newPointLight_a::pos)] >> +blank_p
+					pointLight = ("PointLight" >> +blank_p	>> vec3_p[assign_a(newPointLight_a::pos)] >> +blank_p
 															>> color4_p[assign_a(newPointLight_a::color)]
 								  )[newPointLight_a(self.scene)];
 
@@ -88,19 +88,19 @@ namespace ScnParser
 								|	plane
 								|	disk;
 					sphere	=	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)] >> +blank_p >>
-															Vec3d_p[assign_a(newSphere_a::pos)] >> +blank_p >>
+															vec3_p[assign_a(newSphere_a::pos)] >> +blank_p >>
 															(+alnum_p)[assign_a(newSphere_a::matName)]
 								)[newSphere_a(self.scene)];
 
-					plane	= 	(	"Plane" >> +blank_p >> Vec3d_p[assign_a(newPlane_a::normal)] >> +blank_p >>
+					plane	= 	(	"Plane" >> +blank_p >>	vec3_p[assign_a(newPlane_a::normal)] >> +blank_p >>
 															real_p[assign_a(newPlane_a::offset)] >> +blank_p >>
 															!("TwoSided" >> +blank_p)[assign_a(newPlane_a::twoSided, true)] >>
 															(+alnum_p)[assign_a(newPlane_a::matName)]
 								)[newPlane_a(self.scene)];
 
 					disk	= 	(	"Disk" >> +blank_p >> real_p[assign_a(newDisk_a::radius)] >> +blank_p >>
-														  Vec3d_p[assign_a(newDisk_a::pos)] >> +blank_p >>
-														  Vec3d_p[assign_a(newDisk_a::normal)] >> +blank_p >>
+														  vec3_p[assign_a(newDisk_a::pos)] >> +blank_p >>
+														  vec3_p[assign_a(newDisk_a::normal)] >> +blank_p >>
 														  (+alnum_p)[assign_a(newDisk_a::matName)]
 								)[newDisk_a(self.scene)];
 				

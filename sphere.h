@@ -7,10 +7,10 @@ class Sphere : public Geometry
 {
 public:
 	Sphere(float radius = 1) : r(radius)	{}
-	Sphere(float radius, Vec3d p) : r(radius), Geometry(p) {}
+	Sphere(float radius, Vec3 p) : r(radius), Geometry(p) {}
 
-	virtual bool			hit(const Ray &ray, double &t) const;
-	virtual void			normalAt(const Vec3d &p, Vec3d &n) const;
+	virtual bool			hit(const Ray &ray, Real &t) const;
+	virtual void			normalAt(const Vec3 &p, Vec3 &n) const;
 
 private:
 	float	r;

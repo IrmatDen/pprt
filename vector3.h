@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+typedef double Real;
+
 template <typename T>
 class Vector3
 {
@@ -58,7 +60,6 @@ Vector3<T> operator*(const T &s, const Vector3<T> &v)
 	return Vector3<T>(v.x * s, v.y * s, v.z * s);
 }
 
-typedef Vector3<float>	Vec3f;
-typedef Vector3<double>	Vec3d;
+typedef Vector3<Real>	Vec3;
 
 #endif

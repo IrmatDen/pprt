@@ -14,7 +14,7 @@ class Scene;
 class Material
 {
 public:
-	Color4		shade(const Vec3d &p, const Vec3d &n, const Light &l) const;
+	Color4		shade(const Vec3 &p, const Vec3 &n, const Light &l) const;
 
 public:
 	std::string		name;

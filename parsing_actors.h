@@ -50,15 +50,15 @@ struct newPointLight_a
 		scene.addLight(l);
 
 		// Reset fields to allow for defaults
-		pos = Vec3d(0);
+		pos = Vec3(0);
 		color = Color4(0, 0);
 	}
 
 	Scene			&	scene;
-	static Vec3d		pos;
+	static Vec3			pos;
 	static Color4		color;
 };
-Vec3d	newPointLight_a::pos;
+Vec3	newPointLight_a::pos;
 Color4	newPointLight_a::color;
 //-----------------------------------------------------------------------------------------------------------
 
@@ -82,18 +82,18 @@ struct newSphere_a
 		}
 
 		// Reset fields to allow for defaults
-		pos = Vec3d(0);
+		pos = Vec3(0);
 		radius = 0;
 		matName = "";
 	}
 
 	Scene			&	scene;
 	static double		radius;
-	static Vec3d		pos;
+	static Vec3			pos;
 	static std::string	matName;
 };
 double		newSphere_a::radius;
-Vec3d		newSphere_a::pos;
+Vec3		newSphere_a::pos;
 std::string	newSphere_a::matName;
 
 
@@ -115,19 +115,19 @@ struct newPlane_a
 		}
 
 		// Reset fields to allow for defaults
-		normal = Vec3d(0);
+		normal = Vec3(0);
 		offset = 0;
 		twoSided = false;
 		matName = "";
 	}
 
 	Scene			&	scene;
-	static Vec3d		normal;
+	static Vec3			normal;
 	static double		offset;
 	static bool			twoSided;
 	static std::string	matName;
 };
-Vec3d		newPlane_a::normal;
+Vec3		newPlane_a::normal;
 double		newPlane_a::offset;
 bool		newPlane_a::twoSided;
 std::string	newPlane_a::matName;
@@ -152,20 +152,20 @@ struct newDisk_a
 
 		// Reset fields to allow for defaults
 		radius = 0;
-		pos = Vec3d(0);
-		normal = Vec3d(0);
+		pos = Vec3(0);
+		normal = Vec3(0);
 		matName = "";
 	}
 
 	Scene			&	scene;
 	static double		radius;
-	static Vec3d		pos;
-	static Vec3d		normal;
+	static Vec3			pos;
+	static Vec3			normal;
 	static std::string	matName;
 };
 double		newDisk_a::radius;
-Vec3d		newDisk_a::pos;
-Vec3d		newDisk_a::normal;
+Vec3		newDisk_a::pos;
+Vec3		newDisk_a::normal;
 std::string	newDisk_a::matName;
 //-----------------------------------------------------------------------------------------------------------
 

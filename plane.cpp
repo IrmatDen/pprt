@@ -2,9 +2,9 @@
 
 #include "plane.h"
 
-bool Plane::hit(const Ray &ray, double &t) const
+bool Plane::hit(const Ray &ray, Real &t) const
 {
-	double dist = (d - ray.origin.dot(n)) / (ray.dir.dot(n));
+	Real dist = (d - ray.origin.dot(n)) / (ray.dir.dot(n));
 
 	if(dist > 0 && dist < t)
 	{

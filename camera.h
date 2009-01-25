@@ -12,17 +12,17 @@ public:
 	}
 
 	void		init();
-	void		project(float x, float y, Ray &r) const;
+	void		project(Real x, Real y, Ray &r) const;
 
 public:
-	Vec3d	pos;
-	Vec3d	target;
-	Vec3d	up;
+	Vec3	pos;
+	Vec3	target;
+	Vec3	up;
 	float	fov;
 
 private:
 	// Define the camera frame
-	Vec3d u, v, w;
+	Vec3 u, v, w;
 };
 
 #endif

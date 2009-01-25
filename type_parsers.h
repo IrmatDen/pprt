@@ -46,8 +46,8 @@ namespace tools
 	}
 
 	//! Extract a float from a scanner
-	template<typename ScannerT>
-	int	scanFloat(ScannerT const &scan, float &out, float bounding = false,
+	template<typename ScannerT, typename RealT>
+	int	scanFloat(ScannerT const &scan, RealT &out, float bounding = false,
 				  float minBound = 0, float maxBound = 0)
 	{
 		if (scan.at_end())
@@ -226,10 +226,10 @@ struct color4_parser
 };
 functor_parser<color4_parser> color4_p;
 
-//! Build a Vec3d out of the scanner
-struct Vec3d_parser
+//! Build a Vec3 out of the scanner
+struct vec3_parser
 {
-	typedef Vec3d		result_t;
+	typedef Vec3		result_t;
 
 	//! \todo throw malformed exception
 	template <typename ScannerT>
@@ -250,7 +250,7 @@ struct Vec3d_parser
 			return -1;
 		len += matched;
 
-		float res[3];
+		Real res[3];
 		for (int i = 0; i < 3; i++)
 		{
 			int matched = tools::scanFloat(scan, res[i]);
@@ -280,6 +280,6 @@ struct Vec3d_parser
 		return len;
 	}
 };
-functor_parser<Vec3d_parser> Vec3d_p;
+functor_parser<vec3_parser> vec3_p;
 
 #endif

@@ -128,7 +128,7 @@ Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 
 	while (currRecurse < maxRecurse && reflCoef > 0)
 	{
-		double t = 20000;
+		Real t = 20000;
 		GeometryPtr nearestObj((Geometry*)0);
 
 		for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
@@ -142,18 +142,18 @@ Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 
 		hitSomething = true;
 
-		Vec3d p = ray.origin + ray.dir * t;
-		Vec3d n;
+		Vec3 p = ray.origin + ray.dir * t;
+		Vec3 n;
 
 		nearestObj->normalAt(p, n);
 		for(Lights::const_iterator it = lights.begin(); it != lights.end(); ++it)
 		{
 			const Light &light = **it;
 			// Slightly shift the origin to avoid hitting the same object
-			p += n * 0.000012f;
+			p += n * (Real)0.000012;
 
 			// Check if the current light is occluded
-			Vec3d L2P = light.pos - p;
+			Vec3 L2P = light.pos - p;
 			t = L2P.length();
 			Ray r(p, L2P.normalize());
 			bool lightOccluded = collide(r, t);
@@ -174,7 +174,7 @@ Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 	return out.clamp();
 }
 
-bool Scene::collide(const Ray &r, double &t)
+bool Scene::collide(const Ray &r, Real &t)
 {
 	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
 	{

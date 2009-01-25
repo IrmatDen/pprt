@@ -43,7 +43,7 @@ public:
 	void		render();
 	Color4		trace(const Ray &eye, int maxRecurse = 10, bool returnBackground = false);
 
-	bool		collide(const Ray &r, double &t);
+	bool		collide(const Ray &r, Real &t);
 
 private:
 	typedef std::vector<GeometryPtr> Geometries;

@@ -20,10 +20,10 @@ void Camera::init()
 	v *= angleOfView;
 }
 
-void Camera::project(float x, float y, Ray &r) const
+void Camera::project(Real x, Real y, Ray &r) const
 {
 	r.origin = pos;
 
-	r.dir = (double)x * u + (double)y * v + w;
+	r.dir = x * u + y * v + w;
 	r.dir.normalize();
 }

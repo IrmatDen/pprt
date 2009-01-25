@@ -1,19 +1,21 @@
 #ifndef CRT_DISK_H
 #define CRT_DISK_H
 
-#include "plane.h"
+#include "geometry.h"
 
-class Disk : public Plane
+class Disk : public Geometry
 {
 public:
-	Disk(float radius = 1, const Vec3d &position = Vec3d(), const Vec3d &normal = Vec3d(0, 1, 0));
+	Disk(float radius = 1, const Vec3 &position = Vec3(), const Vec3 &normal = Vec3(0, 1, 0));
 
-	virtual bool			hit(const Ray &ray, double &t) const;
-	virtual void			normalAt(const Vec3d &p, Vec3d &n) const	{ n = this->n; }
+	virtual bool			hit(const Ray &ray, Real &t) const;
+	virtual void			normalAt(const Vec3 &p, Vec3 &n) const	{ n = this->n; }
 
 private:
-	float r;
-	float rSquared;
+	Vec3	n;
+	Real	d;
+	float	r;
+	float	rSquared;
 };
 
 #endif

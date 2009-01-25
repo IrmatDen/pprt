@@ -37,7 +37,7 @@ namespace SLParser
 			}
 			iterator_t fileEnd = fileBegin.make_end();
 
-			parse_info<iterator_t> info = parse(fileBegin, fileEnd, syntax);
+			parse_info<iterator_t> info = parse(fileBegin, fileEnd, syntax,  blank_p);
 
 			return info.full;
 		}

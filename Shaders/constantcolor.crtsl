@@ -2,5 +2,6 @@ surface
 constant_color()
 {
 	# Assign a constant color to the out predefined variable.
-	out = color(0.6, 0.9, 0.5, 1);
+	color c = color(0.6, 0.9, 0.5, 1);
+	out = c;
 }

@@ -29,7 +29,7 @@ struct debug_a
 
 namespace SLParser
 {
-	// Syntax GREATLY inspired from RenderMan!
+	// Syntax GREATLY inspired from RenderMan SL!
 	struct ShaderGrammar : public grammar<ShaderGrammar>
 	{
 	private:
@@ -48,28 +48,38 @@ namespace SLParser
 			{
 				// Declarations
 				definitions			=	shader_definition >> ending;
-				shader_definition	=	shader_type >> ending >> identifier >> *blank_p >> '(' >> *blank_p >> ')' >> ending >>
-											'{' >> +ending >> +statements >>
+				shader_definition	=	shader_type >> ending >> identifier >> '(' >> ')' >> ending >>
+											'{' >> +ending >>
+												*variables >>
+												+statements >>
 											'}';
 				shader_type			=	str_p("surface");
+				variables			=	+(+(*variable_definitions >> ';') >> +ending);
+				variable_definitions=	typespec >> def_expressions;
+				typespec			=	!detail >> type;
+				def_expressions		=	def_expression >> *(',' >> def_expressions);
+				def_expression		=	identifier >> !def_init;
+				def_init			=	'=' >> expression;
+				detail				=	str_p("varying") | "uniform";
+				type				=	str_p("color");
 
 				// Statements
-				statements			=	+(*blank_p >> statement >> *blank_p >> ';' >> +ending);
+				statements			=	+(+(*statement >> ';') >> +ending);
 				statement			=	assignexpression;
 
 				// Expressions
 				expression			=	primary;
 				primary				=	real_p | procedurecall | identifier | assignexpression;
-				assignexpression	=	identifier >> *blank_p >> asgnop  >> *blank_p >> expression;
-				procedurecall		=	identifier >> *blank_p >> '(' >> *blank_p >> *proc_arguments >> *blank_p >> ')';
-				proc_arguments		=	*(expression >> ',' >> *blank_p) >> expression;
+				assignexpression	=	identifier >> asgnop  >> expression;
+				procedurecall		=	identifier >> '(' >> *proc_arguments >> ')';
+				proc_arguments		=	*(expression >> ',') >> expression;
 
 				// Operators
 				asgnop				=	ch_p('=');
 
 				// General
 				comment				=	'#' >> *(anychar_p - eol_p);
-				ending				=	*blank_p >> !comment >> eol_p; 
+				ending				=	!comment >> +eol_p; 
 				identifier			=	+(alnum_p | '_');
 			}
 
@@ -79,6 +89,12 @@ namespace SLParser
 			rule<ScannerT>	definitions;
 			rule<ScannerT>	shader_definition;
 			rule<ScannerT>	shader_type;
+			rule<ScannerT>	variables;
+			rule<ScannerT>	variable_definitions;
+			rule<ScannerT>	typespec;
+			rule<ScannerT>	def_expressions, def_expression, def_init;
+			rule<ScannerT>	detail;
+			rule<ScannerT>	type;
 
 			// Statements
 			rule<ScannerT>	statements;

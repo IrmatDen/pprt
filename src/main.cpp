@@ -4,12 +4,13 @@
 #include <string>
 
 #include "scene/scene.h"
+#include "shadervm/crtsl_parser.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-	string scnFile = "ScnSamples/spheres_plane_disk.crtscn";
+	/*string scnFile = "ScnSamples/spheres_plane_disk.crtscn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);
@@ -30,5 +31,20 @@ int main(int argc, char **argv)
 	cout << endl << "Press return to quit..." << endl;
 	cin.get();
 
-	return !scnLoaded;
+	return !scnLoaded;*/
+
+	string slFile = "Shaders/constantcolor.crtsl";
+	SLParser::Parser p;
+	bool loaded = p.parseFile(slFile);
+	if (loaded)
+	{
+		cout << endl << "Parsed \"" << slFile << "\" successfully!" << endl;
+	}
+	else
+		cout << "Loading " << slFile << " failed!" << endl;
+	
+	cout << endl << "Press return to quit..." << endl;
+	cin.get();
+
+	return !loaded;
 }

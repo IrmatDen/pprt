@@ -208,10 +208,6 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="ScnParser"
-				>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -277,8 +273,28 @@
 					RelativePath=".\src\crtscn_parser\scnparser.h"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="Parser"
+				>
 				<File
-					RelativePath=".\src\crtscn_parser\type_parsers.h"
+					RelativePath=".\src\parser\type_parsers.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Shadervm"
+				>
+				<File
+					RelativePath=".\src\shadervm\crtsl_grammar.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\crtsl_parser.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\crtsl_shader_actors.h"
 					>
 				</File>
 			</Filter>

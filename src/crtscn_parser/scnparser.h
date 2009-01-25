@@ -3,7 +3,6 @@
 
 #include <string>
 #include <iostream>
-#include <vector>
 
 #include <boost/spirit.hpp>
 #include <boost/spirit/phoenix.hpp>
@@ -19,7 +18,7 @@ typedef scanner<iterator_t>			scanner_t;
 typedef rule<scanner_t>				rule_t;
 	
 #include "parsing_actors.h"
-#include "type_parsers.h"
+#include "../parser/type_parsers.h"
 				
 //! Deferred string construction based on 2 iterators.
 #define CONSTRUCT_STR			construct_<std::string>(arg1, arg2)
@@ -118,9 +117,9 @@ namespace ScnParser
 			// Generic types
 			rule<ScannerT> ending;
 			rule<ScannerT> string;
+			rule<ScannerT> comment;
 
 			// Specific elements
-			rule<ScannerT> comment;
 			rule<ScannerT> scene, output, background, camLookAt;
 			rule<ScannerT> lights, pointLight;
 			rule<ScannerT> material;

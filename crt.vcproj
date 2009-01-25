@@ -173,99 +173,115 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\camera.cpp"
+				RelativePath=".\src\main.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\disk.cpp"
+			<Filter
+				Name="Scene"
 				>
-			</File>
-			<File
-				RelativePath=".\main.cpp"
+				<File
+					RelativePath=".\src\scene\camera.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\disk.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\material.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\plane.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\scene.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\sphere.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\vector3.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ScnParser"
 				>
-			</File>
-			<File
-				RelativePath=".\material.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\plane.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\scene.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\sphere.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\vector3.cpp"
-				>
-			</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\camera.h"
+			<Filter
+				Name="Scene"
 				>
-			</File>
-			<File
-				RelativePath=".\color4.h"
+				<File
+					RelativePath=".\src\scene\camera.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\color4.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\disk.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\geometry.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\light.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\material.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\plane.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\ray.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\scene.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\sphere.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\vector3.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="ScnParser"
 				>
-			</File>
-			<File
-				RelativePath=".\disk.h"
-				>
-			</File>
-			<File
-				RelativePath=".\geometry.h"
-				>
-			</File>
-			<File
-				RelativePath=".\light.h"
-				>
-			</File>
-			<File
-				RelativePath=".\material.h"
-				>
-			</File>
-			<File
-				RelativePath=".\parsing_actors.h"
-				>
-			</File>
-			<File
-				RelativePath=".\plane.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ray.h"
-				>
-			</File>
-			<File
-				RelativePath=".\scene.h"
-				>
-			</File>
-			<File
-				RelativePath=".\scnparser.h"
-				>
-			</File>
-			<File
-				RelativePath=".\sphere.h"
-				>
-			</File>
-			<File
-				RelativePath=".\type_parsers.h"
-				>
-			</File>
-			<File
-				RelativePath=".\vector3.h"
-				>
-			</File>
+				<File
+					RelativePath=".\src\crtscn_parser\parsing_actors.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\crtscn_parser\scnparser.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\crtscn_parser\type_parsers.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -277,15 +293,15 @@
 			Name="Scenes"
 			>
 			<File
-				RelativePath=".\ScnSamples\sphere.scn"
+				RelativePath=".\ScnSamples\sphere.crtscn"
 				>
 			</File>
 			<File
-				RelativePath=".\ScnSamples\spheres_plane.scn"
+				RelativePath=".\ScnSamples\spheres_plane.crtscn"
 				>
 			</File>
 			<File
-				RelativePath=".\ScnSamples\spheres_plane_disk.scn"
+				RelativePath=".\ScnSamples\spheres_plane_disk.crtscn"
 				>
 			</File>
 		</Filter>

@@ -11,7 +11,7 @@
 #include <tbb/parallel_for.h>
 
 #include "scene.h"
-#include "scnparser.h"
+#include "../crtscn_parser/scnparser.h"
 
 class TraceScanLine
 {

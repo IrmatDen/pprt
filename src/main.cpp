@@ -3,24 +3,21 @@
 #include <iostream>
 #include <string>
 
-#include "sphere.h"
-#include "plane.h"
-#include "light.h"
-#include "scene.h"
-#include "camera.h"
-#include "disk.h"
+#include "scene/scene.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-	string scnFile = "ScnSamples/spheres_plane_disk.scn";
+	string scnFile = "ScnSamples/spheres_plane_disk.crtscn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);
 	if (scnLoaded)
 	{
 		cout << endl << "Parsed \"" << scnFile << "\" successfully!" << endl;
+		//cout << endl << "Press return to start rendering..." << endl;
+		//cin.get();
 		cout << "Start rendering..." << endl;
 		__int64 begin = timeGetTime();
 		scn.render();

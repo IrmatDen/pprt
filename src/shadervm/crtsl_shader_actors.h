@@ -47,6 +47,14 @@ struct assignOp_a
 	}
 };
 
+struct pushV_a
+{
+	void operator()(const iterator_t &first, const iterator_t &last) const
+	{
+		std::cout << "PUSH" << std::endl;
+	}
+};
+
 struct procCall_a
 {
 	void operator()(const iterator_t &first, const iterator_t &last) const

@@ -66,7 +66,7 @@ namespace SLParser
 				variable_definitions=	+(typespec >> def_expressions >> ';');
 				typespec			=	!detail >> type;
 				def_expressions		=	def_expression % ',';
-				def_expression		=	varname >> !def_init;
+				def_expression		=	varname >> !def_init[assignOp_a()];
 				def_init			=	'=' >> expression;
 				detail				=	str_p("varying") | "uniform";
 				type				=	str_p("color");
@@ -77,8 +77,8 @@ namespace SLParser
 
 				// Expressions
 				expression			=	primary;
-				primary				=	real_p | procedurecall | identifier[debug_a()] | assignexpression;
-				assignexpression	=	(varname >> asgnop >> expression)[assignOp_a()];
+				primary				=	real_p | procedurecall | varname | assignexpression;
+				assignexpression	=	(varname >> asgnop >> expression[pushV_a()])[assignOp_a()];
 				procedurecall		=	(identifier >> '(' >> !proc_arguments >> ')')[procCall_a()];
 				proc_arguments		=	expression[pushArg_a()] % ',';
 

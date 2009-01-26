@@ -208,6 +208,14 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="ShaderVM"
+				>
+				<File
+					RelativePath=".\src\shadervm\symtab.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -283,7 +291,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="Shadervm"
+				Name="ShaderVM"
 				>
 				<File
 					RelativePath=".\src\shadervm\crtsl_grammar.h"
@@ -295,6 +303,10 @@
 				</File>
 				<File
 					RelativePath=".\src\shadervm\crtsl_shader_actors.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\symtab.h"
 					>
 				</File>
 			</Filter>

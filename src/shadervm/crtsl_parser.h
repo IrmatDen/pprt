@@ -19,6 +19,8 @@ namespace SLParser
 
 		bool parseFile(const std::string &filename);
 
+		void programAsMnemonics(std::string &str) const;
+
 		void storeVariableToken(const std::string &t)
 		{
 			varsTokens.push(t);

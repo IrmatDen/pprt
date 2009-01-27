@@ -118,7 +118,7 @@ struct procCall_a
 
 	void operator()(const iterator_t &first, const iterator_t &last) const
 	{
-		std::string s(first, last);
+		std::string s("call " + std::string(first, last));
 		parser.storeStatementToken(s);
 	}
 };

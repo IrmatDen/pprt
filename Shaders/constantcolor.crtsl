@@ -3,6 +3,5 @@ constant_color()
 {
 	# Assign a constant color to the out predefined variable.
 	color red = color(1, 0, 0, 1);
-	varying color green;
 	out = red;
 }

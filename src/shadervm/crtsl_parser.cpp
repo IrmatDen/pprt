@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 
 #include <boost/spirit.hpp>
 
@@ -36,19 +37,30 @@ bool Parser::parseFile(const string &filename)
 
 	parse_info<iterator_t> info = parse(fileBegin, fileEnd, *syntax,  blank_p);
 
-	// Display sym table
-	cout << ".vars" << endl;
-	cout << *symTable << endl << endl;
-
-	// Display instructions
-	cout << ".code" << endl;
-	while (instructions.size() > 0)
-	{
-		cout << instructions.front() << endl;
-		instructions.pop();
-	}
+	string mnemonics;
+	programAsMnemonics(mnemonics);
+	cout << mnemonics;
 
 	return info.full;
+}
+
+void Parser::programAsMnemonics(string &str) const
+{
+	Instructions otherInstr(instructions);
+	ostringstream oss;
+
+	oss << ".vars" << endl;
+	oss << *symTable << endl << endl;
+
+	// Display instructions
+	oss << ".code" << endl;
+	while (otherInstr.size() > 0)
+	{
+		oss << otherInstr.front() << endl;
+		otherInstr.pop();
+	}
+
+	str = oss.str();
 }
 
 void Parser::endVariable()

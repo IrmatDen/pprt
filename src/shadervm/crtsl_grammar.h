@@ -52,7 +52,7 @@ namespace SLParser
 				variable_definitions=	+(typespec >> def_expressions >> ';')[endInstruction_a(self.parser)];
 				typespec			=	!detail[varToken_a(self.parser)] >> type[varToken_a(self.parser)];
 				def_expressions		=	def_expression[endVariable_a(self.parser)] % ',';
-				def_expression		=	varname[varAssignOp_a(self.parser)] >> (!def_init)[varCheckDiscard_a(self.parser)];
+				def_expression		=	(varname ^ outKeywords)[varAssignOp_a(self.parser)] >> (!def_init)[varCheckDiscard_a(self.parser)];
 				def_init			=	'=' >> expression;
 				detail				=	str_p("varying") | "uniform";
 				type				=	str_p("color");
@@ -79,7 +79,9 @@ namespace SLParser
 				comment				=	'#' >> *(anychar_p - eol_p);
 				ending				=	!comment >> +eol_p;
 				identifier			=	(alpha_p | '_') >> *(alnum_p | '_');
-				varname				=	identifier ^ type;
+				outKeywords			=	str_p("out");
+				//inKeywords			=	str_p("");
+				varname				=	identifier ^ type;// ^ inKeywords;
 			}
 
 			const rule<ScannerT>& start() const	{ return definitions; }
@@ -112,7 +114,7 @@ namespace SLParser
 			// General
 			rule<ScannerT>	ending;
 			rule<ScannerT>	comment;
-			rule<ScannerT>	varname, identifier;
+			rule<ScannerT>	varname, outKeywords, /*inKeywords,*/ identifier;
 		};
 	};
 }

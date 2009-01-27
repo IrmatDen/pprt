@@ -21,6 +21,64 @@ struct debug_a
 	}
 };
 
+struct varToken_a
+{
+	SLParser::Parser &parser;
+
+	varToken_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t &first, const iterator_t &last) const
+	{
+		parser.storeVariableToken(std::string(first, last));
+	}
+};
+
+struct varAssignOp_a
+{
+	SLParser::Parser &parser;
+
+	varAssignOp_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t &first, const iterator_t &last) const
+	{
+		parser.storeVariableToken(std::string(first, last));
+
+		std::string s("pop " + std::string(first, last));
+		parser.storeStatementToken(s);
+	}
+};
+
+struct varCheckDiscard_a
+{
+	SLParser::Parser &parser;
+
+	varCheckDiscard_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t &first, const iterator_t &last) const
+	{
+		if (first == last)
+			parser.discardLastStatement();
+	}
+};
+
+struct endVariable_a
+{
+	SLParser::Parser &parser;
+
+	endVariable_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		parser.endVariable();
+	}
+
+	template<typename ValueT>
+	void operator()(const ValueT &) const
+	{
+		parser.endVariable();
+	}
+};
+
 struct endInstruction_a
 {
 	SLParser::Parser &parser;

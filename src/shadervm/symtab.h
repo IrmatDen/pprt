@@ -5,8 +5,6 @@
 #include <map>
 #include <iostream>
 
-class ParseNode{};
-
 enum VariableStorageType
 {
 	VST_Uniform,
@@ -20,28 +18,27 @@ enum VariableType
 
 struct Variable
 {
-	Variable() : storageType(VST_Uniform), content(0)	{}
+	Variable() : storageType(VST_Uniform)	{}
 
 	VariableStorageType		storageType;
 	VariableType			type;
 	std::string				name;
-	ParseNode			*	content;
 };
 
 class SymbolTable
 {
 public:
 	//! \todo throw exception if variable already defined
-	void			addVar(Variable *var)
+	void			addVar(const Variable &var)
 	{
-		variables[var->name] = var;
+		variables[var.name] = var;
 	}
 
 	Variable*		find(const std::string &varName)
 	{
 		VariablesTable::iterator it = variables.find(varName);
 		if (it != variables.end())
-			return it->second;
+			return &it->second;
 
 		return 0;
 	}
@@ -49,7 +46,7 @@ public:
 	friend std::ostream& operator<<(std::ostream &os, const SymbolTable &st);
 
 private:
-	typedef std::map<std::string, Variable*> VariablesTable;
+	typedef std::map<std::string, Variable> VariablesTable;
 
 	VariablesTable	variables;
 };

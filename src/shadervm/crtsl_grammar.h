@@ -50,9 +50,9 @@ namespace SLParser
 
 				variables			=	variable_definitions % +ending;
 				variable_definitions=	+(typespec >> def_expressions >> ';')[endInstruction_a(self.parser)];
-				typespec			=	!detail >> type;
-				def_expressions		=	def_expression % ',';
-				def_expression		=	varname[assignOp_a(self.parser)] >> !def_init;
+				typespec			=	!detail[varToken_a(self.parser)] >> type[varToken_a(self.parser)];
+				def_expressions		=	def_expression[endVariable_a(self.parser)] % ',';
+				def_expression		=	varname[varAssignOp_a(self.parser)] >> (!def_init)[varCheckDiscard_a(self.parser)];
 				def_init			=	'=' >> expression;
 				detail				=	str_p("varying") | "uniform";
 				type				=	str_p("color");

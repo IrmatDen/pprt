@@ -7,6 +7,8 @@
 #include <boost/spirit.hpp>
 #include <boost/spirit/phoenix.hpp>
 
+#include "crtsl_parser.h"
+
 using namespace boost::spirit;
 using namespace phoenix;
 
@@ -15,35 +17,19 @@ typedef file_iterator<char_t>		iterator_t;
 typedef scanner<iterator_t>			scanner_t;
 typedef rule<scanner_t>				rule_t;
 
-#include "../scene/scene.h"
-	
 #include "crtsl_shader_actors.h"
-
-struct debug_a
-{
-	void operator()(const iterator_t &begin, const iterator_t &end) const
-	{
-		std::cout << "Token found: " << std::string(begin, end) << std::endl;
-	}
-
-	template<typename ValueT>
-	void operator()(const ValueT &v) const
-	{
-		std::cout << v << std::endl;
-	}
-};
 
 namespace SLParser
 {
+
 	// Syntax GREATLY inspired from RenderMan SL!
 	struct ShaderGrammar : public grammar<ShaderGrammar>
 	{
 	private:
-		// Scene to load the file into.
-		//Scene &scene;
+		Parser &parser;
 
 	public:
-		ShaderGrammar(){}//Scene &scn) : scene(scn)		{}
+		ShaderGrammar(Parser &p) : parser(p)		{}
 		virtual ~ShaderGrammar()					{}
 
 		template <typename ScannerT>
@@ -63,24 +49,27 @@ namespace SLParser
 				shader_type			=	str_p("surface");
 
 				variables			=	variable_definitions % +ending;
-				variable_definitions=	+(typespec >> def_expressions >> ';');
+				variable_definitions=	+(typespec >> def_expressions >> ';')[endInstruction_a(self.parser)];
 				typespec			=	!detail >> type;
 				def_expressions		=	def_expression % ',';
-				def_expression		=	varname >> !def_init[assignOp_a()];
+				def_expression		=	varname[assignOp_a(self.parser)] >> !def_init;
 				def_init			=	'=' >> expression;
 				detail				=	str_p("varying") | "uniform";
 				type				=	str_p("color");
 
 				// Statements
 				statements			=	+(+statement >> +ending);
-				statement			=	assignexpression >> ';';
+				statement			=	(assignexpression >> ';')[endInstruction_a(self.parser)];
 
 				// Expressions
 				expression			=	primary;
-				primary				=	real_p | procedurecall | varname | assignexpression;
-				assignexpression	=	(varname >> asgnop >> expression[pushV_a()])[assignOp_a()];
-				procedurecall		=	(identifier >> '(' >> !proc_arguments >> ')')[procCall_a()];
-				proc_arguments		=	expression[pushArg_a()] % ',';
+				primary				=		real_p[push_a(self.parser)]
+										|	varname[push_a(self.parser)]
+										|	procedurecall
+										|	assignexpression;
+				assignexpression	=	(varname[assignOp_a(self.parser)] >> asgnop >> expression);
+				procedurecall		=	(identifier[procCall_a(self.parser)] >> '(' >> !proc_arguments >> ')');
+				proc_arguments		=	expression % ',';
 
 				// Operators
 				asgnop				=	ch_p('=');
@@ -89,7 +78,7 @@ namespace SLParser
 				// General
 				comment				=	'#' >> *(anychar_p - eol_p);
 				ending				=	!comment >> +eol_p;
-				identifier			=	+(alnum_p | '_');
+				identifier			=	(alpha_p | '_') >> *(alnum_p | '_');
 				varname				=	identifier ^ type;
 			}
 

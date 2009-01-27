@@ -4,76 +4,85 @@
 // IMPORTANT: this file can't be used alone, it's only to be included in crtslparser.h which
 // contains the necessary includes and typedefs!
 
-#include <vector>
-typedef std::vector<std::string> symbolTable;
+#include <sstream>
+#include <boost/lexical_cast.hpp>
 
-struct newShader_a
+struct debug_a
 {
-	void operator()(const iterator_t &first, const iterator_t &last) const
+	void operator()(const iterator_t &begin, const iterator_t &end) const
 	{
-		std::cout << "Shader found:\t\t" << std::string(first, last) << std::endl;
-	}
-};
-
-struct shaderType_a
-{
-	void operator()(const iterator_t &first, const iterator_t &last) const
-	{
-		std::cout << "Shader type:\t\t" << std::string(first, last) << std::endl;
-	}
-};
-
-struct funcName_a
-{
-	void operator()(const iterator_t &first, const iterator_t &last) const
-	{
-		std::cout << "Function name:\t\t" << std::string(first, last) << std::endl;
-	}
-};
-
-struct addVar_a
-{
-	void operator()(const iterator_t &first, const iterator_t &last) const
-	{
-		std::cout << "Variable:\t\t" << std::string(first, last) << std::endl;
-	}
-};
-
-struct assignOp_a
-{
-	void operator()(const iterator_t &first, const iterator_t &last) const
-	{
-		std::cout << "POP" << std::endl;
-	}
-};
-
-struct pushV_a
-{
-	void operator()(const iterator_t &first, const iterator_t &last) const
-	{
-		std::cout << "PUSH" << std::endl;
-	}
-};
-
-struct procCall_a
-{
-	void operator()(const iterator_t &first, const iterator_t &last) const
-	{
-		std::cout << "CALL <??>" << std::endl;
-	}
-};
-
-struct pushArg_a
-{
-	void operator()(const iterator_t &first, const iterator_t &last) const
-	{
-		std::cout << "PUSH " << std::string(first, last) << std::endl;
+		std::cout << "debug: " << std::string(begin, end) << std::endl;
 	}
 
 	template<typename ValueT>
 	void operator()(const ValueT &v) const
 	{
-		std::cout << "PUSH " << v << std::endl;
+		std::cout << "debug: " << v << std::endl;
+	}
+};
+
+struct endInstruction_a
+{
+	SLParser::Parser &parser;
+
+	endInstruction_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		parser.endInstruction();
+	}
+
+	template<typename ValueT>
+	void operator()(const ValueT &) const
+	{
+		parser.endInstruction();
+	}
+};
+
+struct assignOp_a
+{
+	SLParser::Parser &parser;
+
+	assignOp_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t &first, const iterator_t &last) const
+	{
+		std::string s("pop " + std::string(first, last));
+		parser.storeStatementToken(s);
+	}
+};
+
+struct procCall_a
+{
+	SLParser::Parser &parser;
+
+	procCall_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t &first, const iterator_t &last) const
+	{
+		std::string s(first, last);
+		parser.storeStatementToken(s);
+	}
+};
+
+struct push_a
+{
+	SLParser::Parser &parser;
+
+	push_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t &first, const iterator_t &last) const
+	{
+		std::string s("push " + std::string(first, last));
+		parser.storeStatementToken(s);
+	}
+
+	template<typename ValueT>
+	void operator()(const ValueT &v) const
+	{
+		std::ostringstream oss;
+		oss << "push " << v;
+		parser.storeStatementToken(oss.str());
 	}
 };
 

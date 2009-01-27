@@ -212,6 +212,10 @@
 				Name="ShaderVM"
 				>
 				<File
+					RelativePath=".\src\shadervm\crtsl_parser.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\symtab.cpp"
 					>
 				</File>

@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -212,11 +212,19 @@
 				Name="ShaderVM"
 				>
 				<File
+					RelativePath=".\src\shadervm\compiled_shader.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\crtsl_parser.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\src\shadervm\symtab.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\type_ctor.cpp"
 					>
 				</File>
 			</Filter>
@@ -297,6 +305,10 @@
 			<Filter
 				Name="ShaderVM"
 				>
+				<File
+					RelativePath=".\src\shadervm\compiled_shader.h"
+					>
+				</File>
 				<File
 					RelativePath=".\src\shadervm\crtsl_grammar.h"
 					>

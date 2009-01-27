@@ -40,8 +40,8 @@ namespace SLParser
 			{
 				// Declarations
 				definitions			=	shader_definition >> ending;
-				shader_definition	=	shader_type >> ending >>
-											identifier >> '(' >> ')' >> ending >>
+				shader_definition	=	shader_type >> !ending >>
+											varname[newShader_a(self.parser)] >> '(' >> ')' >> ending >>
 											'{' >> +ending >>
 												!variables >> *ending >>
 												+statements >>

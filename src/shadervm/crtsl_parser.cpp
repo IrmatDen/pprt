@@ -6,6 +6,7 @@
 #include "crtsl_parser.h"
 #include "crtsl_grammar.h"
 #include "symtab.h"
+#include "compiled_shader.h"
 
 using namespace std;
 using namespace boost;
@@ -37,20 +38,33 @@ bool Parser::parseFile(const string &filename)
 
 	parse_info<iterator_t> info = parse(fileBegin, fileEnd, *syntax,  blank_p);
 
+	if (!info.full)
+	{
+		// Discard all instructions this shader generated.
+		shaderName = "";
+		symTable->clear();
+		varsTokens = VariablesStack();
+		stmtsTokens = StatementsStack();
+		instructions = Instructions();
+		return false;
+	}
+
 	string mnemonics;
 	programAsMnemonics(mnemonics);
 	cout << mnemonics;
 
-	return info.full;
+	return true;
 }
 
 void Parser::programAsMnemonics(string &str) const
 {
 	Instructions otherInstr(instructions);
 	ostringstream oss;
+	
+	oss << ".shaderid " << shaderName << endl << endl;
 
 	oss << ".vars" << endl;
-	oss << *symTable << endl << endl;
+	oss << *symTable << endl;
 
 	// Display instructions
 	oss << ".code" << endl;
@@ -61,6 +75,9 @@ void Parser::programAsMnemonics(string &str) const
 	}
 
 	str = oss.str();
+
+	CompiledShader cs;
+	cs.fromMnemonics(str);
 }
 
 void Parser::endVariable()

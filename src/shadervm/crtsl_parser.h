@@ -21,20 +21,10 @@ namespace SLParser
 
 		void programAsMnemonics(std::string &str) const;
 
-		void storeVariableToken(const std::string &t)
-		{
-			varsTokens.push(t);
-		}
-
-		void discardLastStatement()
-		{
-			stmtsTokens.pop();
-		}
-
-		void storeStatementToken(const std::string &t)
-		{
-			stmtsTokens.push(t);
-		}
+		void		startShader(const std::string &sname)			{ shaderName = sname; }
+		void		storeVariableToken(const std::string &t)		{ varsTokens.push(t); }
+		void		discardLastStatement()							{ stmtsTokens.pop(); }
+		void		storeStatementToken(const std::string &t)		{ stmtsTokens.push(t); }
 
 		void endVariable();
 		void endInstruction();
@@ -47,6 +37,7 @@ namespace SLParser
 	private:
 		ShaderGrammar		*	syntax;
 
+		std::string				shaderName;
 		SymbolTable			*	symTable;
 
 		VariablesStack			varsTokens;

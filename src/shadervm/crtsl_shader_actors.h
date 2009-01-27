@@ -21,6 +21,18 @@ struct debug_a
 	}
 };
 
+struct newShader_a
+{
+	SLParser::Parser &parser;
+
+	newShader_a(SLParser::Parser &p) : parser(p) {}
+
+	void operator()(const iterator_t &first, const iterator_t &last) const
+	{
+		parser.startShader(std::string(first, last));
+	}
+};
+
 struct varToken_a
 {
 	SLParser::Parser &parser;

@@ -5,6 +5,8 @@
 #include <map>
 #include <iostream>
 
+#include <boost/any.hpp>
+
 enum VariableStorageType
 {
 	VST_Uniform,
@@ -23,6 +25,7 @@ struct Variable
 	VariableStorageType		storageType;
 	VariableType			type;
 	std::string				name;
+	boost::any				content;
 };
 
 class SymbolTable
@@ -41,6 +44,11 @@ public:
 			return &it->second;
 
 		return 0;
+	}
+
+	void			clear()
+	{
+		variables.clear();
 	}
 
 	friend std::ostream& operator<<(std::ostream &os, const SymbolTable &st);

@@ -1,6 +1,5 @@
 #include <vector>
 #include <algorithm>
-#include <functional>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -13,13 +12,18 @@ using namespace std;
 using namespace boost;
 
 CompiledShader::OpCodeMapping CompiledShader::opCodeMappings;
+CompiledShader::FunctionMapping CompiledShader::fnMappings;
 bool CompiledShader::opCodeMappingsInitialized = false;
 
 void initOpCodeMappings()
 {
+	// mnemonic - Opcodes mapping
 	CompiledShader::opCodeMappings["push"]	= CompiledShader::Push;
 	CompiledShader::opCodeMappings["call"]	= CompiledShader::Call;
 	CompiledShader::opCodeMappings["pop"]	= CompiledShader::Pop;
+
+	// Function name - fn pointers mapping
+	CompiledShader::fnMappings["color"]		= CompiledShader::ShaderFunction(&CompiledShader::color4Ctor);
 }
 
 CompiledShader::CompiledShader()
@@ -185,7 +189,16 @@ void CompiledShader::parseInstr(const std::string &instr)
 	}
 	else if (bc.first == Call)
 	{
-		bc.second = mem_fun_t<void, CompiledShader>(&CompiledShader::color4Ctor);
+		ShaderFunction f(0);
+		if (findFunRef(tokens[1], f))
+		{
+			bc.second = f;
+			//(this->*any_cast<ShaderFunction>(bc.second))();
+		}
+		else
+		{
+			//! \todo Throw an exception as function is unknown
+		}
 	}
 
 	code.push(bc);
@@ -204,4 +217,21 @@ bool CompiledShader::findVarIdx(const std::string &str, int &varIdx)
 	}
 
 	return false;
+}
+
+bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
+{
+	// Found instruction opcode
+	FunctionMapping::const_iterator mappedFnRef = fnMappings.find(str);
+
+	//! \todo throw exception if fnMappings doesn't contain the current function name.
+	if (mappedFnRef == fnMappings.end())
+	{
+		fnRef = ShaderFunction(0);
+		return false;
+	}
+
+	fnRef = mappedFnRef->second;
+
+	return true;
 }

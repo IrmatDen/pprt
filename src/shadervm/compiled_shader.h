@@ -9,23 +9,12 @@
 
 class CompiledShader
 {
+	friend void initOpCodeMappings();
+
 public:
 	CompiledShader();
 
 	void fromMnemonics(const std::string &mnemonics);
-
-private:
-	// Standard vars & method feeding.
-	void feedStandardVars();
-
-	// Parsing helpers
-	void parseVarDecl(const std::string &varDecl);
-	void parseInstr(const std::string &instr);
-	bool findVarIdx(const std::string &str, int &varIdx);
-	
-	// Functions
-		// Type constructors
-		void color4Ctor();
 
 private:
 	enum OpCode
@@ -37,10 +26,27 @@ private:
 	};
 
 private:
-	typedef std::pair<OpCode, boost::any>	ByteCode;
-	typedef std::queue<ByteCode>			Instructions;
-	typedef std::vector<Variable>			VariableTable;
-	typedef std::stack<boost::any>			ProgramStack;
+	typedef std::pair<OpCode, boost::any>			ByteCode;
+	typedef std::queue<ByteCode>					Instructions;
+	typedef std::vector<Variable>					VariableTable;
+
+	typedef std::stack<boost::any>					ProgramStack;
+	//typedef std::mem_fun_t<void, CompiledShader>	ShaderFunction;
+	typedef void (CompiledShader::*ShaderFunction)();
+
+private:
+	// Standard vars & method feeding.
+	void feedStandardVars();
+
+	// Parsing helpers
+	void parseVarDecl(const std::string &varDecl);
+	void parseInstr(const std::string &instr);
+	bool findVarIdx(const std::string &str, int &varIdx);
+	bool findFunRef(const std::string &str, ShaderFunction &fnRef);
+	
+	// Functions
+		// Type constructors
+		void color4Ctor();
 
 private:
 	std::string			shaderName;
@@ -50,12 +56,12 @@ private:
 	ProgramStack		execStack;
 
 private:
-	typedef std::map<std::string, OpCode>	OpCodeMapping;
+	typedef std::map<std::string, OpCode>			OpCodeMapping;
+	typedef std::map<std::string, ShaderFunction>	FunctionMapping;
 
 private:
-	friend void initOpCodeMappings();
-
 	static OpCodeMapping	opCodeMappings;
+	static FunctionMapping	fnMappings;
 	static bool				opCodeMappingsInitialized;
 };
 

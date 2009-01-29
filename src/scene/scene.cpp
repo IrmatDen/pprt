@@ -40,7 +40,7 @@ public:
 
 				scene.cam.project(fx, fy, ray);
 
-				Color4 col = scene.trace(ray, 10, true);
+				Color4 col = scene.trace(ray, true);
 
 				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
@@ -117,38 +117,39 @@ void Scene::render()
 	img.save(outName.c_str());
 }
 
-Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
+Color4 Scene::trace(const Ray &eye, bool returnBackground)
 {
-	float reflCoef = 1;
-	int currRecurse = 0;
-	Color4 out;
-	bool hitSomething = false;
-
+	Color4 out(0, 0, 0, 0);
 	Ray ray = eye;
+	Real t = 20000;
+	GeometryPtr nearestObj((Geometry*)0);
 
-	while (currRecurse < maxRecurse && reflCoef > 0)
+	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
-		Real t = 20000;
-		GeometryPtr nearestObj((Geometry*)0);
+		if ((*it)->hit(ray, t))
+			nearestObj = *it;
+	}
 
-		for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
-		{
-			if ((*it)->hit(ray, t))
-				nearestObj = *it;
-		}
+	if (!nearestObj)
+	{
+		if (returnBackground)
+			return background;
+		return out;
+	}
 
-		if (!nearestObj)
-			break;
+	// Object doesn't have shader, make it appear even for blind people!
+	if (!nearestObj->hasShader())
+		return Color4(1, 0, 1, 1);
 
-		hitSomething = true;
+	Vec3 p = ray.origin + ray.dir * t;
+	Vec3 n;
+	nearestObj->normalAt(p, n);
 
-		Vec3 p = ray.origin + ray.dir * t;
-		Vec3 n;
+	nearestObj->shade(out);
 
-		if (nearestObj->hasShader())
-			nearestObj->shade(out);
+	return out.clamp();
 
-		/*nearestObj->normalAt(p, n);
+		/*
 		for(Lights::const_iterator it = lights.begin(); it != lights.end(); ++it)
 		{
 			const Light &light = **it;
@@ -164,18 +165,9 @@ Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 			if (!lightOccluded)
 				out += (*nearestObj->material()).shade(p, n, light) * reflCoef;
 		}*/
-
-		currRecurse++;
-		reflCoef = 0;
 		//reflCoef  *= (*nearestObj->material()).reflexivity;
 		/*ray.origin = p;
 		ray.dir = ray.dir - 2 * ray.dir.dot(n) * n;*/
-	}
-
-	if (!hitSomething && returnBackground)
-		out = background;
-
-	return out.clamp();
 }
 
 bool Scene::collide(const Ray &r, Real &t)

@@ -10,7 +10,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	string scnFile = "ScnSamples/constant_color_shaded_sphere.crtscn";
+	string scnFile = "ScnSamples/diffuse_shaded_sphere.crtscn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);

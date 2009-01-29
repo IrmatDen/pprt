@@ -112,7 +112,6 @@ void CompiledShader::fromMnemonics(const string &mnemonics)
 
 void CompiledShader::feedStandardVars()
 {
-	// Feed output variables
 	Variable out;
 	out.storageType	= VST_Varying;
 	out.type		= VT_Color;
@@ -252,6 +251,17 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 	fnRef = mappedFnRef->second;
 
 	return true;
+}
+
+void CompiledShader::registerVaryingVar(const std::string &name, VariableType type, boost::any value)
+{
+	Variable v;
+	v.storageType	= VST_Varying;
+	v.type			= type;
+	v.name			= name;
+	v.content		= value;
+	
+	varTable.push_back(v);
 }
 
 void CompiledShader::exec(Color4 &out)

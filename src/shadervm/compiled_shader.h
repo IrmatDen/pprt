@@ -23,6 +23,8 @@ public:
 
 	const std::string& name() const				{ return shaderName; }
 
+	void registerVaryingVar(const std::string &name, VariableType type, boost::any value);
+
 	void exec(Color4 &out);
 
 private:

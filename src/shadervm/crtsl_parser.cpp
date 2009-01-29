@@ -78,6 +78,8 @@ void Parser::programAsMnemonics(string &str) const
 
 	CompiledShader cs;
 	cs.fromMnemonics(str);
+	Color4 out;
+	cs.exec(out);
 }
 
 void Parser::endVariable()

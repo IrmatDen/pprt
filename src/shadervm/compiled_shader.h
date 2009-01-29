@@ -7,6 +7,8 @@
 
 #include "symtab.h"
 
+#include "../scene/scene.h"
+
 class CompiledShader
 {
 	friend void initOpCodeMappings();
@@ -16,22 +18,31 @@ public:
 
 	void fromMnemonics(const std::string &mnemonics);
 
+	void exec(Color4 &out);
+
 private:
 	enum OpCode
 	{
-		Push,	//! Push a value
+		Pushd,	//! Push a value
 		Pushv,	//! Push a var id
 		Call,	//! Call a function
 		Pop		//! Pop into a var id
 	};
 
+	enum TypeFlag
+	{
+		TF_Double,
+		TF_Color
+	};
+
 private:
-	typedef std::pair<OpCode, boost::any>			ByteCode;
-	typedef std::queue<ByteCode>					Instructions;
 	typedef std::vector<Variable>					VariableTable;
 
-	typedef std::stack<boost::any>					ProgramStack;
-	//typedef std::mem_fun_t<void, CompiledShader>	ShaderFunction;
+	typedef std::pair<OpCode, boost::any>			ByteCode;
+	typedef std::vector<ByteCode>					Instructions;
+
+	typedef std::pair<TypeFlag, boost::any>			ProgramStackElement;
+	typedef std::stack<ProgramStackElement>			ProgramStack;
 	typedef void (CompiledShader::*ShaderFunction)();
 
 private:
@@ -49,11 +60,13 @@ private:
 		void color4Ctor();
 
 private:
-	std::string			shaderName;
-	VariableTable		varTable;
-	Instructions		code;
+	std::string				shaderName;
+	VariableTable			varTable;
+
+	Instructions			code;
+	Instructions::iterator	eip;
 	
-	ProgramStack		execStack;
+	ProgramStack			execStack;
 
 private:
 	typedef std::map<std::string, OpCode>			OpCodeMapping;

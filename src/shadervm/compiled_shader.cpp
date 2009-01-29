@@ -1,3 +1,4 @@
+#include <cassert>
 #include <vector>
 #include <algorithm>
 
@@ -18,7 +19,7 @@ bool CompiledShader::opCodeMappingsInitialized = false;
 void initOpCodeMappings()
 {
 	// mnemonic - Opcodes mapping
-	CompiledShader::opCodeMappings["push"]	= CompiledShader::Push;
+	CompiledShader::opCodeMappings["push"]	= CompiledShader::Pushd;
 	CompiledShader::opCodeMappings["call"]	= CompiledShader::Call;
 	CompiledShader::opCodeMappings["pop"]	= CompiledShader::Pop;
 
@@ -151,8 +152,8 @@ void CompiledShader::parseInstr(const std::string &instr)
 
 	bc.first = opcode->second;
 
-	// Set operation argument
-	if (bc.first == Push)
+	// Push <something>
+	if (bc.first == Pushd)
 	{
 		// Check if it's a number, in which case, it is pushed.
 		try
@@ -165,6 +166,7 @@ void CompiledShader::parseInstr(const std::string &instr)
 			int varIdx;
 			if (findVarIdx(tokens[1], varIdx))
 			{
+				// Change the opcode to match the fact we're pushing a variable index and not a number.
 				bc.first	= Pushv;
 				bc.second	= varIdx;
 			}
@@ -174,6 +176,7 @@ void CompiledShader::parseInstr(const std::string &instr)
 			}
 		}
 	}
+	// Pop <something>
 	else if (bc.first == Pop)
 	{
 		// Popping is only possible in a variable, so no need to search something else.
@@ -187,13 +190,13 @@ void CompiledShader::parseInstr(const std::string &instr)
 			//! \todo Throw an exception as variable is unknown
 		}
 	}
+	// Call <proc>
 	else if (bc.first == Call)
 	{
 		ShaderFunction f(0);
 		if (findFunRef(tokens[1], f))
 		{
 			bc.second = f;
-			//(this->*any_cast<ShaderFunction>(bc.second))();
 		}
 		else
 		{
@@ -201,7 +204,7 @@ void CompiledShader::parseInstr(const std::string &instr)
 		}
 	}
 
-	code.push(bc);
+	code.push_back(bc);
 }
 
 bool CompiledShader::findVarIdx(const std::string &str, int &varIdx)
@@ -234,4 +237,74 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 	fnRef = mappedFnRef->second;
 
 	return true;
+}
+
+void CompiledShader::exec(Color4 &out)
+{
+	eip = code.begin();
+	while (eip != code.end())
+	{
+		switch(eip->first)
+		{
+		case Pushd:
+			execStack.push(make_pair(TF_Double, eip->second));
+			break;
+
+		case Pushv:
+			{
+				const Variable &var = varTable[any_cast<int>(eip->second)];
+				switch(var.type)
+				{
+				case VT_Color:
+					execStack.push(make_pair(TF_Color, any_cast<Color4>(var.content)));
+					break;
+
+				default:
+					//! \todo throw unsupported source type exception
+					break;
+				}
+				break;
+			}
+
+		case Call:
+			(this->*any_cast<ShaderFunction>(eip->second))();
+			break;
+
+		case Pop:
+			{
+				Variable &var = varTable[any_cast<int>(eip->second)];
+
+				//! \todo replace assert by exception
+				assert(execStack.size() >= 1);
+				ProgramStackElement pse = execStack.top();
+				switch(pse.first)
+				{
+				case TF_Double:
+					assert(var.type == VT_Double);
+					var.content = pse.second;
+					break;
+
+				case TF_Color:
+					assert(var.type == VT_Color);
+					var.content = pse.second;
+					break;
+
+				default:
+					//! \todo throw unsupported storable type exception
+					break;
+				}
+
+				execStack.pop();
+			}
+
+		default:
+			//! \todo throw unsupported operation exception
+			break;
+		};
+
+		++eip;
+	}
+
+	// "out" variable should always be at index 0
+	out = any_cast<Color4>(varTable[0].content);
 }

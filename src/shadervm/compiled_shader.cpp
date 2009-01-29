@@ -36,6 +36,12 @@ CompiledShader::CompiledShader()
 	}
 }
 
+CompiledShader(const CompiledShader &other)
+:shaderName(other.shaderName), varTable(other.varTable),
+code(other.code)
+{
+}
+
 void CompiledShader::fromMnemonics(const string &mnemonics)
 {
 	shaderName	= "";
@@ -242,6 +248,7 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 void CompiledShader::exec(Color4 &out)
 {
 	eip = code.begin();
+
 	while (eip != code.end())
 	{
 		switch(eip->first)

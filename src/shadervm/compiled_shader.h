@@ -15,6 +15,7 @@ class CompiledShader
 
 public:
 	CompiledShader();
+	CompiledShader(const CompiledShader &other);
 
 	void fromMnemonics(const std::string &mnemonics);
 

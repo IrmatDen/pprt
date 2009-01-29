@@ -1,0 +1,6 @@
+surface
+diffuse_red()
+{
+	color red = color(1, 0, 0, 1);
+	out = red * diffuse(N);
+}

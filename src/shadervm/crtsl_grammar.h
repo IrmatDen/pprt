@@ -80,8 +80,9 @@ namespace SLParser
 				ending				=	!comment >> +eol_p;
 				identifier			=	(alpha_p | '_') >> *(alnum_p | '_');
 				outKeywords			=	str_p("out");
-				//inKeywords			=	str_p("");
-				varname				=	identifier ^ type;// ^ inKeywords;
+				inKeywords			=	ch_p('N');
+				functionNames		=	str_p("diffuse");
+				varname				=	identifier ^ type ^ inKeywords ^ functionNames;
 			}
 
 			const rule<ScannerT>& start() const	{ return definitions; }
@@ -114,7 +115,7 @@ namespace SLParser
 			// General
 			rule<ScannerT>	ending;
 			rule<ScannerT>	comment;
-			rule<ScannerT>	varname, outKeywords, /*inKeywords,*/ identifier;
+			rule<ScannerT>	varname, outKeywords, inKeywords, functionNames, identifier;
 		};
 	};
 }

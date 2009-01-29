@@ -10,7 +10,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	/*string scnFile = "ScnSamples/spheres_plane_disk.crtscn";
+	string scnFile = "ScnSamples/constant_color_shaded_sphere.crtscn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);
@@ -31,20 +31,15 @@ int main(int argc, char **argv)
 	cout << endl << "Press return to quit..." << endl;
 	cin.get();
 
-	return !scnLoaded;*/
+	return !scnLoaded;
 
+	/*Scene scn;
 	string slFile = "Shaders/constantcolor.crtsl";
-	SLParser::Parser p;
-	bool loaded = p.parseFile(slFile);
-	if (loaded)
-	{
-		cout << endl << "Parsed \"" << slFile << "\" successfully!" << endl;
-	}
-	else
-		cout << "Loading " << slFile << " failed!" << endl;
+	SLParser::Parser p(scn);
+	p.parseFile(slFile);
 	
 	cout << endl << "Press return to quit..." << endl;
 	cin.get();
 
-	return !loaded;
+	return 0;*/
 }

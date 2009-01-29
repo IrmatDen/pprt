@@ -36,10 +36,19 @@ CompiledShader::CompiledShader()
 	}
 }
 
-CompiledShader(const CompiledShader &other)
+CompiledShader::CompiledShader(const CompiledShader &other)
 :shaderName(other.shaderName), varTable(other.varTable),
 code(other.code)
 {
+}
+
+CompiledShader& CompiledShader::operator=(const CompiledShader &other)
+{
+	shaderName	= other.shaderName;
+	varTable	= other.varTable;
+	code		= other.code;
+
+	return *this;
 }
 
 void CompiledShader::fromMnemonics(const string &mnemonics)
@@ -71,7 +80,7 @@ void CompiledShader::fromMnemonics(const string &mnemonics)
 		{
 		case Segment_ShaderId:
 			if (line.find(".shaderid") != string::npos)
-				shaderName = line.substr(line.rfind(' '));
+				shaderName = line.substr(line.rfind(' ') + 1);
 			//! \todo Throw exception if no .shaderId is found
 			processingStage = Segment_VarDecl;
 			break;

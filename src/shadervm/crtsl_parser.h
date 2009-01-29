@@ -6,6 +6,7 @@
 #include <queue>
 
 class SymbolTable;
+class Scene;
 
 namespace SLParser
 {
@@ -14,7 +15,7 @@ namespace SLParser
 	class Parser
 	{
 	public:
-		Parser();
+		Parser(Scene &scn);
 		~Parser();
 
 		bool parseFile(const std::string &filename);
@@ -35,6 +36,8 @@ namespace SLParser
 		typedef std::queue<std::string> Instructions;
 
 	private:
+		Scene				&	scene;
+
 		ShaderGrammar		*	syntax;
 
 		std::string				shaderName;

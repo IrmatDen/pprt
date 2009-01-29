@@ -12,9 +12,14 @@
 #include "material.h"
 #include "ray.h"
 
+#include "../shadervm/shader_manager.h"
+
 class Scene
 {
 	friend class TraceScanLine;
+
+public:
+	ShaderManager			shaderManager;
 
 public:
 	Scene(int width=0, int height=0)

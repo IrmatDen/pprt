@@ -8,13 +8,16 @@
 #include "symtab.h"
 #include "compiled_shader.h"
 
+#include "../scene/scene.h"
+
 using namespace std;
 using namespace boost;
 using namespace boost::spirit;
 
 using namespace SLParser;
 
-Parser::Parser()
+Parser::Parser(Scene &scn)
+:scene(scn)
 {
 	syntax = new ShaderGrammar(*this);
 	symTable = new SymbolTable();
@@ -51,7 +54,7 @@ bool Parser::parseFile(const string &filename)
 
 	string mnemonics;
 	programAsMnemonics(mnemonics);
-	cout << mnemonics;
+	scene.shaderManager.addShaderFromMnemonics(mnemonics);
 
 	return true;
 }
@@ -75,10 +78,6 @@ void Parser::programAsMnemonics(string &str) const
 	}
 
 	str = oss.str();
-
-	CompiledShader cs;
-	cs.fromMnemonics(str);
-	cs.exec(out);
 }
 
 void Parser::endVariable()

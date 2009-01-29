@@ -145,7 +145,10 @@ Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 		Vec3 p = ray.origin + ray.dir * t;
 		Vec3 n;
 
-		nearestObj->normalAt(p, n);
+		if (nearestObj->hasShader())
+			nearestObj->shade(out);
+
+		/*nearestObj->normalAt(p, n);
 		for(Lights::const_iterator it = lights.begin(); it != lights.end(); ++it)
 		{
 			const Light &light = **it;
@@ -160,12 +163,13 @@ Color4 Scene::trace(const Ray &eye, int maxRecurse, bool returnBackground)
 
 			if (!lightOccluded)
 				out += (*nearestObj->material()).shade(p, n, light) * reflCoef;
-		}
+		}*/
 
 		currRecurse++;
-		reflCoef  *= (*nearestObj->material()).reflexivity;
-		ray.origin = p;
-		ray.dir = ray.dir - 2 * ray.dir.dot(n) * n;
+		reflCoef = 0;
+		//reflCoef  *= (*nearestObj->material()).reflexivity;
+		/*ray.origin = p;
+		ray.dir = ray.dir - 2 * ray.dir.dot(n) * n;*/
 	}
 
 	if (!hitSomething && returnBackground)

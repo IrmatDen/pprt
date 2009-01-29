@@ -5,6 +5,41 @@
 // contains the good includes and typedefs!
 
 //-----------------------------------------------------------------------------------------------------------
+// Shader path actor
+
+#include <boost/filesystem.hpp>
+#include "../shadervm/crtsl_parser.h"
+
+struct shaderPath_a
+{
+	shaderPath_a(Scene &scn) : scene(scn) {}
+	
+	void operator()(const iterator_t &first, const iterator_t &end) const
+	{
+		std::string folder(first, end);
+
+		namespace fs = boost::filesystem;
+		//! \todo throw path not a folder/not found exception
+
+		if (fs::is_directory(folder))
+		{
+			SLParser::Parser slParser(scene);
+			for (fs::directory_iterator it(folder); it != fs::directory_iterator(); ++it)
+			{
+				fs::path p = it->path();
+				if (p.extension() == ".crtsl")
+				{
+					slParser.parseFile(p.string());
+				}
+			}
+		}
+	}
+
+	Scene			&	scene;
+};
+//-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
 // Material actor
 
 struct newMaterial_a
@@ -70,16 +105,16 @@ struct newSphere_a
 {
 	newSphere_a(Scene &scn) : scene(scn) {}
 	
-	//! \todo throw material not found
+	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
+		GeometryPtr g(new Sphere((float)radius, pos));
 		MaterialPtr m = scene.getMaterialByName(matName);
 		if (m)
-		{
-			GeometryPtr g(new Sphere((float)radius, pos));
 			g->material() = m;
-			scene.addGeometry(g);
-		}
+		else if (scene.shaderManager.containsShaderName(matName))
+			g->setShader(scene.shaderManager.instanciate(matName));
+		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
 		pos = Vec3(0);
@@ -103,7 +138,7 @@ struct newPlane_a
 {
 	newPlane_a(Scene &scn) : scene(scn) {}
 	
-	//! \todo throw material not found
+	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		MaterialPtr m = scene.getMaterialByName(matName);
@@ -139,7 +174,7 @@ struct newDisk_a
 {
 	newDisk_a(Scene &scn) : scene(scn) {}
 	
-	//! \todo throw material not found
+	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		MaterialPtr m = scene.getMaterialByName(matName);

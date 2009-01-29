@@ -50,6 +50,8 @@ namespace ScnParser
 				// Comment definition
 				comment = ('#' >> *(anychar_p - eol_p));
 
+				option = "Option" >> +blank_p >> ("shaderspath"	>> +blank_p >> ((+(alnum_p | punct_p))[shaderPath_a(self.scene)] % (+blank_p)));
+
 				// Scene definition
 					scene =		output
 							|	background
@@ -59,7 +61,7 @@ namespace ScnParser
 								string	[bind(&Scene::setOutputFile)(var(self.scene), CONSTRUCT_STR)]  >> +blank_p >>	// filepath
 								uint_p	[bind(&Scene::setWidth) (var(self.scene), arg1)]	>> +blank_p >>				// width
 								uint_p	[bind(&Scene::setHeight)(var(self.scene), arg1)]	>>							// height
-								!(blank_p >> str_p("+z")[bind(&Scene::storeZValues)(var(self.scene), true)])				// store Z?
+								!(blank_p >> str_p("+z")[bind(&Scene::storeZValues)(var(self.scene), true)])			// store Z?
 							  );
 
 					background = "Background" >> +blank_p >> color4_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
@@ -88,7 +90,7 @@ namespace ScnParser
 								|	disk;
 					sphere	=	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)] >> +blank_p >>
 															vec3_p[assign_a(newSphere_a::pos)] >> +blank_p >>
-															(+alnum_p)[assign_a(newSphere_a::matName)]
+															(+(alnum_p | '_'))[assign_a(newSphere_a::matName)]
 								)[newSphere_a(self.scene)];
 
 					plane	= 	(	"Plane" >> +blank_p >>	vec3_p[assign_a(newPlane_a::normal)] >> +blank_p >>
@@ -104,7 +106,8 @@ namespace ScnParser
 								)[newDisk_a(self.scene)];
 				
 				// Grammar line definition & root.
-					element =	  scene
+					element =	  option
+								| scene
 								| lights
 								| material
 								| geometries;
@@ -120,6 +123,7 @@ namespace ScnParser
 			rule<ScannerT> comment;
 
 			// Specific elements
+			rule<ScannerT> option;
 			rule<ScannerT> scene, output, background, camLookAt;
 			rule<ScannerT> lights, pointLight;
 			rule<ScannerT> material;

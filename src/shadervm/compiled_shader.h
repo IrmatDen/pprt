@@ -7,7 +7,7 @@
 
 #include "symtab.h"
 
-#include "../scene/scene.h"
+#include "../scene/color4.h"
 
 class CompiledShader
 {
@@ -17,7 +17,11 @@ public:
 	CompiledShader();
 	CompiledShader(const CompiledShader &other);
 
+	CompiledShader& operator=(const CompiledShader &other);
+
 	void fromMnemonics(const std::string &mnemonics);
+
+	const std::string& name() const				{ return shaderName; }
 
 	void exec(Color4 &out);
 

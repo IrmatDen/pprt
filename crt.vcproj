@@ -188,6 +188,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\scene\geometry.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\scene\material.cpp"
 					>
 				</File>
@@ -217,6 +221,10 @@
 				</File>
 				<File
 					RelativePath=".\src\shadervm\crtsl_parser.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\shader_manager.cpp"
 					>
 				</File>
 				<File
@@ -319,6 +327,10 @@
 				</File>
 				<File
 					RelativePath=".\src\shadervm\crtsl_shader_actors.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\shader_manager.h"
 					>
 				</File>
 				<File

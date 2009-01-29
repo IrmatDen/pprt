@@ -34,19 +34,13 @@ private:
 		Pop		//! Pop into a var id
 	};
 
-	enum TypeFlag
-	{
-		TF_Double,
-		TF_Color
-	};
-
 private:
 	typedef std::vector<Variable>					VariableTable;
 
 	typedef std::pair<OpCode, boost::any>			ByteCode;
 	typedef std::vector<ByteCode>					Instructions;
 
-	typedef std::pair<TypeFlag, boost::any>			ProgramStackElement;
+	typedef std::pair<VariableType, boost::any>		ProgramStackElement;
 	typedef std::stack<ProgramStackElement>			ProgramStack;
 	typedef void (CompiledShader::*ShaderFunction)();
 

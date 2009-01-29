@@ -17,5 +17,5 @@ void CompiledShader::color4Ctor()
 	col.g = (float)any_cast<double>(execStack.top().second); execStack.pop();
 	col.r = (float)any_cast<double>(execStack.top().second); execStack.pop();
 
-	execStack.push(make_pair(TF_Color, col));
+	execStack.push(make_pair(VT_Color, col));
 }

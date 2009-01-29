@@ -263,22 +263,13 @@ void CompiledShader::exec(Color4 &out)
 		switch(eip->first)
 		{
 		case Pushd:
-			execStack.push(make_pair(TF_Double, eip->second));
+			execStack.push(make_pair(VT_Double, eip->second));
 			break;
 
 		case Pushv:
 			{
 				const Variable &var = varTable[any_cast<int>(eip->second)];
-				switch(var.type)
-				{
-				case VT_Color:
-					execStack.push(make_pair(TF_Color, any_cast<Color4>(var.content)));
-					break;
-
-				default:
-					//! \todo throw unsupported source type exception
-					break;
-				}
+				execStack.push(make_pair(var.type, var.content));
 				break;
 			}
 
@@ -293,22 +284,7 @@ void CompiledShader::exec(Color4 &out)
 				//! \todo replace assert by exception
 				assert(execStack.size() >= 1);
 				ProgramStackElement pse = execStack.top();
-				switch(pse.first)
-				{
-				case TF_Double:
-					assert(var.type == VT_Double);
-					var.content = pse.second;
-					break;
-
-				case TF_Color:
-					assert(var.type == VT_Color);
-					var.content = pse.second;
-					break;
-
-				default:
-					//! \todo throw unsupported storable type exception
-					break;
-				}
+				var.content = pse.second;
 
 				execStack.pop();
 			}
@@ -322,5 +298,6 @@ void CompiledShader::exec(Color4 &out)
 	}
 
 	// "out" variable should always be at index 0
+	assert(varTable[0].name == "out");
 	out = any_cast<Color4>(varTable[0].content);
 }

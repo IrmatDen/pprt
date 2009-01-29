@@ -145,7 +145,10 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	Vec3 n;
 	nearestObj->normalAt(p, n);
 
-	nearestObj->shade(out);
+	CompiledShader &shader = nearestObj->getShader();
+	shader.registerVaryingVar("P", VT_Vector, p);
+	shader.registerVaryingVar("N", VT_Vector, n);
+	shader.exec(out);
 
 	return out.clamp();
 

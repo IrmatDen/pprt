@@ -16,7 +16,8 @@ enum VariableStorageType
 enum VariableType
 {
 	VT_Double,
-	VT_Color
+	VT_Color,
+	VT_Vector
 };
 
 struct Variable

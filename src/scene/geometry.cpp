@@ -12,8 +12,3 @@ void Geometry::setShader(const CompiledShader &cs)
 
 	shader = new CompiledShader(cs);
 }
-
-void Geometry::shade(Color4 &out) const
-{
-	shader->exec(out);
-}

@@ -23,7 +23,7 @@ public:
 
 	void					setShader(const CompiledShader &cs);
 	bool					hasShader() const			{ return shader != 0; }
-	void					shade(Color4 &out) const;
+	CompiledShader&			getShader()					{ return *shader; }
 
 protected:
 	Geometry() : shader(0)							{}

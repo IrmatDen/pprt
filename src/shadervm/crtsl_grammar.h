@@ -80,7 +80,7 @@ namespace SLParser
 				ending				=	!comment >> +eol_p;
 				identifier			=	(alpha_p | '_') >> *(alnum_p | '_');
 				outKeywords			=	str_p("out");
-				inKeywords			=	ch_p('N');
+				inKeywords			=	ch_p('N') | 'P';
 				functionNames		=	str_p("diffuse");
 				varname				=	identifier ^ type ^ inKeywords ^ functionNames;
 			}

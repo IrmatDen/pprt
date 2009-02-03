@@ -3,63 +3,50 @@
 
 #include <cmath>
 
-typedef double Real;
-
-template <typename T>
-class Vector3
+class Vec3
 {
-public:
-	typedef T				type;
-	typedef Vector3<T>		value;
-	typedef value&			ref;
-	typedef const value&	const_ref;
-	typedef value*			ptr;
-
 	// Construction
 public:
-	Vector3() : x(0), y(0), z(0)
+	Vec3() : x(0), y(0), z(0)
 	{}
 
-	Vector3(T _x, T _y, T _z) : x(_x), y(_y), z(_z)
+	Vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z)
 	{}
 
-	Vector3(T v): x(v), y(v), z(v)
+	Vec3(float v): x(v), y(v), z(v)
 	{}
 
 	// Algebraic
 public:
-	value		operator+(const_ref v) const			{ return value(x + v.x, y + v.y, z + v.z); }
-	value		operator-(const_ref v) const			{ return value(x - v.x, y - v.y, z - v.z); }
-	value		operator*(const type &s)  const			{ return value(x * s, y * s, z * s); }
-	value		operator/(const type &s)  const			{ type div = 1/s; return *this * div; }
+	inline Vec3		operator+(const Vec3 &v) const				{ return Vec3(x + v.x, y + v.y, z + v.z); }
+	inline Vec3		operator-(const Vec3 &v) const				{ return Vec3(x - v.x, y - v.y, z - v.z); }
+	inline Vec3		operator*(const float &s)  const			{ return Vec3(x * s, y * s, z * s); }
+	inline Vec3		operator/(const float &s)  const			{ float div = 1/s; return *this * div; }
 
-	ref			operator=(const_ref v)					{ x = v.x; y = v.y; z = v.z; return *this; }
+	inline Vec3&		operator=(const Vec3 &v)				{ x = v.x; y = v.y; z = v.z; return *this; }
 
-	ref			operator+=(const_ref v)					{ x += v.x; y += v.y; z += v.z; return *this; }
-	ref			operator-=(const_ref v)					{ x -= v.x; y -= v.y; z -= v.z; return *this; }
-	ref			operator*=(const type &s)				{ x *= s; y *= s; z *= s; return *this; }
-	ref			operator/=(const type &s)				{ type div = 1/s; return *this *= div; }
+	inline Vec3&		operator+=(const Vec3 &v)				{ x += v.x; y += v.y; z += v.z; return *this; }
+	inline Vec3&		operator-=(const Vec3 &v)				{ x -= v.x; y -= v.y; z -= v.z; return *this; }
+	inline Vec3&		operator*=(const float &s)				{ x *= s; y *= s; z *= s; return *this; }
+	inline Vec3&		operator/=(const float &s)				{ float div = 1/s; return *this *= div; }
 
 	// Geometric
 public:
-	type		dot(const_ref v) const					{ return x * v.x + y * v.y + z * v.z; }
-	value		cross(const_ref v) const				{ value out(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x); return out; }
-	type		length() const;
-	type		squaredLength() const					{ return dot(*this); }
-	ref			normalize()								{ type l = length(); if (l > 0.00001f) *this /= length(); return *this; }
-	ref			reflect(const_ref n)					{ *this - 2 * dot(n) * n; return *this; }
-	value		reflect(const_ref n) const				{ value v = *this - 2 * dot(n) * n; return v; }
+	inline float		dot(const Vec3 &v) const				{ return x * v.x + y * v.y + z * v.z; }
+	inline Vec3			cross(const Vec3 &v) const				{ Vec3 out(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x); return out; }
+	inline float		length() const							{ return sqrtf(dot(*this)); }
+	inline float		squaredLength() const					{ return dot(*this); }
+	inline Vec3&		normalize()								{ float l = length(); if (l > 0.00001f) *this /= length(); return *this; }
+	inline Vec3&		reflect(const Vec3 &n)					{ *this - n * 2 * dot(n); return *this; }
+	inline Vec3			reflect(const Vec3 &n) const			{ Vec3 v = *this - n * 2 * dot(n); return v; }
 
 public:
-	T x, y, z;
+	float  x, y, z;
 };
 
-template<typename T>
-Vector3<T> operator*(const T &s, const Vector3<T> &v)
+inline Vec3 operator*(float s, const Vec3 &v)
 {
-	return Vector3<T>(v.x * s, v.y * s, v.z * s);
+	return Vec3(v.x * s, v.y * s, v.z * s);
 }
-
-typedef Vector3<Real>	Vec3;
 
 #endif

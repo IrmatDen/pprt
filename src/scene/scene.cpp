@@ -121,7 +121,7 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 {
 	Color4 out(0, 0, 0, 0);
 	Ray ray = eye;
-	Real t = 20000;
+	float t = 20000;
 	GeometryPtr nearestObj((Geometry*)0);
 
 	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
@@ -150,6 +150,7 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	shader.registerVaryingVar("N", VT_Vector, n);
 	shader.exec(out);*/
 
+	shaderManager.registerGlobalVec3("N", n);
 	shaderManager.execute(nearestObj->getShaderName(), out);
 
 	return out.clamp();
@@ -175,7 +176,7 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 		ray.dir = ray.dir - 2 * ray.dir.dot(n) * n;*/
 }
 
-bool Scene::collide(const Ray &r, Real &t)
+bool Scene::collide(const Ray &r, float &t)
 {
 	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
 	{

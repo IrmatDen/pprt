@@ -14,15 +14,17 @@ extern "C"
 #include <luabind/luabind.hpp>
 
 #include "../scene/color4.h"
+#include "../scene/vector3.h"
 
 class ShaderManager
 {
 public:
 	ShaderManager();
-	ShaderManager(const ShaderManager &other);
 	~ShaderManager();
 
 	void loadLuaFile(const std::string &fileName);
+
+	void registerGlobalVec3(const std::string &varName, const Vec3 &v);
 
 	void execute(const std::string &shaderName, Color4 &out);
 

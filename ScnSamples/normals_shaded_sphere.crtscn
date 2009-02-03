@@ -1,0 +1,6 @@
+Option shaderspath ./Shaders
+
+Output surfaceNormals_sphere.png 800 600 +z
+CamLookAt <-5, -3, -10> <0, 0, 5>
+
+Sphere 1.5 <0, 0, 5> surfaceNormals

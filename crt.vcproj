@@ -207,14 +207,14 @@
 					RelativePath=".\src\scene\sphere.cpp"
 					>
 				</File>
-				<File
-					RelativePath=".\src\scene\vector3.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="ShaderVM"
 				>
+				<File
+					RelativePath=".\src\shadervm\luabindings.cpp"
+					>
+				</File>
 				<File
 					RelativePath=".\src\shadervm\shader_manager.cpp"
 					>

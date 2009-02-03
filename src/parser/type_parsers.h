@@ -250,7 +250,7 @@ struct vec3_parser
 			return -1;
 		len += matched;
 
-		Real res[3];
+		float res[3];
 		for (int i = 0; i < 3; i++)
 		{
 			int matched = tools::scanFloat(scan, res[i]);

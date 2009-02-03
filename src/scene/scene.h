@@ -19,14 +19,17 @@ class Scene
 	friend class TraceScanLine;
 
 public:
-	ShaderManager			shaderManager;
+	ShaderManager &shaderManager;
 
 public:
+	#pragma warning(disable:4355)
 	Scene(int width=0, int height=0)
 		: resX(width), resY(height), storeZ(false),
-		background(0, 0, 0, 0)
+		background(0, 0, 0, 0), shaderManager(ShaderManager::getInstance())
 	{
+		shaderManager.setScene(*this);
 	}
+	#pragma warning(default:4355)
 
 	bool		loadScnFile(const std::string &filename);
 
@@ -48,7 +51,11 @@ public:
 	void		render();
 	Color4		trace(const Ray &eye, bool returnBackground = false);
 
-	bool		collide(const Ray &r, float &t);
+	bool		collide(const Ray &r, float &t) const;
+
+public:
+	// Shading & lighting functions
+	void		diffuse(const Ray &r, Color4 &out) const;
 
 private:
 	typedef std::vector<GeometryPtr> Geometries;

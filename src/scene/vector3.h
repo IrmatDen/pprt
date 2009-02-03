@@ -37,6 +37,7 @@ public:
 	inline float		length() const							{ return sqrtf(dot(*this)); }
 	inline float		squaredLength() const					{ return dot(*this); }
 	inline Vec3&		normalize()								{ float l = length(); if (l > 0.00001f) *this /= length(); return *this; }
+	inline Vec3			normalized() const						{ Vec3 v(*this); return v.normalize(); }
 	inline Vec3&		reflect(const Vec3 &n)					{ *this - n * 2 * dot(n); return *this; }
 	inline Vec3			reflect(const Vec3 &n) const			{ Vec3 v = *this - n * 2 * dot(n); return v; }
 

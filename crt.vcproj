@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb_debug.lib D:\prog\lua5.1\lib\lua5.1.lib D:\prog\luabind-0.8\bin\msvc-9.0express\release\luabind.lib"
+				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb_debug.lib luabindvc++9d.lib D:\prog\lua5.1\lib\static\lua5.1d.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -117,7 +117,12 @@
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
+				StructMemberAlignment="0"
+				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="2"
+				FloatingPointModel="0"
+				FloatingPointExceptions="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -133,12 +138,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb.lib D:\prog\lua5.1\lib\static\lua5.1.lib D:\prog\luabind-0.8\bin\msvc-9.0express\release\luabind.lib"
+				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb.lib D:\prog\lua5.1\lib\static\lua5.1.lib luabindvc++9.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -217,6 +223,10 @@
 				</File>
 				<File
 					RelativePath=".\src\shadervm\shader_manager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\shading_lighting_fun.cpp"
 					>
 				</File>
 			</Filter>
@@ -299,6 +309,10 @@
 				>
 				<File
 					RelativePath=".\src\shadervm\shader_manager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\shading_lighting_fun.h"
 					>
 				</File>
 			</Filter>

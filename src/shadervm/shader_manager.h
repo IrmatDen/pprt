@@ -14,22 +14,45 @@ extern "C"
 #include <luabind/luabind.hpp>
 
 #include "../scene/color4.h"
-#include "../scene/vector3.h"
+
+class Vec3;
+class Scene;
 
 class ShaderManager
 {
 public:
-	ShaderManager();
 	~ShaderManager();
+
+	static inline ShaderManager& getInstance()
+	{
+		static ShaderManager sm;
+		return sm;
+	}
+
+	void setScene(Scene &scn)									{ scene = &scn; }
 
 	void loadLuaFile(const std::string &fileName);
 
-	void registerGlobalVec3(const std::string &varName, const Vec3 &v);
+	void registerP(const Vec3 &v);
+	void registerN(const Vec3 &v);
 
 	void execute(const std::string &shaderName, Color4 &out);
 
+	// Functions acting as lua bindings to get scene related info
+	void diffuse(const Vec3 &N, Color4 &out) const;
+
+private:
+	ShaderManager();
+
+private:
+	struct ExecEnv
+	{
+		Vec3 P, N;
+	} env;
+
 private:
 	lua_State		*	luaState;
+	Scene			*	scene;
 };
 
 #endif

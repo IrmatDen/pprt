@@ -11,6 +11,8 @@ extern "C"
 #include "../scene/color4.h"
 #include "../scene/vector3.h"
 
+#include "shading_lighting_fun.h"
+
 using namespace luabind;
 
 void bindColor4(lua_State *s)
@@ -24,6 +26,7 @@ void bindColor4(lua_State *s)
 			.def(constructor<const Vec3&>())
 			.def(const_self + float())
 			.def(const_self / float())
+			.def(const_self * Color4())
 			.def_readwrite("r", &Color4::r)
 			.def_readwrite("g", &Color4::g)
 			.def_readwrite("b", &Color4::b)
@@ -49,4 +52,9 @@ void bindLuaToCRT(lua_State *s)
 {
 	bindColor4(s);
 	bindVec3(s);
+	
+	module(s)
+		[
+			def("diffuse", &diffuse)
+		];
 }

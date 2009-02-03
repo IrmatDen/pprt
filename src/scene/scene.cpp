@@ -90,9 +90,9 @@ void Scene::render()
 
 	cam.init();
 
-	/*tbb::task_scheduler_init tbbInit;
-	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());*/
-	Ray r;
+	tbb::task_scheduler_init tbbInit;
+	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());
+	/*Ray r;
 	r.origin = cam.pos;
 	for (int y = 0; y < resY; y++)
 	{
@@ -111,7 +111,7 @@ void Scene::render()
 			imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
 			imgData[FI_RGBA_ALPHA]	= BYTE(col.a * 255);
 		}
-	}
+	}*/
 
 	img.flipVertical();
 	img.save(outName.c_str());
@@ -145,44 +145,43 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	Vec3 n;
 	nearestObj->normalAt(p, n);
 
-	/*CompiledShader &shader = nearestObj->getShader();
-	shader.registerVaryingVar("P", VT_Vector, p);
-	shader.registerVaryingVar("N", VT_Vector, n);
-	shader.exec(out);*/
-
-	shaderManager.registerGlobalVec3("N", n);
+	shaderManager.registerP(p);
+	shaderManager.registerN(n);
 	shaderManager.execute(nearestObj->getShaderName(), out);
 
 	return out.clamp();
-
-		/*
-		for(Lights::const_iterator it = lights.begin(); it != lights.end(); ++it)
-		{
-			const Light &light = **it;
-			// Slightly shift the origin to avoid hitting the same object
-			p += n * (Real)0.000012;
-
-			// Check if the current light is occluded
-			Vec3 L2P = light.pos - p;
-			t = L2P.length();
-			Ray r(p, L2P.normalize());
-			bool lightOccluded = collide(r, t);
-
-			if (!lightOccluded)
-				out += (*nearestObj->material()).shade(p, n, light) * reflCoef;
-		}*/
-		//reflCoef  *= (*nearestObj->material()).reflexivity;
-		/*ray.origin = p;
-		ray.dir = ray.dir - 2 * ray.dir.dot(n) * n;*/
 }
 
-bool Scene::collide(const Ray &r, float &t)
+bool Scene::collide(const Ray &r, float &t) const
 {
-	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
+	for(Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it)
 	{
 		if ((*it)->hit(r, t))
 			return true;
 	}
 
 	return false;
+}
+
+void Scene::diffuse(const Ray &r, Color4 &out) const
+{
+	Vec3 normDir = r.dir.normalized();
+
+	for(Lights::const_iterator it = lights.begin(); it != lights.end(); ++it)
+	{
+		const Light &light = **it;
+		// Slightly shift the origin to avoid hitting the same object
+		Vec3 p = r.origin + r.dir * 0.00003f;
+
+		// Check if the current light is occluded
+		Vec3 L2P = light.pos - p;
+		float t = L2P.length();
+		Ray ray(p, L2P.normalize());
+		bool lightOccluded = collide(ray, t);
+
+		if (!lightOccluded)
+		{
+			out += light.color * L2P.dot(normDir);
+		}
+	}
 }

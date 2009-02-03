@@ -8,7 +8,6 @@
 // Shader path actor
 
 #include <boost/filesystem.hpp>
-#include "../shadervm/crtsl_parser.h"
 
 struct shaderPath_a
 {
@@ -23,13 +22,12 @@ struct shaderPath_a
 
 		if (fs::is_directory(folder))
 		{
-			SLParser::Parser slParser(scene);
 			for (fs::directory_iterator it(folder); it != fs::directory_iterator(); ++it)
 			{
 				fs::path p = it->path();
-				if (p.extension() == ".crtsl")
+				if (p.extension() == ".lua")
 				{
-					slParser.parseFile(p.string());
+					scene.shaderManager.loadLuaFile(p.file_string());
 				}
 			}
 		}
@@ -112,8 +110,8 @@ struct newSphere_a
 		MaterialPtr m = scene.getMaterialByName(matName);
 		if (m)
 			g->material() = m;
-		else if (scene.shaderManager.containsShaderName(matName))
-			g->setShader(scene.shaderManager.instanciate(matName));
+		//else if (scene.shaderManager.containsShaderName(matName))
+			g->setShader(matName);
 		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults

@@ -4,21 +4,30 @@
 #include <map>
 #include <string>
 
-#include "compiled_shader.h"
+extern "C"
+{
+    #include "lua.h"
+    #include "lauxlib.h"
+	#include "lualib.h"
+}
+
+#include <luabind/luabind.hpp>
+
+#include "../scene/color4.h"
 
 class ShaderManager
 {
 public:
-	void				addShaderFromMnemonics(const std::string &mnemonics);
-	
-	bool				containsShaderName(const std::string &shaderName) const;
-	CompiledShader		instanciate(const std::string &shaderName) const;
+	ShaderManager();
+	ShaderManager(const ShaderManager &other);
+	~ShaderManager();
+
+	void loadLuaFile(const std::string &fileName);
+
+	void execute(const std::string &shaderName, Color4 &out);
 
 private:
-	typedef std::map<std::string, CompiledShader> CompiledShaders;
-
-private:
-	CompiledShaders		shaders;
+	lua_State		*	luaState;
 };
 
 #endif

@@ -3,4 +3,4 @@ Option shaderspath ./Shaders
 Output constant_color_shaded_sphere.png 800 600 +z
 CamLookAt <0, 0, -10> <0, 0, 0>
 
-Sphere 1.5 <0, 0, 5> constant_color
+Sphere 1.5 <0, 0, 5> constantRedSurface

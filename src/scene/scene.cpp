@@ -69,7 +69,7 @@ MaterialPtr	Scene::getMaterialByName(const std::string &name)
 
 	Materials::iterator matIt = std::find_if(materials.begin(),
 											 materials.end(),
-											 _1 == name
+											 boost::lambda::_1 == name
 											);
 	if (matIt != materials.end())
 		return *matIt;
@@ -90,9 +90,9 @@ void Scene::render()
 
 	cam.init();
 
-	tbb::task_scheduler_init tbbInit;
-	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());
-	/*Ray r;
+	/*tbb::task_scheduler_init tbbInit;
+	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());*/
+	Ray r;
 	r.origin = cam.pos;
 	for (int y = 0; y < resY; y++)
 	{
@@ -104,14 +104,14 @@ void Scene::render()
 
 			cam.project(fx, fy, r);
 
-			Color4 col = trace(r, 10, true);
+			Color4 col = trace(r, true);
 
 			imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 			imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
 			imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
 			imgData[FI_RGBA_ALPHA]	= BYTE(col.a * 255);
 		}
-	}*/
+	}
 
 	img.flipVertical();
 	img.save(outName.c_str());
@@ -145,10 +145,12 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	Vec3 n;
 	nearestObj->normalAt(p, n);
 
-	CompiledShader &shader = nearestObj->getShader();
+	/*CompiledShader &shader = nearestObj->getShader();
 	shader.registerVaryingVar("P", VT_Vector, p);
 	shader.registerVaryingVar("N", VT_Vector, n);
-	shader.exec(out);
+	shader.exec(out);*/
+
+	shaderManager.execute(nearestObj->getShaderName(), out);
 
 	return out.clamp();
 

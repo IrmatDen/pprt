@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb_debug.lib"
+				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb_debug.lib D:\prog\lua5.1\lib\lua5.1.lib D:\prog\luabind-0.8\bin\msvc-9.0express\release\luabind.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -133,7 +133,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb.lib"
+				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb.lib D:\prog\lua5.1\lib\static\lua5.1.lib D:\prog\luabind-0.8\bin\msvc-9.0express\release\luabind.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -216,23 +216,7 @@
 				Name="ShaderVM"
 				>
 				<File
-					RelativePath=".\src\shadervm\compiled_shader.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\shadervm\crtsl_parser.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\shadervm\shader_manager.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\shadervm\symtab.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\src\shadervm\type_ctor.cpp"
 					>
 				</File>
 			</Filter>
@@ -314,27 +298,7 @@
 				Name="ShaderVM"
 				>
 				<File
-					RelativePath=".\src\shadervm\compiled_shader.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\shadervm\crtsl_grammar.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\shadervm\crtsl_parser.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\shadervm\crtsl_shader_actors.h"
-					>
-				</File>
-				<File
 					RelativePath=".\src\shadervm\shader_manager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\shadervm\symtab.h"
 					>
 				</File>
 			</Filter>

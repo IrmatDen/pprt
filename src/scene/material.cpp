@@ -16,11 +16,11 @@ Color4 Material::shade(const Vec3 &p, const Vec3 &n, const Light &l) const
 	if (n.dot(L2P) <= 0)
 		return res;
 
-	float t = L2P.length();
+	double t = L2P.length();
 	if (t < 0)
 		return res;
 
-	float lambert = L2P.normalize().dot(n);
+	double lambert = L2P.normalize().dot(n);
 	res += l.color * color * (float)lambert;
 	res.a = 1;
 

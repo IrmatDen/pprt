@@ -20,7 +20,7 @@ void Camera::init()
 	v *= angleOfView;
 }
 
-void Camera::project(float x, float y, Ray &r) const
+void Camera::project(double x, double y, Ray &r) const
 {
 	r.origin = pos;
 

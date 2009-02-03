@@ -51,7 +51,7 @@ public:
 	void		render();
 	Color4		trace(const Ray &eye, bool returnBackground = false);
 
-	bool		collide(const Ray &r, float &t) const;
+	bool		collide(const Ray &r, double &t) const;
 
 public:
 	// Shading & lighting functions

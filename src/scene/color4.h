@@ -8,7 +8,7 @@ class Color4
 public:
 	Color4() : r(0), g(0), b(0), a(1)												{}
 	Color4(float _r, float _g, float _b, float _a) : r(_r), g(_g), b(_b), a(_a)		{}
-	Color4(const Vec3 &v) : r(v.x), g(v.y), b(v.z), a(1)							{}
+	Color4(const Vec3 &v) : r((float)v.x), g((float)v.y), b((float)v.z), a(1)		{}
 	Color4(float v, float _a = 1)	: r(v), g(v), b(v), a(_a)						{}
 
 	inline Color4&		operator=(const Color4 &v)									{ r=v.r; g=v.g; b=v.b; a=v.a; return *this; }

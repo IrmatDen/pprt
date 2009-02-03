@@ -121,7 +121,7 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 {
 	Color4 out(0, 0, 0, 0);
 	Ray ray = eye;
-	float t = 20000;
+	double t = 20000;
 	GeometryPtr nearestObj((Geometry*)0);
 
 	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
@@ -152,7 +152,7 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	return out.clamp();
 }
 
-bool Scene::collide(const Ray &r, float &t) const
+bool Scene::collide(const Ray &r, double &t) const
 {
 	for(Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it)
 	{
@@ -171,17 +171,17 @@ void Scene::diffuse(const Ray &r, Color4 &out) const
 	{
 		const Light &light = **it;
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * 0.00003f;
+		Vec3 p = r.origin + r.dir * 0.00001;
 
 		// Check if the current light is occluded
 		Vec3 L2P = light.pos - p;
-		float t = L2P.length();
+		double t = L2P.length();
 		Ray ray(p, L2P.normalize());
 		bool lightOccluded = collide(ray, t);
 
 		if (!lightOccluded)
 		{
-			out += light.color * L2P.dot(normDir);
+			out += light.color * (float)L2P.dot(normDir);
 		}
 	}
 }

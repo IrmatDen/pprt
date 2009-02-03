@@ -28,7 +28,7 @@ ShaderManager::~ShaderManager()
 
 void ShaderManager::loadLuaFile(const std::string &fileName)
 {
-	cout << "loading " << fileName.c_str() << endl << "result: " << luaL_dofile(luaState, fileName.c_str()) << endl;
+	cout << "loading " << fileName.c_str() << ": " << luaL_dofile(luaState, fileName.c_str()) << endl;
 }
 
 void ShaderManager::registerP(const Vec3 &v)

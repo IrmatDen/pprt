@@ -12,7 +12,7 @@ public:
 	}
 
 	void		init();
-	void		project(float x, float y, Ray &r) const;
+	void		project(double x, double y, Ray &r) const;
 
 public:
 	Vec3	pos;

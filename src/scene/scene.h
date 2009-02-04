@@ -56,6 +56,7 @@ public:
 public:
 	// Shading & lighting functions
 	void		diffuse(const Ray &r, Color4 &out) const;
+	void		specular(const Ray &r, const Vec3 &viewDir, double roughness, Color4 &out) const;
 
 private:
 	typedef std::vector<GeometryPtr> Geometries;

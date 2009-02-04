@@ -43,6 +43,12 @@ void ShaderManager::registerN(const Vec3 &v)
 	env.N = v;
 }
 
+void ShaderManager::registerI(const Vec3 &v)
+{
+	luabind::globals(luaState)["I"] = &v;
+	env.I = v;
+}
+
 void ShaderManager::execute(const string &shaderName, Color4 &out)
 {
 	try
@@ -60,4 +66,9 @@ void ShaderManager::execute(const string &shaderName, Color4 &out)
 void ShaderManager::diffuse(const Vec3 &N, Color4 &out) const
 {
 	scene->diffuse(Ray(env.P, N), out);
+}
+
+void ShaderManager::specular(const Vec3 &N, double roughness, Color4 &out) const
+{
+	scene->specular(Ray(env.P, N), env.I, roughness, out);
 }

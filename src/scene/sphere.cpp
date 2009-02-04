@@ -12,7 +12,7 @@ bool Sphere::hit(const Ray &ray, double &t) const
 
 	if (d < 0)
 		return false;
-
+	
 	const double t0		= b - sqrt(d);
 	const double t1		= b + sqrt(d);
 

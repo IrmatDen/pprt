@@ -5,5 +5,6 @@
 #include "../scene/vector3.h"
 
 Color4 diffuse(const Vec3 &N);
+Color4 specular(const Vec3 &N, double roughness);
 
 #endif

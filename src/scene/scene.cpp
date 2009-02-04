@@ -90,9 +90,9 @@ void Scene::render()
 
 	cam.init();
 
-	tbb::task_scheduler_init tbbInit;
-	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());
-	/*Ray r;
+	/*tbb::task_scheduler_init tbbInit;
+	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());*/
+	Ray r;
 	r.origin = cam.pos;
 	for (int y = 0; y < resY; y++)
 	{
@@ -111,7 +111,7 @@ void Scene::render()
 			imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
 			imgData[FI_RGBA_ALPHA]	= BYTE(col.a * 255);
 		}
-	}*/
+	}
 
 	img.flipVertical();
 	img.save(outName.c_str());
@@ -147,6 +147,7 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 
 	shaderManager.registerP(p);
 	shaderManager.registerN(n);
+	shaderManager.registerI(ray.dir);
 	shaderManager.execute(nearestObj->getShaderName(), out);
 
 	return out.clamp();
@@ -182,6 +183,31 @@ void Scene::diffuse(const Ray &r, Color4 &out) const
 		if (!lightOccluded)
 		{
 			out += light.color * (float)L2P.dot(normDir);
+		}
+	}
+}
+
+void Scene::specular(const Ray &r, const Vec3 &viewDir, double roughness, Color4 &out) const
+{
+	Vec3 normDir = r.dir.normalized();
+	Vec3 normVDir = -viewDir.normalized();
+
+	for(Lights::const_iterator it = lights.begin(); it != lights.end(); ++it)
+	{
+		const Light &light = **it;
+		// Slightly shift the origin to avoid hitting the same object
+		Vec3 p = r.origin + r.dir * 0.00001;
+
+		// Check if the current light is occluded
+		Vec3 L2P = light.pos - p;
+		double t = L2P.length();
+		Ray ray(p, L2P.normalize());
+		bool lightOccluded = collide(ray, t);
+
+		if (!lightOccluded)
+		{
+			Vec3 H = (L2P + normVDir).normalize();
+			out += light.color * static_cast<float>(pow(max(0, normDir.dot(H)), 1/roughness));
 		}
 	}
 }

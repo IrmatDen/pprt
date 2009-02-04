@@ -50,4 +50,9 @@ inline Vec3 operator*(double s, const Vec3 &v)
 	return Vec3(v.x * s, v.y * s, v.z * s);
 }
 
+inline Vec3 operator-(const Vec3 &v)
+{
+	return Vec3(-v.x, -v.y, -v.z);
+}
+
 #endif

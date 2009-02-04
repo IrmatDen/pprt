@@ -37,4 +37,9 @@ public:
 	float r, g, b, a;
 };
 
+inline Color4 operator *(float s, const Color4 &v)
+{
+	return v * s;
+}
+
 #endif

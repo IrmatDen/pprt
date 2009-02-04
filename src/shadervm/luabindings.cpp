@@ -25,8 +25,10 @@ void bindColor4(lua_State *s)
 			.def(constructor<float, float>())
 			.def(constructor<const Vec3&>())
 			.def(const_self + float())
+			.def(const_self + Color4())
 			.def(const_self / float())
 			.def(const_self * Color4())
+			.def(const_self * float())
 			.def_readwrite("r", &Color4::r)
 			.def_readwrite("g", &Color4::g)
 			.def_readwrite("b", &Color4::b)
@@ -55,6 +57,7 @@ void bindLuaToCRT(lua_State *s)
 	
 	module(s)
 		[
-			def("diffuse", &diffuse)
+			def("diffuse", &diffuse),
+			def("specular", &specular)
 		];
 }

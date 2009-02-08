@@ -61,6 +61,7 @@ number 		= {Number}+('.'{Number}+)?
 
 <statement>			::= <assignexpression> ';'
 				 |  <procedurecall> ';'
+				 |  'return' <expression> ';'
 				 |  <block>
 
 ! ------------------------------------- Expressions

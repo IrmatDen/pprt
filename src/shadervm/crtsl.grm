@@ -14,8 +14,8 @@
 ! ------------------------------------------------- Terminals
 
 identifier    	= {ID Head}{ID Tail}*
-string_litteral	= '"' {String Chars}* '"'
-real_litteral 	= {Number}+('.'{Number}+)?
+stringconstant	= '"' {String Chars}* '"'
+number 		= {Number}+('.'{Number}+)?
 
 ! ------------------------------------------------- Rules
 
@@ -35,6 +35,9 @@ real_litteral 	= {Number}+('.'{Number}+)?
 <formals>			::= <variable_definitions> <formals>
 				 |  
 
+<variables>			::= <variable_definitions> <variables>
+				 |  
+
 <variable_definitions>	::= <type> <def_expressions> ';'
 
 <type>				::= real
@@ -51,7 +54,7 @@ real_litteral 	= {Number}+('.'{Number}+)?
 
 ! ------------------------------------- Statements
 
-<block>			::= '{' <statements> '}'
+<block>			::= '{' <variables> <statements> '}'
 
 <statements>			::= <statements> <statement>
 				 |  
@@ -62,6 +65,8 @@ real_litteral 	= {Number}+('.'{Number}+)?
 
 <expression>			::= <primary>
 
-<primary>			::= real_litteral
+<primary>			::= number
+				 |  identifier
+				 |  stringconstant
 
 <assignexpression>		::= identifier '=' <expression>

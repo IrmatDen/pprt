@@ -16,6 +16,8 @@
 identifier    	= {ID Head}{ID Tail}*
 stringconstant	= '"' {String Chars}* '"'
 number 		= {Number}+('.'{Number}+)?
+shader_type		= light | surface | volume | displacement | transformation | imager
+type			= real |string | vec3 | color4
 
 ! ------------------------------------------------- Rules
 
@@ -23,14 +25,7 @@ number 		= {Number}+('.'{Number}+)?
 
 <definitions>			::= <shader_definition>
 
-<shader_definition>		::= <shader_type> identifier '(' <formals> ')' <block>
-
-<shader_type>			::= light
-				 |  surface
-				 |  volume
-				 |  displacement
-				 |  transformation
-				 |  imager
+<shader_definition>		::= shader_type identifier '(' <formals> ')' <block>
 
 <formals>			::= <variable_definitions> <formals>
 				 |  
@@ -38,12 +33,7 @@ number 		= {Number}+('.'{Number}+)?
 <variables>			::= <variable_definitions> <variables>
 				 |  
 
-<variable_definitions>	::= <type> <def_expressions> ';'
-
-<type>				::= real
-				 |  string
-				 |  vec3
-				 |  color4
+<variable_definitions>	::= type <def_expressions> ';'
 
 <def_expressions>		::= <def_expression>
 
@@ -77,7 +67,7 @@ number 		= {Number}+('.'{Number}+)?
 
 <assignexpression>		::= identifier '=' <expression>
 
-<type_ctor>			::= <type> '(' <proc_arguments> ')'
+<type_ctor>			::= type '(' <proc_arguments> ')'
 
 <procedurecall>		::= identifier '(' <proc_arguments> ')'
 

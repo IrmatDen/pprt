@@ -60,6 +60,7 @@ number 		= {Number}+('.'{Number}+)?
 				 |  
 
 <statement>			::= <assignexpression> ';'
+				 |  <procedurecall> ';'
 				 |  <block>
 
 ! ------------------------------------- Expressions
@@ -69,5 +70,16 @@ number 		= {Number}+('.'{Number}+)?
 <primary>			::= number
 				 |  identifier
 				 |  stringconstant
+				 |  <type_ctor>
+				 |  <procedurecall>
+				 |  <assignexpression>
 
 <assignexpression>		::= identifier '=' <expression>
+
+<type_ctor>			::= <type> '(' <proc_arguments> ')'
+
+<procedurecall>		::= identifier '(' <proc_arguments> ')'
+
+<proc_arguments>		::= <expression> ',' <proc_arguments>
+				 |  <expression>
+				 |  

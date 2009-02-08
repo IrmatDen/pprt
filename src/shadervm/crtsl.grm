@@ -1,0 +1,45 @@
+"Name"     = 'CRTSL'
+"Author"   = 'Denys Bulant'
+"Version"  = '0.0.01'
+"About"    = 'CRT ray tracer shading language grammar'
+
+"Start Symbol" = <definitions>
+
+! ------------------------------------------------- Sets
+
+{ID Head}      = {Letter} + [_]
+{ID Tail}      = {Alphanumeric} + [_]
+{String Chars} = {Printable} + {HT} - ["]
+
+! ------------------------------------------------- Terminals
+
+identifier    = {ID Head}{ID Tail}*
+string        = '"' {String Chars}* '"'
+real          = {Number}+('.'{Number}+)?
+
+! ------------------------------------------------- Rules
+
+! ------------------------------------- Declarations
+
+<definitions>			::= <shader_definition>
+
+<shader_definition>		::= <shader_type> identifier '(' ')' <block>
+
+<shader_type>			::= surface
+
+! ------------------------------------- Statements
+
+<block>			::= '{' <statements> '}'
+
+<statements>			::= <statements> <statement>
+				 |  
+
+<statement>			::= <assignexpression> ';'
+
+! ------------------------------------- Expressions
+
+<expression>			::= <primary>
+
+<primary>			::= real
+
+<assignexpression>		::= identifier '=' <expression>

@@ -90,20 +90,27 @@ namespace ScnParser
 								|	disk;
 					sphere	=	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)] >> +blank_p >>
 															vec3_p[assign_a(newSphere_a::pos)] >> +blank_p >>
-															(+(alnum_p | '_'))[assign_a(newSphere_a::matName)]
+															(+(alnum_p | '_'))[assign_a(newSphere_a::matName)] >>
+															!(+blank_p >> shaderParams)
 								)[newSphere_a(self.scene)];
 
 					plane	= 	(	"Plane" >> +blank_p >>	vec3_p[assign_a(newPlane_a::normal)] >> +blank_p >>
 															real_p[assign_a(newPlane_a::offset)] >> +blank_p >>
 															!("TwoSided" >> +blank_p)[assign_a(newPlane_a::twoSided, true)] >>
-															(+alnum_p)[assign_a(newPlane_a::matName)]
+															(+alnum_p)[assign_a(newPlane_a::matName)] >>
+															!(+blank_p >> shaderParams)
 								)[newPlane_a(self.scene)];
 
 					disk	= 	(	"Disk" >> +blank_p >> real_p[assign_a(newDisk_a::radius)] >> +blank_p >>
 														  vec3_p[assign_a(newDisk_a::pos)] >> +blank_p >>
 														  vec3_p[assign_a(newDisk_a::normal)] >> +blank_p >>
-														  (+alnum_p)[assign_a(newDisk_a::matName)]
+														  (+alnum_p)[assign_a(newDisk_a::matName)] >>
+														  !(+blank_p >> shaderParams)
 								)[newDisk_a(self.scene)];
+
+					shaderParams =	(
+										color4_p[shaderParams_a()]
+									) % blank_p;
 				
 				// Grammar line definition & root.
 					element =	  option
@@ -128,6 +135,7 @@ namespace ScnParser
 			rule<ScannerT> lights, pointLight;
 			rule<ScannerT> material;
 			rule<ScannerT> geometries, sphere, plane, disk;
+			rule<ScannerT> shaderParams;
 
 			// General description
 			rule<ScannerT> element, statement, base_expression;

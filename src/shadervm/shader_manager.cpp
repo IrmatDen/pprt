@@ -49,11 +49,17 @@ void ShaderManager::registerI(const Vec3 &v)
 	env.I = v;
 }
 
-void ShaderManager::execute(const string &shaderName, Color4 &out)
+void ShaderManager::execute(const string &shaderName, const ShaderParams &params, Color4 &out)
 {
 	try
 	{
+		luabind::object shader = luabind::object_cast<luabind::object>(luabind::globals(luaState)[shaderName]);
+		//shader.push(boost::any_cast<Color4>(params[0].value));
+		//shader["col"] = boost::any_cast<Color4>(params[0].value);
+		//out = luabind::object_cast<Color4>(shader());
 		out = luabind::call_function<Color4>(luaState, shaderName.c_str());
+		/*luabind::object shader = luabind::call_function<Color4>(luaState, shaderName.c_str(), boost::any_cast<Color4>(params[0].value));
+		out = luabind::object_cast<Color4>(shader);*/
 	}
 	catch(luabind::error &e)
 	{

@@ -148,7 +148,7 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	shaderManager.registerP(p);
 	shaderManager.registerN(n);
 	shaderManager.registerI(ray.dir);
-	shaderManager.execute(nearestObj->getShaderName(), out);
+	shaderManager.execute(nearestObj->getShaderName(), nearestObj->getShaderParams(), out);
 
 	return out.clamp();
 }

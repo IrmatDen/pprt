@@ -7,6 +7,8 @@
 #include "ray.h"
 #include "material.h"
 
+#include "../shadervm/shader_param.h"
+
 class Geometry
 {
 public:
@@ -21,8 +23,10 @@ public:
 	MaterialPtr&			material()								{ return mat; }
 
 	void					setShader(const std::string &name)		{ shaderName = name; }
+	void					setShaderParams(ShaderParams p)			{ shaderParams = p; }
 	bool					hasShader() const						{ return shaderName.length() != 0; }
 	const std::string&		getShaderName() const					{ return shaderName; }
+	const ShaderParams&		getShaderParams() const					{ return shaderParams; }
 
 protected:
 	Geometry()														{}
@@ -31,7 +35,9 @@ protected:
 protected:
 	Vec3					pos;
 	MaterialPtr				mat;
+
 	std::string				shaderName;
+	ShaderParams			shaderParams;
 };
 
 typedef boost::shared_ptr<Geometry> GeometryPtr;

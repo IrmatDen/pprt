@@ -226,6 +226,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\shadervm\shader_param.h"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\shading_lighting_fun.cpp"
 					>
 				</File>
@@ -316,28 +320,6 @@
 					>
 				</File>
 			</Filter>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
-		</Filter>
-		<Filter
-			Name="Scenes"
-			>
-			<File
-				RelativePath=".\ScnSamples\sphere.crtscn"
-				>
-			</File>
-			<File
-				RelativePath=".\ScnSamples\spheres_plane.crtscn"
-				>
-			</File>
-			<File
-				RelativePath=".\ScnSamples\spheres_plane_disk.crtscn"
-				>
-			</File>
 		</Filter>
 	</Files>
 	<Globals>

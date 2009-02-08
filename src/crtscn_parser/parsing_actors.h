@@ -38,7 +38,7 @@ struct shaderPath_a
 //-----------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------
-// Material actor
+// Material actors
 
 struct newMaterial_a
 {
@@ -67,6 +67,18 @@ struct newMaterial_a
 std::string	newMaterial_a::name;
 Color4		newMaterial_a::color;
 double		newMaterial_a::reflexivity;
+
+#include "../shadervm/shader_param.h"
+struct shaderParams_a
+{
+	void operator()(const Color4 &col) const
+	{
+		params.push_back(ShaderParam(PT_Color4, col));
+	}
+
+	static ShaderParams params;
+};
+ShaderParams shaderParams_a::params;
 //-----------------------------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------------------------
@@ -107,17 +119,16 @@ struct newSphere_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Sphere((float)radius, pos));
-		MaterialPtr m = scene.getMaterialByName(matName);
-		if (m)
-			g->material() = m;
-		//else if (scene.shaderManager.containsShaderName(matName))
-			g->setShader(matName);
+		g->setShader(matName);
+		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
 		pos = Vec3(0);
 		radius = 0;
 		matName = "";
+
+		shaderParams_a::params = ShaderParams();
 	}
 
 	Scene			&	scene;
@@ -139,19 +150,18 @@ struct newPlane_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		MaterialPtr m = scene.getMaterialByName(matName);
-		if (m)
-		{
-			GeometryPtr g(new Plane(normal.normalize(), (float)offset, !twoSided));
-			g->material() = m;
-			scene.addGeometry(g);
-		}
+		GeometryPtr g(new Plane(normal.normalize(), (float)offset, !twoSided));
+		g->setShader(matName);
+		g->setShaderParams(shaderParams_a::params);
+		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
 		normal = Vec3(0);
 		offset = 0;
 		twoSided = false;
 		matName = "";
+
+		shaderParams_a::params = ShaderParams();
 	}
 
 	Scene			&	scene;
@@ -175,19 +185,18 @@ struct newDisk_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		MaterialPtr m = scene.getMaterialByName(matName);
-		if (m)
-		{
-			GeometryPtr g(new Disk((float)radius, pos, normal.normalize()));
-			g->material() = m;
-			scene.addGeometry(g);
-		}
+		GeometryPtr g(new Disk((float)radius, pos, normal.normalize()));
+		g->setShader(matName);
+		g->setShaderParams(shaderParams_a::params);
+		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
 		radius = 0;
 		pos = Vec3(0);
 		normal = Vec3(0);
 		matName = "";
+
+		shaderParams_a::params = ShaderParams();
 	}
 
 	Scene			&	scene;

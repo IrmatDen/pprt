@@ -14,6 +14,7 @@ extern "C"
 #include <luabind/luabind.hpp>
 
 #include "../scene/color4.h"
+#include "shader_param.h"
 
 class Vec3;
 class Scene;
@@ -37,7 +38,7 @@ public:
 	void registerN(const Vec3 &v);
 	void registerI(const Vec3 &v);
 
-	void execute(const std::string &shaderName, Color4 &out);
+	void execute(const std::string &shaderName, const ShaderParams &params, Color4 &out);
 
 	// Functions acting as lua bindings to get scene related info
 	void diffuse(const Vec3 &N, Color4 &out) const;

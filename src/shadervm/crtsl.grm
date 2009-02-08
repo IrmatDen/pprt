@@ -57,6 +57,7 @@ number 		= {Number}+('.'{Number}+)?
 <block>			::= '{' <variables> <statements> '}'
 
 <statements>			::= <statements> <statement>
+				 |  <block>
 				 |  
 
 <statement>			::= <assignexpression> ';'

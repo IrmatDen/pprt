@@ -13,9 +13,9 @@
 
 ! ------------------------------------------------- Terminals
 
-identifier    = {ID Head}{ID Tail}*
-string        = '"' {String Chars}* '"'
-real          = {Number}+('.'{Number}+)?
+identifier    	= {ID Head}{ID Tail}*
+string_litteral	= '"' {String Chars}* '"'
+real_litteral 	= {Number}+('.'{Number}+)?
 
 ! ------------------------------------------------- Rules
 
@@ -23,9 +23,31 @@ real          = {Number}+('.'{Number}+)?
 
 <definitions>			::= <shader_definition>
 
-<shader_definition>		::= <shader_type> identifier '(' ')' <block>
+<shader_definition>		::= <shader_type> identifier '(' <formals> ')' <block>
 
-<shader_type>			::= surface
+<shader_type>			::= light
+				 |  surface
+				 |  volume
+				 |  displacement
+				 |  transformation
+				 |  imager
+
+<formals>			::= <variable_definitions> <formals>
+				 |  
+
+<variable_definitions>	::= <type> <def_expressions> ';'
+
+<type>				::= real
+				 |  string
+				 |  vec3
+				 |  color4
+
+<def_expressions>		::= <def_expression>
+
+<def_expression>		::= identifier <def_init>
+
+<def_init>			::= '=' <expression>
+				 |  
 
 ! ------------------------------------- Statements
 
@@ -40,6 +62,6 @@ real          = {Number}+('.'{Number}+)?
 
 <expression>			::= <primary>
 
-<primary>			::= real
+<primary>			::= real_litteral
 
 <assignexpression>		::= identifier '=' <expression>

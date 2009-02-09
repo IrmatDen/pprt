@@ -36,6 +36,7 @@ type			= real |string | vec3 | color4
 <variable_definitions>	::= type <def_expressions> ';'
 
 <def_expressions>		::= <def_expression>
+				 |  <def_expression> ',' <def_expressions>
 
 <def_expression>		::= identifier <def_init>
 

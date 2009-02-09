@@ -4,15 +4,6 @@
 #include <map>
 #include <string>
 
-extern "C"
-{
-    #include "lua.h"
-    #include "lauxlib.h"
-	#include "lualib.h"
-}
-
-#include <luabind/luabind.hpp>
-
 #include "../scene/color4.h"
 #include "shader_param.h"
 
@@ -32,7 +23,7 @@ public:
 
 	void setScene(Scene &scn)									{ scene = &scn; }
 
-	void loadLuaFile(const std::string &fileName);
+	void loadFile(const std::string &fileName);
 
 	void registerP(const Vec3 &v);
 	void registerN(const Vec3 &v);
@@ -54,7 +45,6 @@ private:
 	} env;
 
 private:
-	lua_State		*	luaState;
 	Scene			*	scene;
 };
 

@@ -60,8 +60,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb_debug.lib luabindvc++9d.lib D:\prog\lua5.1\lib\static\lua5.1d.lib"
+				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb_debug.lib gpengine_d.lib"
 				LinkIncremental="2"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -138,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb.lib D:\prog\lua5.1\lib\static\lua5.1.lib luabindvc++9.lib"
+				AdditionalDependencies="FreeImagePlus.lib Winmm.lib tbb.lib gpengine.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -217,10 +219,6 @@
 			<Filter
 				Name="ShaderVM"
 				>
-				<File
-					RelativePath=".\src\shadervm\luabindings.cpp"
-					>
-				</File>
 				<File
 					RelativePath=".\src\shadervm\shader_manager.cpp"
 					>

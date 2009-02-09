@@ -27,7 +27,7 @@ struct shaderPath_a
 				fs::path p = it->path();
 				if (p.extension() == ".lua")
 				{
-					scene.shaderManager.loadLuaFile(p.file_string());
+					scene.shaderManager.loadFile(p.file_string());
 				}
 			}
 		}

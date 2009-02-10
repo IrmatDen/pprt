@@ -52,8 +52,10 @@ type			= real |string | vec3 | color4
 
 <statement>			::= <assignexpression> ';'
 				 |  <procedurecall> ';'
-				 |  'return' <expression> ';'
+				 |  <returnstmt> ';'
 				 |  <block>
+
+<returnstmt>			::= 'return' <expression>
 
 ! ------------------------------------- Expressions
 

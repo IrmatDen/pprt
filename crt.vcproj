@@ -232,6 +232,18 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="shader_compiler"
+				>
+				<File
+					RelativePath=".\src\shader_compiler\SL_ASTCreator.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shader_compiler\stdout_visitor.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -315,6 +327,26 @@
 				</File>
 				<File
 					RelativePath=".\src\shadervm\shading_lighting_fun.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="shader_compiler"
+				>
+				<File
+					RelativePath=".\src\shader_compiler\SL_ASTCreator.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shader_compiler\SL_ASTNodes.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shader_compiler\SL_ASTVisitor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shader_compiler\stdout_visitor.h"
 					>
 				</File>
 			</Filter>

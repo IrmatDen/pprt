@@ -8,15 +8,28 @@
 
 using namespace std;
 
-static char space() { return ' '; }
+static char* space() { static char tree[] = "|   "; return tree; }
+
+void StdoutVisitor::visit(TermNode &node)
+{
+	generate_n(ostream_iterator<char*>(cout), currentIndent - 1, space);
+	cout << "|-  ";
+	wcout << node.getImage() << endl;
+}
 
 #define GEN_STDOUTVISITOR_METHOD(NodeType)	\
 	void StdoutVisitor::visit(NodeType &node) \
 	{ \
-		generate_n(ostream_iterator<char>(cout), currentIndent, space); \
+		generate_n(ostream_iterator<char*>(cout), currentIndent - 1, space); \
+		cout << "|-  "; \
+		if (&node == 0) \
+		{ \
+			cout << "<null>" << endl; \
+			return; \
+		} \
 		wcout << node.getImage() << endl; \
 		 \
-		currentIndent += 2; \
+		currentIndent++; \
 		vector<ASTNode*> &children = *node.getChildren(); \
 		for(vector<ASTNode*>::iterator it = children.begin(); \
 			it != children.end(); \
@@ -25,14 +38,8 @@ static char space() { return ' '; }
 			if(*it != 0) \
 				((SLNode*)(*it))->accept(*this); \
 		} \
-		currentIndent -= 2; \
+		currentIndent--; \
 	}
-
-void StdoutVisitor::visit(TermNode &node)
-{
-	generate_n(ostream_iterator<char>(cout), currentIndent, space);
-	wcout << node.getImage() << endl;
-}
 
 GEN_STDOUTVISITOR_METHOD(FileRootNode)
 GEN_STDOUTVISITOR_METHOD(ShaderRootNode)

@@ -45,6 +45,7 @@ int main(int argc, char **argv)
 	v.visit(*root);
 	
 	delete buffer;
+	delete root;
 	return 0;
 
 	/*string scnFile = "ScnSamples/specular_shaded_sphere.crtscn";

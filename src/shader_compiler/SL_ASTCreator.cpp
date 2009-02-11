@@ -7,6 +7,9 @@ using namespace std;
 
 ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 {
+	if (!reduction)
+		return 0;
+
 	wstring sym = reduction->symbol;
 
 	deque <Symbol*> rdcChildren;
@@ -75,8 +78,8 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 			
 		def_expressions->addChild (getASTNode(rdcChildren[0], def_expressions));	// at least one var decl is mandatory
 		
-		if (rdcChildren.size() == 2)
-			def_expressions->addChild (getASTNode(rdcChildren[1], def_expressions));// others vars as needed
+		if (rdcChildren.size() == 3)
+			def_expressions->addChild (getASTNode(rdcChildren[2], def_expressions));// others vars as needed
 
 		return def_expressions;
 	}
@@ -93,9 +96,14 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 
 	if (sym == L"def_init")
 	{
-		CREATE_NODE(VarInitNode, def_init);
-		def_init->addChild (getASTNode(rdcChildren[1], def_init));	// var initialization expression
-		return def_init;
+		// def_init is optionnal, so check first!
+		if(rdcChildren.size() > 0)
+		{
+			CREATE_NODE(VarInitNode, def_init);
+			def_init->addChild (getASTNode(rdcChildren[1], def_init));	// var initialization expression
+			return def_init;
+		}
+		return 0;
 	}
 
 // STATEMENTS
@@ -117,7 +125,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return statement;
 	}
 
-	if (sym == L"return")
+	if (sym == L"returnstmt")
 	{
 		CREATE_NODE(ReturnStmtNode, returnStmt);
 		returnStmt->addChild (getASTNode(rdcChildren[1], returnStmt));		// return statement (omit 'return' and ';')

@@ -65,7 +65,8 @@ void UselessNodesRemovalVisitor::visit(StmtListNode &node)
 		uselessNodes.push((SLNode*)firstChild);
 		reparentAllChildren(node, *(SLNode*)firstChild);
 		firstChild->getChildren()->clear();
-		node.getChildren()->erase(node.getChildren()->begin());
+		node.getChildren()->push_back(node.getChildren()->at(1));
+		node.getChildren()->erase(node.getChildren()->begin(), node.getChildren()->begin() + 2);
 	}
 }
 

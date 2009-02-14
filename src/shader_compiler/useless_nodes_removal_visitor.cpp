@@ -48,6 +48,11 @@ void UselessNodesRemovalVisitor::visit(VarDeclBlockNode &node)
 void UselessNodesRemovalVisitor::visit(VarDefNode &node)
 {
 	visitChildrenOf(node);
+}
+
+void UselessNodesRemovalVisitor::visit(VarDefMultExprNode &node)
+{
+	visitChildrenOf(node);
 
 	if (node.getChildren()->size() == 2)
 	{
@@ -60,11 +65,6 @@ void UselessNodesRemovalVisitor::visit(VarDefNode &node)
 			node.getChildren()->erase(node.getChildren()->begin() + 1);
 		}
 	}
-}
-
-void UselessNodesRemovalVisitor::visit(VarDefMultExprNode &node)
-{
-	visitChildrenOf(node);
 }
 
 void UselessNodesRemovalVisitor::visit(VarDefExprNode &node)

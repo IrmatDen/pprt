@@ -135,7 +135,7 @@ void CompiledShader::parseVarDecl(const string &varDecl)
 	if (tokens[0] == "uniform")		out.storageType = VST_Uniform;
 	else /* varying */				out.storageType = VST_Varying;
 	
-	if (tokens[1] == "color")
+	if (tokens[1] == "color4")
 	{
 		out.type	= VT_Color;
 		out.content	= Color4();

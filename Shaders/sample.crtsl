@@ -5,5 +5,7 @@ surface constant()
    #out = function(out, 2, 3.5, tex("test"), odd);
    #justAnotherStatement = 51;
    #return out;
-   out = color4(0.8, 0.6, 0.8, 1.0);
+   color4 k = color4(0.4, 0.6, 0.8, 1.0);
+   real r = 2;
+   out = k;
 }

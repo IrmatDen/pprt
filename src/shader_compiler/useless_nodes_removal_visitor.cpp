@@ -31,6 +31,19 @@ void UselessNodesRemovalVisitor::visit(BlockNode &node)
 void UselessNodesRemovalVisitor::visit(VarDeclBlockNode &node)
 {
 	visitChildrenOf(node);
+
+	if (node.getChildren()->size() == 2)
+	{
+		ASTNode *varsChild = (*node.getChildren())[1];
+		if(varsChild->getImage() == L"variables")
+		{
+			uselessNodes.push((SLNode*)varsChild);
+			reparentAllChildren(node, *(SLNode*)varsChild);
+			varsChild->getChildren()->clear();
+			//node.getChildren()->push_back(node.getChildren()->at(0));
+			node.getChildren()->erase(node.getChildren()->begin() + 1);
+		}
+	}
 }
 
 void UselessNodesRemovalVisitor::visit(VarDefNode &node)

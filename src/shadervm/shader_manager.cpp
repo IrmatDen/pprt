@@ -47,6 +47,12 @@ void ShaderManager::loadFile(const std::string &fileName)
 
 	SL_ASTCreator astCreator;
 	FileRootNode *root = (FileRootNode*)(astCreator.createTree(*sym));
+	if (!root)
+	{
+		cout << "Can't load " << fileName << endl;
+		delete buffer;
+		return;
+	}
 
 	UselessNodesRemovalVisitor cleaner;
 	cleaner.visit(*root);
@@ -54,18 +60,18 @@ void ShaderManager::loadFile(const std::string &fileName)
 	StdoutVisitor printer;
 	printer.visit(*root);
 
-	cout << "loaded " << fileName.c_str() << endl;
+	cout << "Loaded " << fileName.c_str() << endl;
 
 	std::ostringstream oss;
 
-	MnemonicGenVisitor mnemonicGen(oss);
+	/*MnemonicGenVisitor mnemonicGen(oss);
 	mnemonicGen.visit(*root);
 	cout << oss.str();
 
 	CompiledShader shader;
 	shader.fromMnemonics(oss.str());
 
-	shaders[shader.name()] = shader;
+	shaders[shader.name()] = shader;*/
 	
 	delete buffer;
 	delete root;

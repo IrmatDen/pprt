@@ -31,6 +31,7 @@ public:
 
 private:
 	std::ostringstream &out;
+	std::vector<ASTNode*>::iterator nextVarInitStatementPos;
 };
 
 #endif

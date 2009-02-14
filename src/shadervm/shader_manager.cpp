@@ -68,10 +68,11 @@ void ShaderManager::loadFile(const std::string &fileName)
 	mnemonicGen.visit(*root);
 	cout << oss.str();
 
-	/*CompiledShader shader;
+	CompiledShader shader;
 	shader.fromMnemonics(oss.str());
+	printer.visit(*root);
 
-	shaders[shader.name()] = shader;*/
+	shaders[shader.name()] = shader;
 	
 	delete buffer;
 	delete root;

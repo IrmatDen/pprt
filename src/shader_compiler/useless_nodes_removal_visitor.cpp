@@ -58,6 +58,15 @@ void UselessNodesRemovalVisitor::visit(VarInitNode &node)
 void UselessNodesRemovalVisitor::visit(StmtListNode &node)
 {
 	visitChildrenOf(node);
+
+	ASTNode *firstChild = (*node.getChildren())[0];
+	if(firstChild->getImage() == L"statements")
+	{
+		uselessNodes.push((SLNode*)firstChild);
+		reparentAllChildren(node, *(SLNode*)firstChild);
+		firstChild->getChildren()->clear();
+		node.getChildren()->erase(node.getChildren()->begin());
+	}
 }
 
 void UselessNodesRemovalVisitor::visit(StmtNode &node)
@@ -130,5 +139,15 @@ void UselessNodesRemovalVisitor::updateParentChildren(SLNode &removedNode, SLNod
 			*it = &newChild;
 			return;
 		}
+	}
+}
+
+void UselessNodesRemovalVisitor::reparentAllChildren(SLNode &newParent, SLNode &removedNode)
+{
+	vector<ASTNode*> &children = *removedNode.getChildren();
+	for(vector<ASTNode*>::iterator it = children.begin(); it != children.end(); ++it)
+	{
+		(*it)->setParent(&newParent);
+		newParent.addChild(*it);
 	}
 }

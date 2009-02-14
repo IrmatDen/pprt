@@ -30,6 +30,7 @@ public:
 private:
 	void deleteUselessNodes();
 	void updateParentChildren(SLNode &removedNode, SLNode &newChild);
+	void reparentAllChildren(SLNode &newParent, SLNode &removedNode);
 
 private:
 	std::stack<SLNode*>		uselessNodes;

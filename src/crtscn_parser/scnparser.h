@@ -109,7 +109,7 @@ namespace ScnParser
 								)[newDisk_a(self.scene)];
 
 					shaderParams =	(
-										color4_p[shaderParams_a()]
+										'"' >> (+alnum_p)[assign_a(shaderParams_a::paramName)] >> '"' >> +blank_p >> color4_p[shaderParams_a()]
 									) % blank_p;
 				
 				// Grammar line definition & root.

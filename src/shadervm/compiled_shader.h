@@ -31,8 +31,6 @@ public:
 
 	CompiledShader& operator=(const CompiledShader &other);
 
-	//void fromMnemonics(const std::string &mnemonics);
-
 	void				setName(const std::string &n)		{ shaderName = n; }
 	const std::string&	name() const						{ return shaderName; }
 

@@ -24,7 +24,7 @@ public:
 	bool					hasShader() const						{ return shader != 0; }
 	CompiledShader&			getShader() const						{ return *shader; }
 
-	void					setShaderParams(ShaderParams p)			{ shaderParams = p; }
+	void					setShaderParams(ShaderParams p);
 	const ShaderParams&		getShaderParams() const					{ return shaderParams; }
 
 protected:

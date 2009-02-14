@@ -19,6 +19,7 @@ public:
 	virtual void visit(TermNode &node);
 	virtual void visit(FileRootNode &node);
 	virtual void visit(ShaderRootNode &node);
+	virtual void visit(FormalsNode &node);
 	virtual void visit(BlockNode &node);
 	virtual void visit(VarDeclBlockNode &node);
 	virtual void visit(VarDefNode &node);

@@ -5,6 +5,7 @@ class SLNode;
 class TermNode;
 class FileRootNode;
 class ShaderRootNode;
+class FormalsNode;
 class BlockNode;
 class VarDeclBlockNode;
 class VarDefNode;
@@ -27,6 +28,7 @@ public:
 	virtual void visit(TermNode &node)				= 0;
 	virtual void visit(FileRootNode &node)			= 0;
 	virtual void visit(ShaderRootNode &node)		= 0;
+	virtual void visit(FormalsNode &node)			= 0;
 	virtual void visit(BlockNode &node)				= 0;
 	virtual void visit(VarDeclBlockNode &node)		= 0;
 	virtual void visit(VarDefNode &node)			= 0;

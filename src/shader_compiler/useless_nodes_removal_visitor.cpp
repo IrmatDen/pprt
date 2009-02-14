@@ -23,6 +23,23 @@ void UselessNodesRemovalVisitor::visit(ShaderRootNode &node)
 	visitChildrenOf(node);
 }
 
+void UselessNodesRemovalVisitor::visit(FormalsNode &node)
+{
+	visitChildrenOf(node);
+
+	if (node.getChildren()->size() == 2)
+	{
+		ASTNode *varsChild = (*node.getChildren())[1];
+		if(varsChild->getImage() == L"formals")
+		{
+			uselessNodes.push((SLNode*)varsChild);
+			reparentAllChildren(node, *(SLNode*)varsChild);
+			varsChild->getChildren()->clear();
+			node.getChildren()->erase(node.getChildren()->begin() + 1);
+		}
+	}
+}
+
 void UselessNodesRemovalVisitor::visit(BlockNode &node)
 {
 	visitChildrenOf(node);

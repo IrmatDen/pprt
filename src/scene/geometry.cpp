@@ -11,3 +11,14 @@ void Geometry::setShader(const CompiledShader &cs)
 
 	shader = new CompiledShader(cs);
 }
+
+void Geometry::setShaderParams(ShaderParams p)
+{
+	assert(shader);
+
+	shaderParams = p;
+	for(ShaderParams::iterator it = shaderParams.begin(); it != shaderParams.end(); ++it)
+	{
+		shader->setVarValue(it->name, it->value);
+	}
+}

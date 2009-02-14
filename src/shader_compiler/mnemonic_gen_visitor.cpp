@@ -37,17 +37,18 @@ void MnemonicGenVisitor::visit(ShaderRootNode &node)
 	visitChildrenOf(node);
 }
 
+void MnemonicGenVisitor::visit(FormalsNode &node)
+{
+	visitChildrenOf(node);
+}
+
 void MnemonicGenVisitor::visit(BlockNode &node)
 {
-	//nextVarInitStatementPos = node.getChildren()->at(1)->getChildren()->begin();
-
 	visitChildrenOf(node);
 }
 
 void MnemonicGenVisitor::visit(VarDeclBlockNode &node)
 {
-	//out << ".vars" << endl;
-
 	visitChildrenOf(node);
 }
 
@@ -194,38 +195,6 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			string instr("pop ");
 			instr += wstringToString(node.getChildren()->at(0)->getImage());
 			shader->parseInstr(instr);
-
-			/*ASTNode *statementsNode = typeNode->getParent()->getParent()->getChildren()->at(1);
-			vector<ASTNode*> &statementsNodeChildren = *statementsNode->getChildren();
-
-			// Create the new statement
-			StmtNode *statement = new StmtNode();
-			statement->setImage(L"statement");
-			statement->setSymbol(L"statement");
-			statement->setParent(statementsNode);
-
-			// As an assign expression
-			AsgnExprNode *assignexpression = new AsgnExprNode();
-			assignexpression->setImage(L"assignexpression");
-			assignexpression->setSymbol(L"assignexpression");
-			assignexpression->setParent(statement);
-			statement->addChild(assignexpression);
-
-			// Var name node
-			TermNode *varNameNode = new TermNode();
-			varNameNode->setParent(assignexpression);
-			varNameNode->setImage(node.getChildren()->at(0)->getImage());
-			varNameNode->setSymbol(node.getChildren()->at(0)->getSymbol());
-			assignexpression->addChild(varNameNode);
-
-			// Break link from this node with the initializer.
-			assignexpression->addChild(initializer);
-			initializer->setParent(assignexpression);
-			node.getChildren()->erase(node.getChildren()->begin() + 1);
-
-			// Prepend the newly created statement to the statements block
-			nextVarInitStatementPos = statementsNodeChildren.insert(nextVarInitStatementPos, statement);
-			nextVarInitStatementPos++;*/
 		}
 	}
 
@@ -239,8 +208,6 @@ void MnemonicGenVisitor::visit(VarInitNode &node)
 
 void MnemonicGenVisitor::visit(StmtListNode &node)
 {
-	//out << endl << ".code" << endl;
-
 	visitChildrenOf(node);
 }
 

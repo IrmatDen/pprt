@@ -36,6 +36,7 @@ void StdoutVisitor::visit(TermNode &node)
 
 GEN_STDOUTVISITOR_METHOD(true, FileRootNode)
 GEN_STDOUTVISITOR_METHOD(false, ShaderRootNode)
+GEN_STDOUTVISITOR_METHOD(false, FormalsNode)
 GEN_STDOUTVISITOR_METHOD(false, BlockNode)
 GEN_STDOUTVISITOR_METHOD(false, VarDeclBlockNode)
 GEN_STDOUTVISITOR_METHOD(false, VarDefNode)

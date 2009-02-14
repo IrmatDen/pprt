@@ -32,6 +32,12 @@ public:
 	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
 };
 
+class FormalsNode : public SLNode
+{
+public:
+	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
+};
+
 class BlockNode : public SLNode
 {
 public:

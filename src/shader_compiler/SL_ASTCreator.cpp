@@ -41,6 +41,19 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return shader_definition;
 	}
 
+	if (sym == L"formals")
+	{
+		CREATE_NODE(FormalsNode, formals);
+
+		if (rdcChildren.size() != 0)
+		{
+			formals->addChild (getASTNode(rdcChildren[0], formals));	// first var (or multiple vars of the same type)
+			if ( ((NonTerminal*)rdcChildren[1])->children.size() > 0)
+				formals->addChild (getASTNode(rdcChildren[1], formals));	// eventual other vars decl
+		}
+		return formals;
+	}
+
 	if (sym == L"block")
 	{
 		CREATE_NODE(BlockNode, block);

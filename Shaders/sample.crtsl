@@ -1,10 +1,4 @@
-surface constant()
+surface constant(color4 surfColor=color4(1, 0, 0);)
 {
-   #color4 out = color4(0.4, 0.6, 0.8, 1.0);
-   #real r, answer = 42;
-   #out = function(out, 2, 3.5, tex("test"), odd);
-   #justAnotherStatement = 51;
-   #return out;
-   color4 k = color4(1.0, 0.1, 0.1, 1.0);
-   out = k;
+   out = surfColor;
 }

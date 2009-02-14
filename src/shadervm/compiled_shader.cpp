@@ -22,6 +22,7 @@ void initOpCodeMappings()
 	CompiledShader::opCodeMappings["push"]	= CompiledShader::Pushd;
 	CompiledShader::opCodeMappings["call"]	= CompiledShader::Call;
 	CompiledShader::opCodeMappings["pop"]	= CompiledShader::Pop;
+	CompiledShader::opCodeMappings["ret"]	= CompiledShader::Ret;
 
 	// Function name - fn pointers mapping
 	CompiledShader::fnMappings["color4"]	= CompiledShader::ShaderFunction(&CompiledShader::color4Ctor);

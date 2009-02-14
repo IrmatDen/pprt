@@ -27,12 +27,20 @@ void initOpCodeMappings()
 	CompiledShader::fnMappings["color4"]	= CompiledShader::ShaderFunction(&CompiledShader::color4Ctor);
 }
 
-CompiledShader::CompiledShader()
+CompiledShader::CompiledShader(ShaderType type)
 {
 	if (!opCodeMappingsInitialized)
 	{
 		initOpCodeMappings();
 		opCodeMappingsInitialized = true;
+	}
+	
+	addVar(VST_Varying, VT_Color, "out", Color4());
+
+	switch(type)
+	{
+	case ST_Surface:
+		break;
 	}
 }
 
@@ -51,101 +59,33 @@ CompiledShader& CompiledShader::operator=(const CompiledShader &other)
 	return *this;
 }
 
-void CompiledShader::fromMnemonics(const string &mnemonics)
+void CompiledShader::addVar(VariableStorageType varST, VariableType varT, const std::string &name, boost::any value)
 {
-	shaderName	= "";
-	varTable	= VariableTable();
-	code		= Instructions();
+	Variable v;
+	v.storageType	= varST;
+	v.type			= varT;
+	v.name			= name;
+	v.content		= value;
+	
+	varTable.push_back(v);
+}
 
-	typedef vector<string> Lines;
-	Lines lines;
-	split(lines, mnemonics, is_any_of("\n"));
-
-	feedStandardVars();
-
-	enum 
+void CompiledShader::setVarValue(const std::string &name, boost::any value)
+{
+	for(VariableTable::iterator it = varTable.begin(); it != varTable.end(); ++it)
 	{
-		Segment_ShaderId,
-		Segment_VarDecl,
-		Segment_Code
-	} processingStage = Segment_ShaderId;
-
-	for (Lines::const_iterator lineIt = lines.begin(); lineIt != lines.end(); ++lineIt)
-	{
-		const string &line = *lineIt;
-		if (line == "")
-			continue;
-
-		switch(processingStage)
+		if ((*it).name == name)
 		{
-		case Segment_ShaderId:
-			if (line.find(".shaderid") != string::npos)
-				shaderName = line.substr(line.rfind(' ') + 1);
-
-			//! \todo Throw exception if no .shaderId is found
-			processingStage = Segment_VarDecl;
-			break;
-
-		case Segment_VarDecl:
-			if (line == "" || line.find(".vars") != string::npos)
-				continue;
-			if (line.find(".code") != string::npos)
-			{
-				processingStage = Segment_Code;
-				continue;
-			}
-
-			parseVarDecl(line);
-			break;
-
-		case Segment_Code:
-			if (line == "")
-				continue;
-			parseInstr(line);
-			break;
-
-		default:
-			//! \todo unknown processing stage, throw exception
-			break;
+			(*it).content = value;
 		}
 	}
 }
 
-void CompiledShader::feedStandardVars()
+void CompiledShader::setVarValueByIndex(size_t index, boost::any value)
 {
-	Variable out;
-	out.storageType	= VST_Varying;
-	out.type		= VT_Color;
-	out.name		= "out";
-	out.content		= Color4();
-	
-	varTable.push_back(out);
-}
+	assert(index < varTable.size());
 
-void CompiledShader::parseVarDecl(const string &varDecl)
-{
-	typedef vector<string> Tokens;
-	Tokens tokens;
-	split(tokens, varDecl, is_any_of(" "));
-
-	//! \todo throw exception if tokens doesn't contain 3 strings
-
-	Variable out;
-
-	if (tokens[0] == "uniform")		out.storageType = VST_Uniform;
-	else /* varying */				out.storageType = VST_Varying;
-	
-	if (tokens[1] == "color4")
-	{
-		out.type	= VT_Color;
-		out.content	= Color4();
-	}
-	//! \todo throw exception if variable type is unknown
-	//else /* unknown */			
-	
-	out.name = tokens[2];
-	
-	varTable.push_back(out);
+	varTable[index].content = value;
 }
 
 void CompiledShader::parseInstr(const std::string &instr)
@@ -252,17 +192,6 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 	fnRef = mappedFnRef->second;
 
 	return true;
-}
-
-void CompiledShader::registerVaryingVar(const std::string &name, VariableType type, boost::any value)
-{
-	Variable v;
-	v.storageType	= VST_Varying;
-	v.type			= type;
-	v.name			= name;
-	v.content		= value;
-	
-	varTable.push_back(v);
 }
 
 void CompiledShader::exec(Color4 &out)

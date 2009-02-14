@@ -60,19 +60,15 @@ void ShaderManager::loadFile(const std::string &fileName)
 	StdoutVisitor printer;
 	printer.visit(*root);
 
-	cout << "Loaded " << fileName.c_str() << endl;
-
-	std::ostringstream oss;
-
-	MnemonicGenVisitor mnemonicGen(oss);
+	MnemonicGenVisitor mnemonicGen;
 	mnemonicGen.visit(*root);
-	cout << oss.str();
-
-	CompiledShader shader;
-	shader.fromMnemonics(oss.str());
-	printer.visit(*root);
-
-	shaders[shader.name()] = shader;
+	
+	CompiledShader *shader = mnemonicGen.getShader();
+	if (shader)
+	{
+		shaders[shader->name()] = *shader;
+		cout << "Loaded " << fileName.c_str() << endl;
+	}
 	
 	delete buffer;
 	delete root;

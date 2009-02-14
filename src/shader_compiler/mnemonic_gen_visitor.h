@@ -5,10 +5,16 @@
 
 #include "SL_ASTVisitor.h"
 
+#include "../shadervm/compiled_shader.h"
+
 class MnemonicGenVisitor : public SL_ASTVisitor
 {
 public:
-	MnemonicGenVisitor(std::ostringstream &oss):out(oss) {}
+	MnemonicGenVisitor():shader(0) {}
+	~MnemonicGenVisitor()
+	{
+		delete shader;
+	}
 
 	virtual void visit(TermNode &node);
 	virtual void visit(FileRootNode &node);
@@ -29,9 +35,10 @@ public:
 	virtual void visit(ProcCallNode &node);
 	virtual void visit(ProcArgsNode &node);
 
+	CompiledShader* getShader()			{ return shader; }
+
 private:
-	std::ostringstream &out;
-	std::vector<ASTNode*>::iterator nextVarInitStatementPos;
+	CompiledShader *shader;
 };
 
 #endif

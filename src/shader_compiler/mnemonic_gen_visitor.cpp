@@ -1,9 +1,14 @@
+#include <boost/lexical_cast.hpp>
+
 #include <ASTCreator.h>
 
 #include "mnemonic_gen_visitor.h"
 #include "SL_ASTNodes.h"
 
+#include "../shadervm/symtab.h"
+
 using namespace std;
+using namespace boost;
 
 std::string wstringToString(const std::wstring &ws)
 {
@@ -21,21 +26,27 @@ void MnemonicGenVisitor::visit(FileRootNode &node)
 
 void MnemonicGenVisitor::visit(ShaderRootNode &node)
 {
-	out << ".shaderid " << wstringToString(node.getChildren()->at(1)->getImage()) << endl << endl;
+	delete shader;
+	shader = 0;
+
+	if (node.getChildren()->at(0)->getImage() == L"surface")
+		shader = new CompiledShader(CompiledShader::ST_Surface);
+
+	shader->setName(wstringToString(node.getChildren()->at(1)->getImage()));
 
 	visitChildrenOf(node);
 }
 
 void MnemonicGenVisitor::visit(BlockNode &node)
 {
-	nextVarInitStatementPos = node.getChildren()->at(1)->getChildren()->begin();
+	//nextVarInitStatementPos = node.getChildren()->at(1)->getChildren()->begin();
 
 	visitChildrenOf(node);
 }
 
 void MnemonicGenVisitor::visit(VarDeclBlockNode &node)
 {
-	out << ".vars" << endl;
+	//out << ".vars" << endl;
 
 	visitChildrenOf(node);
 }
@@ -52,52 +63,173 @@ void MnemonicGenVisitor::visit(VarDefMultExprNode &node)
 
 void MnemonicGenVisitor::visit(VarDefExprNode &node)
 {
-	out << "uniform ";
+	Variable v;
+	v.storageType = VST_Varying;
 
 	// Get type
-	ASTNode *typeNode = node.getParent()->getParent();
-	out << wstringToString(typeNode->getChildren()->at(0)->getImage()) << " ";
+	ASTNode *typeNode = node.getParent()->getParent()->getChildren()->at(0);
+	const wstring &type = typeNode->getImage();
+	if (type == L"color4")
+	{
+		v.type = VT_Color;
+		v.content = Color4();
+	}
+	else if(type == L"real")
+	{
+		v.type = VT_Double;
+		v.content = 0;
+	}
+	else if(type == L"vec3")
+	{
+		v.type = VT_Vector;
+		v.content = Vec3();
+	}
 
 	// Get var name
-	out << wstringToString(node.getChildren()->at(0)->getImage()) << endl;
+	v.name = wstringToString(node.getChildren()->at(0)->getImage());
 
 	// If initializer is provided, defer it as a statement.
 	if (node.getChildren()->size() == 2)
 	{
 		ASTNode *initializer = node.getChildren()->at(1);
-		ASTNode *statementsNode = typeNode->getParent()->getParent()->getChildren()->at(1);
-		vector<ASTNode*> &statementsNodeChildren = *statementsNode->getChildren();
+		bool initializationHandled = false;
 
-		// Create the new statement
-		StmtNode *statement = new StmtNode();
-		statement->setImage(L"statement");
-		statement->setSymbol(L"statement");
-		statement->setParent(statementsNode);
+		if (initializer->getChildren()->size() == 0)
+		{
+			// initializer is a terminal, check if it's a constant, if so, use it to initialize the var
+			try
+			{
+				double value = lexical_cast<double>(wstringToString(initializer->getImage()));
+				if (type == L"color4")
+					v.content = Color4((float)value);
+				else if (type == L"real")
+					v.content = value;
 
-		// As an assign expression
-		AsgnExprNode *assignexpression = new AsgnExprNode();
-		assignexpression->setImage(L"assignexpression");
-		assignexpression->setSymbol(L"assignexpression");
-		assignexpression->setParent(statement);
-		statement->addChild(assignexpression);
+				initializationHandled = true;
+			}
+			catch (bad_lexical_cast &)
+			{
+				// if it's not a double, then it probably is a var, and so initialization is deferred at runtime.
+			}
+		}
+		else if (initializer->getImage() == L"type_ctor")
+		{
+			vector<ASTNode*> &typeCtorChildren = *initializer->getChildren();
+			wstring ctorName = typeCtorChildren[0]->getImage();
+			assert(ctorName == type);
 
-		// Var name node
-		TermNode *varNameNode = new TermNode();
-		varNameNode->setParent(assignexpression);
-		varNameNode->setImage(node.getChildren()->at(0)->getImage());
-		varNameNode->setSymbol(node.getChildren()->at(0)->getSymbol());
-		assignexpression->addChild(varNameNode);
+			vector<ASTNode*> &args = *typeCtorChildren[1]->getChildren();
 
-		// Break link from this node with the initializer.
-		assignexpression->addChild(initializer);
-		initializer->setParent(assignexpression);
-		node.getChildren()->erase(node.getChildren()->begin() + 1);
+			// If arguments are all constants
+			initializationHandled = true;
+			for (size_t i = 0; i < args.size(); i++)
+			{
+				if (args[i]->getChildren()->size() != 0)
+				{
+					initializationHandled = false;
+				}
+				else if (type == L"color4")
+				{
+					try
+					{
+						double value = lexical_cast<double>(wstringToString(args[i]->getImage()));
+					}
+					catch (bad_lexical_cast &)
+					{
+						// if it's not a double, then it probably is a var, and so initialization is deferred at runtime.
+						initializationHandled = false;
+					}
+				}
+			}
 
-		// Prepend the newly created statement to the statements block
-		nextVarInitStatementPos = statementsNodeChildren.insert(nextVarInitStatementPos, statement);
-		nextVarInitStatementPos++;
-		statementsNodeChildren[0];
+			// Checks on constantnes is done, do the proper initialization.
+			if (initializationHandled)
+			{
+				if (type == L"color4")
+				{
+					switch(args.size())
+					{
+					case 1:
+						v.content = Color4((float)lexical_cast<double>(wstringToString(args[0]->getImage())));
+						break;
+
+					case 3:
+						{
+							Color4 c;
+							c.r = (float)lexical_cast<double>(wstringToString(args[0]->getImage()));
+							c.g = (float)lexical_cast<double>(wstringToString(args[1]->getImage()));
+							c.b = (float)lexical_cast<double>(wstringToString(args[2]->getImage()));
+							v.content = c;
+							break;
+						}
+
+					case 4:
+						{
+							Color4 c;
+							c.r = (float)lexical_cast<double>(wstringToString(args[0]->getImage()));
+							c.g = (float)lexical_cast<double>(wstringToString(args[1]->getImage()));
+							c.b = (float)lexical_cast<double>(wstringToString(args[2]->getImage()));
+							c.a = (float)lexical_cast<double>(wstringToString(args[3]->getImage()));
+							v.content = c;
+							break;
+						}
+
+					default:
+						// Nothing atm.
+						break;
+					}
+				}
+				else if (type == L"real")
+				{
+					assert(args.size() == 1);
+					v.content = lexical_cast<double>(wstringToString(args[0]->getImage()));
+				}
+			}
+		}
+
+		if (!initializationHandled)
+		{
+			// Defer the initialization to runtime
+			((SLNode*)initializer)->accept(*this);
+			string instr("pop ");
+			instr += wstringToString(node.getChildren()->at(0)->getImage());
+			shader->parseInstr(instr);
+
+			/*ASTNode *statementsNode = typeNode->getParent()->getParent()->getChildren()->at(1);
+			vector<ASTNode*> &statementsNodeChildren = *statementsNode->getChildren();
+
+			// Create the new statement
+			StmtNode *statement = new StmtNode();
+			statement->setImage(L"statement");
+			statement->setSymbol(L"statement");
+			statement->setParent(statementsNode);
+
+			// As an assign expression
+			AsgnExprNode *assignexpression = new AsgnExprNode();
+			assignexpression->setImage(L"assignexpression");
+			assignexpression->setSymbol(L"assignexpression");
+			assignexpression->setParent(statement);
+			statement->addChild(assignexpression);
+
+			// Var name node
+			TermNode *varNameNode = new TermNode();
+			varNameNode->setParent(assignexpression);
+			varNameNode->setImage(node.getChildren()->at(0)->getImage());
+			varNameNode->setSymbol(node.getChildren()->at(0)->getSymbol());
+			assignexpression->addChild(varNameNode);
+
+			// Break link from this node with the initializer.
+			assignexpression->addChild(initializer);
+			initializer->setParent(assignexpression);
+			node.getChildren()->erase(node.getChildren()->begin() + 1);
+
+			// Prepend the newly created statement to the statements block
+			nextVarInitStatementPos = statementsNodeChildren.insert(nextVarInitStatementPos, statement);
+			nextVarInitStatementPos++;*/
+		}
 	}
+
+	shader->addVar(v);
 }
 
 void MnemonicGenVisitor::visit(VarInitNode &node)
@@ -107,7 +239,7 @@ void MnemonicGenVisitor::visit(VarInitNode &node)
 
 void MnemonicGenVisitor::visit(StmtListNode &node)
 {
-	out << endl << ".code" << endl;
+	//out << endl << ".code" << endl;
 
 	visitChildrenOf(node);
 }
@@ -123,14 +255,16 @@ void MnemonicGenVisitor::visit(ReturnStmtNode &node)
 	ASTNode &retExpr = *node.getChildren()->at(0);
 	if (retExpr.getChildren()->size() == 0)
 	{
-		out << "push " << wstringToString(retExpr.getImage()) << endl;
+		string instr("push ");
+		instr += wstringToString(retExpr.getImage());
+		shader->parseInstr(instr);
 	}
 	else
 	{
 		((SLNode*)&retExpr)->accept(*this);
 	}
 
-	out << "ret" << endl;
+	shader->parseInstr("ret");
 }
 
 void MnemonicGenVisitor::visit(ExprNode &node)
@@ -149,14 +283,18 @@ void MnemonicGenVisitor::visit(AsgnExprNode &node)
 	ASTNode &expr = *node.getChildren()->at(1);
 	if (expr.getChildren()->size() == 0)
 	{
-		out << "push " << wstringToString(expr.getImage()) << endl;
+		string instr("push ");
+		instr += wstringToString(expr.getImage());
+		shader->parseInstr(instr);
 	}
 	else
 	{
 		((SLNode*)&expr)->accept(*this);
 	}
 
-	out << "pop " << wstringToString(node.getChildren()->at(0)->getImage()) << endl;
+	string instr("pop ");
+	instr += wstringToString(node.getChildren()->at(0)->getImage());
+	shader->parseInstr(instr);
 }
 
 void MnemonicGenVisitor::visit(TypeCtorNode &node)
@@ -168,7 +306,9 @@ void MnemonicGenVisitor::visit(TypeCtorNode &node)
 		((SLNode*)children[1])->accept(*this);
 	}
 
-	out << "call " << wstringToString(children[0]->getImage()) << endl;
+	string instr("call ");
+	instr += wstringToString(children[0]->getImage());
+	shader->parseInstr(instr);
 }
 
 void MnemonicGenVisitor::visit(ProcCallNode &node)
@@ -180,7 +320,9 @@ void MnemonicGenVisitor::visit(ProcCallNode &node)
 		((SLNode*)children[1])->accept(*this);
 	}
 
-	out << "call " << wstringToString(children[0]->getImage()) << endl;
+	string instr("call ");
+	instr += wstringToString(children[0]->getImage());
+	shader->parseInstr(instr);
 }
 
 void MnemonicGenVisitor::visit(ProcArgsNode &node)
@@ -191,7 +333,9 @@ void MnemonicGenVisitor::visit(ProcArgsNode &node)
 		ASTNode *c = *it;
 		if (c->getChildren()->size() == 0)
 		{
-			out << "push " << wstringToString(c->getImage()) << endl;
+			string instr("push ");
+			instr += wstringToString(c->getImage());
+			shader->parseInstr(instr);
 		}
 		else
 		{

@@ -14,16 +14,34 @@ class CompiledShader
 	friend void initOpCodeMappings();
 
 public:
-	CompiledShader();
+	enum ShaderType
+	{
+		ST_Invalid,
+		ST_Surface
+	};
+
+	enum STDIndices
+	{
+		Out = 0
+	};
+
+public:
+	CompiledShader(ShaderType type = ST_Invalid);
 	CompiledShader(const CompiledShader &other);
 
 	CompiledShader& operator=(const CompiledShader &other);
 
-	void fromMnemonics(const std::string &mnemonics);
+	//void fromMnemonics(const std::string &mnemonics);
 
-	const std::string& name() const				{ return shaderName; }
+	void				setName(const std::string &n)		{ shaderName = n; }
+	const std::string&	name() const						{ return shaderName; }
 
-	void registerVaryingVar(const std::string &name, VariableType type, boost::any value);
+	void addVar(const Variable &v)							{ varTable.push_back(v); }
+	void addVar(VariableStorageType varST, VariableType varT, const std::string &name, boost::any value);
+	void setVarValue(const std::string &name, boost::any value);
+	void setVarValueByIndex(size_t index, boost::any value);
+
+	void parseInstr(const std::string &instr);
 
 	void exec(Color4 &out);
 
@@ -33,7 +51,8 @@ private:
 		Pushd,	//! Push a value
 		Pushv,	//! Push a var id
 		Call,	//! Call a function
-		Pop		//! Pop into a var id
+		Pop,	//! Pop into a var id
+		Ret		//! End execution (only used in functions)
 	};
 
 private:
@@ -47,12 +66,9 @@ private:
 	typedef void (CompiledShader::*ShaderFunction)();
 
 private:
-	// Standard vars & method feeding.
-	void feedStandardVars();
 
 	// Parsing helpers
-	void parseVarDecl(const std::string &varDecl);
-	void parseInstr(const std::string &instr);
+	//void parseVarDecl(const std::string &varDecl);
 	bool findVarIdx(const std::string &str, int &varIdx);
 	bool findFunRef(const std::string &str, ShaderFunction &fnRef);
 	

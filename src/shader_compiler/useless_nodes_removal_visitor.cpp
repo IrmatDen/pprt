@@ -40,7 +40,6 @@ void UselessNodesRemovalVisitor::visit(VarDeclBlockNode &node)
 			uselessNodes.push((SLNode*)varsChild);
 			reparentAllChildren(node, *(SLNode*)varsChild);
 			varsChild->getChildren()->clear();
-			//node.getChildren()->push_back(node.getChildren()->at(0));
 			node.getChildren()->erase(node.getChildren()->begin() + 1);
 		}
 	}
@@ -49,6 +48,18 @@ void UselessNodesRemovalVisitor::visit(VarDeclBlockNode &node)
 void UselessNodesRemovalVisitor::visit(VarDefNode &node)
 {
 	visitChildrenOf(node);
+
+	if (node.getChildren()->size() == 2)
+	{
+		ASTNode *varsChild = (*node.getChildren())[1];
+		if(varsChild->getImage() == L"def_expressions")
+		{
+			uselessNodes.push((SLNode*)varsChild);
+			reparentAllChildren(node, *(SLNode*)varsChild);
+			varsChild->getChildren()->clear();
+			node.getChildren()->erase(node.getChildren()->begin() + 1);
+		}
+	}
 }
 
 void UselessNodesRemovalVisitor::visit(VarDefMultExprNode &node)

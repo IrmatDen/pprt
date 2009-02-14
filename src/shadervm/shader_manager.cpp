@@ -64,11 +64,11 @@ void ShaderManager::loadFile(const std::string &fileName)
 
 	std::ostringstream oss;
 
-	/*MnemonicGenVisitor mnemonicGen(oss);
+	MnemonicGenVisitor mnemonicGen(oss);
 	mnemonicGen.visit(*root);
 	cout << oss.str();
 
-	CompiledShader shader;
+	/*CompiledShader shader;
 	shader.fromMnemonics(oss.str());
 
 	shaders[shader.name()] = shader;*/

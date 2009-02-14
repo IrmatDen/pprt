@@ -6,6 +6,7 @@ surface constant()
    #justAnotherStatement = 51;
    #return out;
    color4 k = color4(0.4, 0.6, 0.8, 1.0);
+   color4 dummy, mulDummy;
    real r = 2;
    out = k;
 }

@@ -5,9 +5,10 @@
 #include <boost/shared_ptr.hpp>
 
 #include "ray.h"
-#include "material.h"
 
 #include "../shadervm/shader_param.h"
+
+class CompiledShader;
 
 class Geometry
 {
@@ -19,24 +20,21 @@ public:
 
 	const Vec3&				position() const						{ return pos; }
 
-	const MaterialPtr		material() const						{ return mat; }
-	MaterialPtr&			material()								{ return mat; }
+	void					setShader(const CompiledShader &cs);
+	bool					hasShader() const						{ return shader != 0; }
+	CompiledShader&			getShader() const						{ return *shader; }
 
-	void					setShader(const std::string &name)		{ shaderName = name; }
 	void					setShaderParams(ShaderParams p)			{ shaderParams = p; }
-	bool					hasShader() const						{ return shaderName.length() != 0; }
-	const std::string&		getShaderName() const					{ return shaderName; }
 	const ShaderParams&		getShaderParams() const					{ return shaderParams; }
 
 protected:
-	Geometry()														{}
-	Geometry(const Vec3 &p) : pos(p)								{}
+	Geometry() : shader(0)											{}
+	Geometry(const Vec3 &p) : pos(p), shader(0)						{}
 
 protected:
 	Vec3					pos;
-	MaterialPtr				mat;
 
-	std::string				shaderName;
+	CompiledShader		*	shader;
 	ShaderParams			shaderParams;
 };
 

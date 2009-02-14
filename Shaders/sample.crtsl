@@ -1,9 +1,9 @@
-surface ambient()
+surface constant()
 {
    #color4 out = color4(0.4, 0.6, 0.8, 1.0);
    #real r, answer = 42;
    #out = function(out, 2, 3.5, tex("test"), odd);
    #justAnotherStatement = 51;
    #return out;
-   return color4(0.4, 0.6, 0.8, 1.0);
+   out = color4(0.8, 0.6, 0.8, 1.0);
 }

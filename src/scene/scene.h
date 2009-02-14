@@ -19,15 +19,14 @@ class Scene
 	friend class TraceScanLine;
 
 public:
-	ShaderManager &shaderManager;
+	ShaderManager shaderManager;
 
 public:
 	#pragma warning(disable:4355)
 	Scene(int width=0, int height=0)
 		: resX(width), resY(height), storeZ(false),
-		background(0, 0, 0, 0), shaderManager(ShaderManager::getInstance())
+		background(0, 0, 0, 0)
 	{
-		shaderManager.setScene(*this);
 	}
 	#pragma warning(default:4355)
 

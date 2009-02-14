@@ -1,11 +1,15 @@
-#ifndef CRT_OPCODE_GEN_VISITOR_H
-#define CRT_OPCODE_GEN_VISITOR_H
+#ifndef CRT_MNEMONIC_GEN_VISITOR_H
+#define CRT_MNEMONIC_GEN_VISITOR_H
+
+#include <sstream>
 
 #include "SL_ASTVisitor.h"
 
-class OpCodeGenVisitor : public SL_ASTVisitor
+class MnemonicGenVisitor : public SL_ASTVisitor
 {
 public:
+	MnemonicGenVisitor(std::ostringstream &oss):out(oss) {}
+
 	virtual void visit(TermNode &node);
 	virtual void visit(FileRootNode &node);
 	virtual void visit(ShaderRootNode &node);
@@ -24,6 +28,9 @@ public:
 	virtual void visit(TypeCtorNode &node);
 	virtual void visit(ProcCallNode &node);
 	virtual void visit(ProcArgsNode &node);
+
+private:
+	std::ostringstream &out;
 };
 
 #endif

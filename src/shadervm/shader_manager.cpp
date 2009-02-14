@@ -1,30 +1,23 @@
 #include <iostream>
+#include <sstream>
 #include <fstream>
-#include <functional>
+//#include <functional>
 
 #include "shader_manager.h"
-
-#include "../scene/ray.h"
-#include "../scene/vector3.h"
-#include "../scene/scene.h"
+#include "compiled_shader.h"
 
 #include "../shader_compiler/SL_ASTCreator.h"
 #include "../shader_compiler/SL_ASTNodes.h"
 #include "../shader_compiler/SL_ASTVisitor.h"
 #include "../shader_compiler/stdout_visitor.h"
 #include "../shader_compiler/useless_nodes_removal_visitor.h"
-#include "../shader_compiler/opcode_gen_visitor.h"
+#include "../shader_compiler/mnemonic_gen_visitor.h"
 
 using namespace std;
 
 ShaderManager::ShaderManager()
-:scene(0)
 {
 	bool cgtLoaded = grammar.load("./src/shadervm/crtsl.cgt");
-}
-
-ShaderManager::~ShaderManager()
-{
 }
 
 void ShaderManager::loadFile(const std::string &fileName)
@@ -63,38 +56,27 @@ void ShaderManager::loadFile(const std::string &fileName)
 
 	cout << "loaded " << fileName.c_str() << endl;
 
-	OpCodeGenVisitor opCodeGen;
-	opCodeGen.visit(*root);
+	std::ostringstream oss;
+
+	MnemonicGenVisitor mnemonicGen(oss);
+	mnemonicGen.visit(*root);
+	cout << oss.str();
+
+	CompiledShader shader;
+	shader.fromMnemonics(oss.str());
+
+	shaders[shader.name()] = shader;
 	
 	delete buffer;
 	delete root;
 }
 
-void ShaderManager::registerP(const Vec3 &v)
+CompiledShader ShaderManager::instanciate(const std::string &shaderName) const
 {
-	env.P = v;
-}
+	//! \todo throw not found exception if needed
+	CompiledShaders::const_iterator it = shaders.find(shaderName);
+	if (it != shaders.end())
+		return it->second;
 
-void ShaderManager::registerN(const Vec3 &v)
-{
-	env.N = v;
-}
-
-void ShaderManager::registerI(const Vec3 &v)
-{
-	env.I = v;
-}
-
-void ShaderManager::execute(const string &shaderName, const ShaderParams &params, Color4 &out)
-{
-}
-
-void ShaderManager::diffuse(const Vec3 &N, Color4 &out) const
-{
-	scene->diffuse(Ray(env.P, N), out);
-}
-
-void ShaderManager::specular(const Vec3 &N, double roughness, Color4 &out) const
-{
-	scene->specular(Ray(env.P, N), env.I, roughness, out);
+	return CompiledShader();
 }

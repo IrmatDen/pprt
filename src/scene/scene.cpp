@@ -90,9 +90,9 @@ void Scene::render()
 
 	cam.init();
 
-	/*tbb::task_scheduler_init tbbInit;
-	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());*/
-	Ray r;
+	tbb::task_scheduler_init tbbInit;
+	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());
+	/*Ray r;
 	r.origin = cam.pos;
 	for (int y = 0; y < resY; y++)
 	{
@@ -111,7 +111,7 @@ void Scene::render()
 			imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
 			imgData[FI_RGBA_ALPHA]	= BYTE(col.a * 255);
 		}
-	}
+	}*/
 
 	img.flipVertical();
 	img.save(outName.c_str());
@@ -145,10 +145,12 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	Vec3 n;
 	nearestObj->normalAt(p, n);
 
-	shaderManager.registerP(p);
+	nearestObj->getShader().exec(out);
+
+	/*shaderManager.registerP(p);
 	shaderManager.registerN(n);
-	shaderManager.registerI(ray.dir);
-	shaderManager.execute(nearestObj->getShaderName(), nearestObj->getShaderParams(), out);
+	shaderManager.registerI(ray.dir);*/
+	//shaderManager.execute(nearestObj->getShaderName(), nearestObj->getShaderParams(), out);
 
 	return out.clamp();
 }

@@ -25,7 +25,7 @@ struct shaderPath_a
 			for (fs::directory_iterator it(folder); it != fs::directory_iterator(); ++it)
 			{
 				fs::path p = it->path();
-				if (p.extension() == ".lua")
+				if (p.extension() == ".crtsl")
 				{
 					scene.shaderManager.loadFile(p.file_string());
 				}
@@ -119,7 +119,7 @@ struct newSphere_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Sphere((float)radius, pos));
-		g->setShader(matName);
+		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
 
@@ -151,7 +151,7 @@ struct newPlane_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Plane(normal.normalize(), (float)offset, !twoSided));
-		g->setShader(matName);
+		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
 
@@ -186,7 +186,7 @@ struct newDisk_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Disk((float)radius, pos, normal.normalize()));
-		g->setShader(matName);
+		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
 

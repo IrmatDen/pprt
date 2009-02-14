@@ -14,12 +14,12 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-	ShaderManager &sm = ShaderManager::getInstance();
+	/*ShaderManager &sm = ShaderManager::getInstance();
 	sm.loadFile("./Shaders/sample.crtsl");
 
-	return 0;
+	return 0;*/
 
-	/*string scnFile = "ScnSamples/specular_shaded_sphere.crtscn";
+	string scnFile = "ScnSamples/constant_color_shaded_sphere.crtscn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);
@@ -38,5 +38,5 @@ int main(int argc, char **argv)
 	cout << endl << "Press return to quit..." << endl;
 	cin.get();
 
-	return !scnLoaded;*/
+	return !scnLoaded;
 }

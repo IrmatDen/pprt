@@ -220,6 +220,10 @@
 				Name="ShaderVM"
 				>
 				<File
+					RelativePath=".\src\shadervm\compiled_shader.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\shader_manager.cpp"
 					>
 				</File>
@@ -228,7 +232,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\shadervm\shading_lighting_fun.cpp"
+					RelativePath=".\src\shadervm\symtab.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\type_ctor.cpp"
 					>
 				</File>
 			</Filter>
@@ -236,7 +244,7 @@
 				Name="shader_compiler"
 				>
 				<File
-					RelativePath=".\src\shader_compiler\opcode_gen_visitor.cpp"
+					RelativePath=".\src\shader_compiler\mnemonic_gen_visitor.cpp"
 					>
 				</File>
 				<File
@@ -334,6 +342,10 @@
 				Name="ShaderVM"
 				>
 				<File
+					RelativePath=".\src\shadervm\compiled_shader.h"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\shader_manager.h"
 					>
 				</File>
@@ -341,12 +353,16 @@
 					RelativePath=".\src\shadervm\shading_lighting_fun.h"
 					>
 				</File>
+				<File
+					RelativePath=".\src\shadervm\symtab.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="shader_compiler"
 				>
 				<File
-					RelativePath=".\src\shader_compiler\opcode_gen_visitor.h"
+					RelativePath=".\src\shader_compiler\mnemonic_gen_visitor.h"
 					>
 				</File>
 				<File

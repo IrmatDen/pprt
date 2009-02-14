@@ -7,8 +7,6 @@
 
 using namespace std;
 
-#define ITER_THROUGH
-
 void UselessNodesRemovalVisitor::visit(TermNode &node)
 {
 }
@@ -47,12 +45,24 @@ void UselessNodesRemovalVisitor::visit(VarDefMultExprNode &node)
 
 void UselessNodesRemovalVisitor::visit(VarDefExprNode &node)
 {
+	if (node.getChildren()->at(1) == 0)
+		node.getChildren()->pop_back();
+
 	visitChildrenOf(node);
 }
 
 void UselessNodesRemovalVisitor::visit(VarInitNode &node)
 {
 	visitChildrenOf(node);
+
+	vector<ASTNode*> &children = *node.getChildren();
+	if(children.size() == 1)
+	{
+		uselessNodes.push(&node);
+		children[0]->setParent(node.getParent());
+		updateParentChildren(node, *(SLNode*)children[0]);
+		children.erase(children.begin());
+	}
 }
 
 void UselessNodesRemovalVisitor::visit(StmtListNode &node)
@@ -83,6 +93,15 @@ void UselessNodesRemovalVisitor::visit(ReturnStmtNode &node)
 void UselessNodesRemovalVisitor::visit(ExprNode &node)
 {
 	visitChildrenOf(node);
+
+	vector<ASTNode*> &children = *node.getChildren();
+	if(children.size() == 1)
+	{
+		uselessNodes.push(&node);
+		children[0]->setParent(node.getParent());
+		updateParentChildren(node, *(SLNode*)children[0]);
+		children.erase(children.begin());
+	}
 }
 
 void UselessNodesRemovalVisitor::visit(PrimNode &node)
@@ -95,7 +114,7 @@ void UselessNodesRemovalVisitor::visit(PrimNode &node)
 		uselessNodes.push(&node);
 		children[0]->setParent(node.getParent());
 		updateParentChildren(node, *(SLNode*)children[0]);
-		children[0] = 0;
+		children.erase(children.begin());
 	}
 }
 

@@ -13,6 +13,7 @@
 #include "../shader_compiler/SL_ASTVisitor.h"
 #include "../shader_compiler/stdout_visitor.h"
 #include "../shader_compiler/useless_nodes_removal_visitor.h"
+#include "../shader_compiler/opcode_gen_visitor.h"
 
 using namespace std;
 
@@ -38,11 +39,18 @@ void ShaderManager::loadFile(const std::string &fileName)
 
 	DFA *scanner = grammar.getScanner();
 	bool scanSuccess = scanner->scan(buffer);
+	if (!scanSuccess)
+	{
+		scanner->getErrors()->print();
+		delete buffer;
+		return;
+	}
+
 	vector<Token*>& tokens = scanner->getTokens();
 
 	LALR *parser = grammar.getParser();
 	parser->init(tokens);
-	Symbol *sym = parser->parse(tokens, true, false);
+	Symbol *sym = parser->parse(tokens, false, false);
 
 	SL_ASTCreator astCreator;
 	FileRootNode *root = (FileRootNode*)(astCreator.createTree(*sym));
@@ -52,11 +60,14 @@ void ShaderManager::loadFile(const std::string &fileName)
 
 	StdoutVisitor printer;
 	printer.visit(*root);
+
+	cout << "loaded " << fileName.c_str() << endl;
+
+	OpCodeGenVisitor opCodeGen;
+	opCodeGen.visit(*root);
 	
 	delete buffer;
 	delete root;
-
-	cout << "loaded " << fileName.c_str() << endl;
 }
 
 void ShaderManager::registerP(const Vec3 &v)

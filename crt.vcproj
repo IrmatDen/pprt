@@ -236,6 +236,10 @@
 				Name="shader_compiler"
 				>
 				<File
+					RelativePath=".\src\shader_compiler\opcode_gen_visitor.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shader_compiler\SL_ASTCreator.cpp"
 					>
 				</File>
@@ -341,6 +345,10 @@
 			<Filter
 				Name="shader_compiler"
 				>
+				<File
+					RelativePath=".\src\shader_compiler\opcode_gen_visitor.h"
+					>
+				</File>
 				<File
 					RelativePath=".\src\shader_compiler\SL_ASTCreator.h"
 					>

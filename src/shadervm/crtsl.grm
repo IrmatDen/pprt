@@ -13,6 +13,7 @@
 
 ! ------------------------------------------------- Terminals
 
+Comment Line		= '#'
 identifier    	= {ID Head}{ID Tail}*
 stringconstant	= '"' {String Chars}* '"'
 number 		= {Number}+('.'{Number}+)?

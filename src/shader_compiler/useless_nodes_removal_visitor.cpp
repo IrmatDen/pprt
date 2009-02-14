@@ -116,6 +116,15 @@ void UselessNodesRemovalVisitor::visit(ProcCallNode &node)
 void UselessNodesRemovalVisitor::visit(ProcArgsNode &node)
 {
 	visitChildrenOf(node);
+
+	std::vector<ASTNode*> &children = *node.getChildren();
+	if (children.size() == 2 && children[1]->getImage() == L"proc_arguments")
+	{
+		uselessNodes.push((SLNode*)children[1]);
+		reparentAllChildren(node, *(SLNode*)children[1]);
+		children[1]->getChildren()->clear();
+		children.erase(children.begin() + 1);
+	}
 }
 
 void UselessNodesRemovalVisitor::deleteUselessNodes()

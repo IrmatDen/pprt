@@ -4,6 +4,8 @@
 #include <map>
 #include <string>
 
+#include <CGTFile.h>
+
 #include "../scene/color4.h"
 #include "shader_param.h"
 
@@ -46,6 +48,7 @@ private:
 
 private:
 	Scene			*	scene;
+	CGTFile				grammar;
 };
 
 #endif

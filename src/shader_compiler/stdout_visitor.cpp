@@ -30,14 +30,7 @@ void StdoutVisitor::visit(TermNode &node)
 		wcout << node.getImage() << endl; \
 		 \
 		currentIndent++; \
-		vector<ASTNode*> &children = *node.getChildren(); \
-		for(vector<ASTNode*>::iterator it = children.begin(); \
-			it != children.end(); \
-			++it) \
-		{ \
-			if(*it != 0) \
-				((SLNode*)(*it))->accept(*this); \
-		} \
+		visitChildrenOf(node); \
 		currentIndent--; \
 	}
 

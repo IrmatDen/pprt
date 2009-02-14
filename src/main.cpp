@@ -7,45 +7,16 @@
 
 #include <CGTFile.h>
 
-#include "shader_compiler/SL_ASTCreator.h"
-#include "shader_compiler/SL_ASTNodes.h"
-#include "shader_compiler/SL_ASTVisitor.h"
-#include "shader_compiler/stdout_visitor.h"
-
 #include "scene/scene.h"
+#include "shadervm/shader_manager.h"
 
 using namespace std;
 
 int main(int argc, char **argv)
 {
-	CGTFile f;
-	bool cgtLoaded = f.load("./src/shadervm/crtsl.cgt");
+	ShaderManager &sm = ShaderManager::getInstance();
+	sm.loadFile("./Shaders/sample.crtsl");
 
-	ifstream fileIn("./Shaders/sample.crtsl");
-	fileIn.seekg(0, ios::end);
-	int size = fileIn.tellg();
-	fileIn.seekg(0, ios::beg);
-	char *buffer = new char[size+1];
-	memset(buffer, 0, size+1);
-	fileIn.read(buffer, size);
-
-	DFA *scanner = f.getScanner();
-	bool scanSuccess = scanner->scan(buffer);
-	vector<Token*>& tokens = scanner->getTokens();
-
-	LALR *parser = f.getParser();
-	parser->init(tokens);
-	Symbol *sym = parser->parse(tokens, true, false);
-	//parser->printReductionTree(sym, 10);
-
-	SL_ASTCreator astCreator;
-	FileRootNode *root = (FileRootNode*)(astCreator.createTree(*sym));
-
-	StdoutVisitor v;
-	v.visit(*root);
-	
-	delete buffer;
-	delete root;
 	return 0;
 
 	/*string scnFile = "ScnSamples/specular_shaded_sphere.crtscn";

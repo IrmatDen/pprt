@@ -240,7 +240,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\shader_compiler\SL_ASTVisitor.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shader_compiler\stdout_visitor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shader_compiler\useless_nodes_removal_visitor.cpp"
 					>
 				</File>
 			</Filter>
@@ -347,6 +355,10 @@
 				</File>
 				<File
 					RelativePath=".\src\shader_compiler\stdout_visitor.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shader_compiler\useless_nodes_removal_visitor.h"
 					>
 				</File>
 			</Filter>

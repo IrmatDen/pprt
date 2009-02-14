@@ -1,6 +1,7 @@
 #ifndef CRT_SL_ASTVISITOR_H
 #define CRT_SL_ASTVISITOR_H
 
+class SLNode;
 class TermNode;
 class FileRootNode;
 class ShaderRootNode;
@@ -41,6 +42,9 @@ public:
 	virtual void visit(TypeCtorNode &node) 			= 0;
 	virtual void visit(ProcCallNode &node) 			= 0;
 	virtual void visit(ProcArgsNode &node) 			= 0;
+
+protected:
+	void visitChildrenOf(SLNode &node);
 
 protected:
 	SL_ASTVisitor() {}

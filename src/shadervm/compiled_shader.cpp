@@ -8,6 +8,7 @@
 #include "compiled_shader.h"
 
 #include "../Scene/color4.h"
+#include "../Scene/scene.h"
 
 using namespace std;
 using namespace boost;
@@ -25,10 +26,16 @@ void initOpCodeMappings()
 	CompiledShader::opCodeMappings["ret"]	= CompiledShader::Ret;
 
 	// Function name - fn pointers mapping
+		// Type ctors
 	CompiledShader::fnMappings["color4"]	= CompiledShader::ShaderFunction(&CompiledShader::color4Ctor);
+		
+		// Shading & lighting
+	CompiledShader::fnMappings["diffuse"]	= CompiledShader::ShaderFunction(&CompiledShader::diffuse);
+	CompiledShader::fnMappings["specular"]	= CompiledShader::ShaderFunction(&CompiledShader::specular);
 }
 
 CompiledShader::CompiledShader(ShaderType type)
+:scene(0)
 {
 	if (!opCodeMappingsInitialized)
 	{
@@ -36,7 +43,10 @@ CompiledShader::CompiledShader(ShaderType type)
 		opCodeMappingsInitialized = true;
 	}
 	
-	addVar(VST_Varying, VT_Color, "out", Color4());
+	addVar(VST_Varying, VT_Color,	"out",	Color4());
+	addVar(VST_Varying, VT_Vector,	"P",	Vec3());
+	addVar(VST_Varying, VT_Vector,	"N",	Vec3());
+	addVar(VST_Varying, VT_Vector,	"I",	Vec3());
 
 	switch(type)
 	{
@@ -47,7 +57,7 @@ CompiledShader::CompiledShader(ShaderType type)
 
 CompiledShader::CompiledShader(const CompiledShader &other)
 :shaderName(other.shaderName), varTable(other.varTable),
-code(other.code)
+code(other.code), scene(other.scene)
 {
 }
 
@@ -56,6 +66,7 @@ CompiledShader& CompiledShader::operator=(const CompiledShader &other)
 	shaderName	= other.shaderName;
 	varTable	= other.varTable;
 	code		= other.code;
+	scene		= other.scene;
 
 	return *this;
 }

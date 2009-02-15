@@ -7,10 +7,8 @@ using namespace boost;
 
 void CompiledShader::color4Ctor()
 {
-	//! \todo replace assert by exception
 	assert(execStack.size() >= 4);
 
-	//! \todo handle bad_any_cast.
 	Color4 col;
 	col.r = (float)any_cast<double>(execStack.top().second); execStack.pop();
 	col.g = (float)any_cast<double>(execStack.top().second); execStack.pop();

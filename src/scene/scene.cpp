@@ -145,12 +145,11 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	Vec3 n;
 	nearestObj->normalAt(p, n);
 
-	nearestObj->getShader().exec(out);
-
-	/*shaderManager.registerP(p);
-	shaderManager.registerN(n);
-	shaderManager.registerI(ray.dir);*/
-	//shaderManager.execute(nearestObj->getShaderName(), nearestObj->getShaderParams(), out);
+	CompiledShader &shader = nearestObj->getShader();
+	shader.setVarValueByIndex(CompiledShader::P, p);
+	shader.setVarValueByIndex(CompiledShader::N, n);
+	shader.setVarValueByIndex(CompiledShader::I, ray.dir);
+	shader.exec(out);
 
 	return out.clamp();
 }

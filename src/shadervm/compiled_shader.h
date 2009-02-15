@@ -9,6 +9,8 @@
 
 #include "../scene/color4.h"
 
+class Scene;
+
 class CompiledShader
 {
 	friend void initOpCodeMappings();
@@ -20,9 +22,12 @@ public:
 		ST_Surface
 	};
 
-	enum STDIndices
+	enum STDVarIndices
 	{
-		Out = 0
+		Out = 0,
+		P	= 1,
+		N	= 2,
+		I	= 3
 	};
 
 public:
@@ -31,11 +36,14 @@ public:
 
 	CompiledShader& operator=(const CompiledShader &other);
 
+	void				setScene(Scene *scn)				{ scene = scn; }
+
 	void				setName(const std::string &n)		{ shaderName = n; }
 	const std::string&	name() const						{ return shaderName; }
 
 	void addVar(const Variable &v)							{ varTable.push_back(v); }
 	void addVar(VariableStorageType varST, VariableType varT, const std::string &name, boost::any value);
+
 	void setVarValue(const std::string &name, boost::any value);
 	void setVarValueByIndex(size_t index, boost::any value);
 
@@ -64,9 +72,7 @@ private:
 	typedef void (CompiledShader::*ShaderFunction)();
 
 private:
-
 	// Parsing helpers
-	//void parseVarDecl(const std::string &varDecl);
 	bool findVarIdx(const std::string &str, int &varIdx);
 	bool findFunRef(const std::string &str, ShaderFunction &fnRef);
 	
@@ -74,14 +80,20 @@ private:
 		// Type constructors
 		void color4Ctor();
 
-private:
-	std::string				shaderName;
-	VariableTable			varTable;
+		// Shading and lighting functions
+		void	diffuse();
+		void	specular();
 
-	Instructions			code;
-	Instructions::iterator	eip;
+private:
+	std::string					shaderName;
+	VariableTable				varTable;
+
+	Instructions				code;
+	Instructions::iterator		eip;
 	
-	ProgramStack			execStack;
+	ProgramStack				execStack;
+
+	Scene					*	scene;
 
 private:
 	typedef std::map<std::string, OpCode>			OpCodeMapping;

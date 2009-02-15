@@ -16,6 +16,7 @@
 using namespace std;
 
 ShaderManager::ShaderManager()
+:scene(0)
 {
 	bool cgtLoaded = grammar.load("./src/shadervm/crtsl.cgt");
 }
@@ -66,6 +67,7 @@ void ShaderManager::loadFile(const std::string &fileName)
 	CompiledShader *shader = mnemonicGen.getShader();
 	if (shader)
 	{
+		shader->setScene(scene);
 		shaders[shader->name()] = *shader;
 		cout << "Loaded " << fileName.c_str() << endl;
 	}

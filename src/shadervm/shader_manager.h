@@ -13,6 +13,8 @@ class ShaderManager
 public:
 	ShaderManager();
 
+	void				setScene(Scene &scn)					{ scene = &scn; }
+
 	void				loadFile(const std::string &fileName);
 	CompiledShader		instanciate(const std::string &shaderName) const;
 
@@ -20,8 +22,9 @@ private:
 	typedef std::map<std::string, CompiledShader> CompiledShaders;
 
 private:
-	CompiledShaders		shaders;
-	CGTFile				grammar;
+	Scene				*	scene;
+	CompiledShaders			shaders;
+	CGTFile					grammar;
 };
 
 #endif

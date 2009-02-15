@@ -27,6 +27,7 @@ public:
 		: resX(width), resY(height), storeZ(false),
 		background(0, 0, 0, 0)
 	{
+		shaderManager.setScene(*this);
 	}
 	#pragma warning(default:4355)
 

@@ -1,0 +1,4 @@
+surface diffuse_sample()
+{
+   out = diffuse(N);
+}

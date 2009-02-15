@@ -232,6 +232,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\shadervm\shading_lighting_fun.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\symtab.cpp"
 					>
 				</File>

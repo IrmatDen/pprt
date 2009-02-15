@@ -1,6 +1,7 @@
 #ifndef CRT_COMPILED_SHADER_H
 #define CRT_COMPILED_SHADER_H
 
+#include <map>
 #include <queue>
 #include <string>
 #include <stack>

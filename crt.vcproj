@@ -236,10 +236,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\shadervm\symtab.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\src\shadervm\type_ctor.cpp"
 					>
 				</File>
@@ -365,6 +361,10 @@
 			<Filter
 				Name="shader_compiler"
 				>
+				<File
+					RelativePath=".\src\shader_compiler\CRTSL_grammar_constants.h"
+					>
+				</File>
 				<File
 					RelativePath=".\src\shader_compiler\mnemonic_gen_visitor.h"
 					>

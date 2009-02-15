@@ -2,6 +2,7 @@
 
 #include "SL_ASTCreator.h"
 #include "SL_ASTNodes.h"
+#include "CRTSL_grammar_constants.h"
 
 using namespace std;
 
@@ -10,7 +11,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 	if (!reduction)
 		return 0;
 
-	wstring sym = reduction->symbol;
+	SymbolConstants sym = (SymbolConstants)reduction->symbolIndex;
 
 	deque <Symbol*> rdcChildren;
 	if (reduction->type == NON_TERMINAL)
@@ -22,7 +23,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 	}
 
 // DECLARATIONS
-	if (sym == L"definitions")
+	if (sym == SYMBOL_DEFINITIONS)
 	{
 		CREATE_NODE(FileRootNode, definitions);
 
@@ -30,7 +31,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return definitions;
 	}
 
-	if (sym == L"shader_definition")
+	if (sym == SYMBOL_SHADER_DEFINITION)
 	{
 		CREATE_NODE(ShaderRootNode, shader_definition);
 
@@ -41,7 +42,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return shader_definition;
 	}
 
-	if (sym == L"formals")
+	if (sym == SYMBOL_FORMALS)
 	{
 		CREATE_NODE(FormalsNode, formals);
 
@@ -54,7 +55,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return formals;
 	}
 
-	if (sym == L"block")
+	if (sym == SYMBOL_BLOCK)
 	{
 		CREATE_NODE(BlockNode, block);
 
@@ -63,7 +64,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return block;
 	}
 
-	if (sym == L"variables")
+	if (sym == SYMBOL_VARIABLES)
 	{
 		CREATE_NODE(VarDeclBlockNode, variables);
 
@@ -76,7 +77,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return variables;
 	}
 
-	if (sym == L"variable_definitions")
+	if (sym == SYMBOL_VARIABLE_DEFINITIONS)
 	{
 		CREATE_NODE(VarDefNode, variable_definitions);
 
@@ -85,7 +86,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return variable_definitions;
 	}
 
-	if (sym == L"def_expressions")
+	if (sym == SYMBOL_DEF_EXPRESSIONS)
 	{
 		CREATE_NODE(VarDefMultExprNode, def_expressions);
 			
@@ -97,7 +98,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return def_expressions;
 	}
 
-	if (sym == L"def_expression")
+	if (sym == SYMBOL_DEF_EXPRESSION)
 	{
 		CREATE_NODE(VarDefExprNode, def_expression);
 			
@@ -107,7 +108,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return def_expression;
 	}
 
-	if (sym == L"def_init")
+	if (sym == SYMBOL_DEF_INIT)
 	{
 		// def_init is optionnal, so check first!
 		if(rdcChildren.size() > 0)
@@ -120,7 +121,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 	}
 
 // STATEMENTS
-	if (sym == L"statements")
+	if (sym == SYMBOL_STATEMENTS)
 	{
 		CREATE_NODE(StmtListNode, statements);
 		
@@ -131,14 +132,14 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return statements;
 	}
 
-	if (sym == L"statement")
+	if (sym == SYMBOL_STATEMENT)
 	{
 		CREATE_NODE(StmtNode, statement);
 		statement->addChild (getASTNode(rdcChildren[0], statement));		// statement (omit ';')
 		return statement;
 	}
 
-	if (sym == L"returnstmt")
+	if (sym == SYMBOL_RETURNSTMT)
 	{
 		CREATE_NODE(ReturnStmtNode, returnStmt);
 		returnStmt->addChild (getASTNode(rdcChildren[1], returnStmt));		// return statement (omit 'return' and ';')
@@ -146,21 +147,21 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 	}
 
 // EXPRESSIONS
-	if (sym == L"expression")
+	if (sym == SYMBOL_EXPRESSION)
 	{
 		CREATE_NODE(ExprNode, expression);
 		expression->addChild (getASTNode(rdcChildren[0], expression));		// statement
 		return expression;
 	}
-	
-	if (sym == L"primary")
+
+	if (sym == SYMBOL_PRIMARY)
 	{
-		CREATE_NODE(PrimNode, primary);
-		primary->addChild (getASTNode(rdcChildren[0], primary));		// primary expression
-		return primary;
+		CREATE_NODE(PrimNode, expression);
+		expression->addChild (getASTNode(rdcChildren[0], expression));		// statement
+		return expression;
 	}
 	
-	if (sym == L"assignexpression")
+	if (sym == SYMBOL_ASSIGNEXPRESSION)
 	{
 		CREATE_NODE(AsgnExprNode, assignexpression);
 		
@@ -170,7 +171,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return assignexpression;
 	}
 	
-	if (sym == L"type_ctor")
+	if (sym == SYMBOL_TYPE_CTOR)
 	{
 		CREATE_NODE(TypeCtorNode, type_ctor);
 		
@@ -180,7 +181,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return type_ctor;
 	}
 	
-	if (sym == L"procedurecall")
+	if (sym == SYMBOL_PROCEDURECALL)
 	{
 		CREATE_NODE(ProcCallNode, procedurecall);
 		
@@ -190,7 +191,7 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return procedurecall;
 	}
 	
-	if (sym == L"proc_arguments")
+	if (sym == SYMBOL_PROC_ARGUMENTS)
 	{
 		CREATE_NODE(ProcArgsNode, proc_arguments);
 		

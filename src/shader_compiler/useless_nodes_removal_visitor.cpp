@@ -27,6 +27,7 @@ void UselessNodesRemovalVisitor::visit(FormalsNode &node)
 {
 	visitChildrenOf(node);
 
+	// Eventually flatten "formals" tree
 	if (node.getChildren()->size() == 2)
 	{
 		ASTNode *varsChild = (*node.getChildren())[1];
@@ -49,6 +50,7 @@ void UselessNodesRemovalVisitor::visit(VarDeclBlockNode &node)
 {
 	visitChildrenOf(node);
 
+	// Eventually flatten "variables" tree
 	if (node.getChildren()->size() == 2)
 	{
 		ASTNode *varsChild = (*node.getChildren())[1];
@@ -71,6 +73,7 @@ void UselessNodesRemovalVisitor::visit(VarDefMultExprNode &node)
 {
 	visitChildrenOf(node);
 
+	// Eventually flatten "def_expressions" tree
 	if (node.getChildren()->size() == 2)
 	{
 		ASTNode *varsChild = (*node.getChildren())[1];
@@ -110,6 +113,7 @@ void UselessNodesRemovalVisitor::visit(StmtListNode &node)
 {
 	visitChildrenOf(node);
 
+	// Eventually flatten "statements" tree
 	ASTNode *firstChild = (*node.getChildren())[0];
 	if(firstChild->getImage() == L"statements")
 	{

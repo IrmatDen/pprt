@@ -41,7 +41,7 @@ type			= real |string | vec3 | color4
 
 <def_expression>		::= identifier <def_init>
 
-<def_init>			::= '=' <or_expr>
+<def_init>			::= '=' <primary>
 				 |  
 
 ! ------------------------------------- Statements
@@ -61,9 +61,9 @@ type			= real |string | vec3 | color4
 ! ------------------------------------- Expressions
 
 <expression>			::= <assignexpression>
-				 |  <or_expr>
+				 |  <primary>
 
-<assignexpression>		::= identifier '=' <or_expr>
+<assignexpression>		::= identifier '=' <primary>
 
 <type_ctor>			::= type '(' <proc_arguments> ')'
 
@@ -71,36 +71,8 @@ type			= real |string | vec3 | color4
 
 <proc_arguments>		::= <expression> ',' <proc_arguments>
 				 |  <expression>
-				 |  
 
-<or_expr>    			::= <or_expr> '||' <and_expr>
-				 |  <and_expr>
-
-<and_expr>     		::= <and_expr> '&&' <equ_expr>
-				 |  <equ_expr>
-
-<equ_expr>			::= <equ_expr> '==' <comp_expr>
-				 |  <equ_expr> '!=' <comp_expr>
-				 |  <comp_expr>
-
-<comp_expr>			::= <comp_expr> '<'  <add_expr>
-				 |  <comp_expr> '>'  <add_expr>
-				 |  <comp_expr> '<=' <add_expr>
-				 |  <comp_expr> '>=' <add_expr>
-				 |  <add_expr>
-
-<add_expr>			::= <add_expr> '+' <mult_expr>
-				 |  <add_expr> '-' <mult_expr>
-				 |  <mult_expr>
-
-<mult_expr>			::= <mult_expr> '*' <dot_expr>
-				 |  <mult_expr> '/' <dot_expr>
-				 |  <dot_expr>
-
-<dot_expr>			::= <dot_expr> '.' <value>
-				 |  <value>
-
-<value>			::= number
+<primary>			::= number
 				 |  identifier
 				 |  stringconstant
 				 |  <type_ctor>

@@ -117,7 +117,9 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 		{
 			vector<ASTNode*> &typeCtorChildren = *initializer->getChildren();
 			wstring ctorName = typeCtorChildren[0]->getImage();
+#ifdef _DEBUG
 			assert(ctorName == type);
+#endif
 
 			vector<ASTNode*> &args = *typeCtorChildren[1]->getChildren();
 
@@ -181,8 +183,10 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 					}
 				}
 				else if (type == L"real")
-				{
+				{;
+#ifdef _DEBUG
 					assert(args.size() == 1);
+#endif
 					v.content = lexical_cast<double>(wstringToString(args[0]->getImage()));
 				}
 			}
@@ -273,6 +277,38 @@ void MnemonicGenVisitor::visit(MultExprNode &node)
 	}
 
 	string instr("mult");
+	shader->parseInstr(instr);
+}
+
+void MnemonicGenVisitor::visit(AddExprNode &node)
+{
+	// Push the second operand
+	ASTNode &op2 = *node.getChildren()->at(1);
+	if (op2.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op2.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op2)->accept(*this);
+	}
+	
+	// Push the first operand
+	ASTNode &op1 = *node.getChildren()->at(0);
+	if (op1.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op1.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op1)->accept(*this);
+	}
+
+	string instr("add");
 	shader->parseInstr(instr);
 }
 

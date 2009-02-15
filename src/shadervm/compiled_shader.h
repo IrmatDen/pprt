@@ -58,6 +58,7 @@ private:
 		Pushd,	//! Push a value
 		Pushv,	//! Push a var id
 		Mult,	//! Multiply the 2 first values in stack
+		Add,	//! Add the 2 first values in stack
 		Call,	//! Call a function
 		Pop,	//! Pop into a var id
 		Ret		//! End execution (only used in functions)

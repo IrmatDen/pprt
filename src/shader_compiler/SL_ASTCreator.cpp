@@ -157,7 +157,14 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 	if (sym == SYMBOL_PRIMARY)
 	{
 		CREATE_NODE(PrimNode, expression);
-		expression->addChild (getASTNode(rdcChildren[0], expression));		// statement
+		if(rdcChildren.size() == 1)
+		{
+			expression->addChild (getASTNode(rdcChildren[0], expression));		// statement
+		}
+		else // it is a prioritized expression "( <expr> )"
+		{
+			expression->addChild (getASTNode(rdcChildren[1], expression));		// statement
+		}
 		return expression;
 	}
 	
@@ -169,6 +176,19 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		assignexpression->addChild (getASTNode(rdcChildren[2], assignexpression));		// expression output to variable
 
 		return assignexpression;
+	}
+	
+	if (sym == SYMBOL_ADD_EXPR)
+	{
+		CREATE_NODE(AddExprNode, addExpr);
+		
+		addExpr->addChild (getASTNode(rdcChildren[0], addExpr));		// first operand
+
+		// Check if we're only a passthrough to a real value
+		if (rdcChildren.size() == 3)
+			addExpr->addChild (getASTNode(rdcChildren[2], addExpr));		// second operand
+
+		return addExpr;
 	}
 	
 	if (sym == SYMBOL_MULT_EXPR)

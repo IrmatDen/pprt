@@ -22,6 +22,7 @@ void initOpCodeMappings()
 	// mnemonic - Opcodes mapping
 	CompiledShader::opCodeMappings["push"]	= CompiledShader::Pushd;
 	CompiledShader::opCodeMappings["mult"]	= CompiledShader::Mult;
+	CompiledShader::opCodeMappings["add"]	= CompiledShader::Add;
 	CompiledShader::opCodeMappings["call"]	= CompiledShader::Call;
 	CompiledShader::opCodeMappings["pop"]	= CompiledShader::Pop;
 	CompiledShader::opCodeMappings["ret"]	= CompiledShader::Ret;
@@ -226,7 +227,7 @@ void CompiledShader::exec(Color4 &out)
 
 		case Pushv:
 			{
-				const Variable &var = varTable[any_cast<int>(eip->second)];
+				const Variable &var = varTable[*any_cast<int>(&eip->second)];
 				execStack.push(make_pair(var.type, var.content));
 				break;
 			}
@@ -256,16 +257,16 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Color:
 							{
 								float	op1f = (float)any_cast<double>(op1.second);
-								Color4	op2c = any_cast<Color4>(op2.second);
-								execStack.push(make_pair(VT_Color, op2c * op1f));
+								Color4	*op2c = any_cast<Color4>(&op2.second);
+								execStack.push(make_pair(VT_Color, *op2c * op1f));
 								break;
 							}
 							
 						case VT_Vector:
 							{
 								double	op1d = any_cast<double>(op1.second);
-								Vec3	op2v = any_cast<Vec3>(op2.second);
-								execStack.push(make_pair(VT_Vector, op2v * op1d));
+								Vec3	*op2v = any_cast<Vec3>(&op2.second);
+								execStack.push(make_pair(VT_Vector, *op2v * op1d));
 								break;
 							}
 						}
@@ -278,17 +279,17 @@ void CompiledShader::exec(Color4 &out)
 						{
 						case VT_Double:
 							{
-								Color4	op1c = any_cast<Color4>(op1.second);
+								Color4	*op1c = any_cast<Color4>(&op1.second);
 								float	op2f = (float)any_cast<double>(op2.second);
-								execStack.push(make_pair(VT_Color, op1c * op2f));
+								execStack.push(make_pair(VT_Color, *op1c * op2f));
 								break;
 							}
 							
 						case VT_Color:
 							{
-								Color4	op1c = any_cast<Color4>(op1.second);
-								Color4	op2c = any_cast<Color4>(op2.second);
-								execStack.push(make_pair(VT_Color, op2c * op1c));
+								Color4	*op1c = any_cast<Color4>(&op1.second);
+								Color4	*op2c = any_cast<Color4>(&op2.second);
+								execStack.push(make_pair(VT_Color, *op2c * *op1c));
 								break;
 							}
 							
@@ -308,9 +309,9 @@ void CompiledShader::exec(Color4 &out)
 						{
 						case VT_Double:
 							{
-								Vec3	op1v = any_cast<Vec3>(op1.second);
+								Vec3	*op1v = any_cast<Vec3>(&op1.second);
 								double	op2d = any_cast<double>(op2.second);
-								execStack.push(make_pair(VT_Vector, op1v * op2d));
+								execStack.push(make_pair(VT_Vector, *op1v * op2d));
 								break;
 							}
 							
@@ -334,9 +335,106 @@ void CompiledShader::exec(Color4 &out)
 			}
 			break;
 
+		case Add:
+			{
+				ProgramStackElement op1 = execStack.top();	execStack.pop();
+				ProgramStackElement op2 = execStack.top();	execStack.pop();
+				switch(op1.first)
+				{
+				case VT_Double:
+					{
+						switch(op2.first)
+						{
+						case VT_Double:
+							{
+								double op1d = any_cast<double>(op1.second);
+								double op2d = any_cast<double>(op2.second);
+								execStack.push(make_pair(VT_Double, op1d + op2d));
+								break;
+							}
+							
+						case VT_Color:
+							{
+								float	op1f = (float)any_cast<double>(op1.second);
+								Color4	*op2c = any_cast<Color4>(&op2.second);
+								execStack.push(make_pair(VT_Color, *op2c + op1f));
+								break;
+							}
+							
+						case VT_Vector:
+							{
+								// Double + vec3 is unsupported
+								execStack.push(make_pair(VT_Vector, Vec3()));
+								break;
+							}
+						}
+						break;
+					}
+
+				case VT_Color:
+					{
+						switch(op2.first)
+						{
+						case VT_Double:
+							{
+								Color4	*op1c = any_cast<Color4>(&op1.second);
+								float	op2f = (float)any_cast<double>(op2.second);
+								execStack.push(make_pair(VT_Color, *op1c + op2f));
+								break;
+							}
+							
+						case VT_Color:
+							{
+								Color4	*op1c = any_cast<Color4>(&op1.second);
+								Color4	*op2c = any_cast<Color4>(&op2.second);
+								execStack.push(make_pair(VT_Color, *op2c + *op1c));
+								break;
+							}
+							
+						case VT_Vector:
+							{
+								// Color + vector is non-sense
+								execStack.push(make_pair(VT_Color, Color4(1, 0, 1, 1)));
+								break;
+							}
+						}
+						break;
+					}
+
+				case VT_Vector:
+					{
+						switch(op2.first)
+						{
+						case VT_Double:
+							{
+								// vector + double is not supported
+								execStack.push(make_pair(VT_Vector, Vec3()));
+								break;
+							}
+							
+						case VT_Color:
+							{
+								// vector + color is non-sense
+								execStack.push(make_pair(VT_Vector, Vec3()));
+							}
+							
+						case VT_Vector:
+							{
+								Vec3	*op1v = any_cast<Vec3>(&op1.second);
+								Vec3	*op2v = any_cast<Vec3>(&op2.second);
+								execStack.push(make_pair(VT_Vector, *op1v + *op2v));
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
+			break;
+
 		case Pop:
 			{
-				Variable &var = varTable[any_cast<int>(eip->second)];
+				Variable &var = varTable[*any_cast<int>(&eip->second)];
 
 				//! \todo replace assert by exception
 				assert(execStack.size() >= 1);

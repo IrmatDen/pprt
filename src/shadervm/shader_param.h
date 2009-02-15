@@ -7,7 +7,8 @@
 
 enum ParamType
 {
-	PT_Color4
+	PT_Color4,
+	PT_Real
 };
 
 struct ShaderParam

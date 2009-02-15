@@ -15,11 +15,11 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	/*ShaderManager sm;
-	sm.loadFile("./Shaders/diffuse_sample.crtsl");
+	sm.loadFile("./Shaders/specular_sample.crtsl");
 
 	return 0;*/
 
-	string scnFile = "ScnSamples/diffuse_shaded_sphere.crtscn";
+	string scnFile = "ScnSamples/specular_shaded_sphere.crtscn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);

@@ -76,6 +76,12 @@ struct shaderParams_a
 		params.push_back(ShaderParam(paramName, PT_Color4, col));
 		paramName="";
 	}
+	
+	void operator()(double d) const
+	{
+		params.push_back(ShaderParam(paramName, PT_Real, d));
+		paramName="";
+	}
 
 	static std::string	paramName;
 	static ShaderParams params;

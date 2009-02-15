@@ -18,6 +18,7 @@ class ReturnStmtNode;
 class ExprNode;
 class PrimNode;
 class AsgnExprNode;
+class AddExprNode;
 class MultExprNode;
 class TypeCtorNode;
 class ProcCallNode;
@@ -42,6 +43,7 @@ public:
 	virtual void visit(ExprNode &node)				= 0;
 	virtual void visit(PrimNode &node)				= 0;
 	virtual void visit(AsgnExprNode &node)			= 0;
+	virtual void visit(AddExprNode &node)			= 0;
 	virtual void visit(MultExprNode &node)			= 0;
 	virtual void visit(TypeCtorNode &node) 			= 0;
 	virtual void visit(ProcCallNode &node) 			= 0;

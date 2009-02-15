@@ -145,7 +145,7 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	Vec3 n;
 	nearestObj->normalAt(p, n);
 
-	CompiledShader &shader = nearestObj->getShader();
+	CompiledShader shader(nearestObj->getShader());
 	shader.setVarValueByIndex(CompiledShader::P, p);
 	shader.setVarValueByIndex(CompiledShader::N, n);
 	shader.setVarValueByIndex(CompiledShader::I, ray.dir);
@@ -197,7 +197,7 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, double roughness, Color4
 	{
 		const Light &light = **it;
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * 0.00001;
+		Vec3 p = r.origin + r.dir * 0.0000001;
 
 		// Check if the current light is occluded
 		Vec3 L2P = light.pos - p;

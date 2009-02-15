@@ -1,0 +1,5 @@
+surface specular_sample(color4 surfColor=color4(1, 0, 0);
+					 real roughness=0.1;)
+{
+   out = surfColor * (diffuse(N) * 0.5 + specular(N, roughness) * 0.5);
+}

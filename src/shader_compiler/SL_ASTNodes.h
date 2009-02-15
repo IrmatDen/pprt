@@ -116,6 +116,12 @@ public:
 	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
 };
 
+class AddExprNode : public SLNode
+{
+public:
+	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
+};
+
 class TypeCtorNode : public SLNode
 {
 public:

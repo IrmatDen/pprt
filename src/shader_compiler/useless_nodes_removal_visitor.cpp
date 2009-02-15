@@ -153,6 +153,7 @@ void UselessNodesRemovalVisitor::visit(PrimNode &node)
 {
 	visitChildrenOf(node);
 
+	// Remove this node in case it's only a passthrough
 	vector<ASTNode*> &children = *node.getChildren();
 	if(children.size() == 1)
 	{
@@ -166,6 +167,21 @@ void UselessNodesRemovalVisitor::visit(PrimNode &node)
 void UselessNodesRemovalVisitor::visit(AsgnExprNode &node)
 {
 	visitChildrenOf(node);
+}
+
+void UselessNodesRemovalVisitor::visit(MultExprNode &node)
+{
+	visitChildrenOf(node);
+
+	// Remove this node in case it's only a passthrough
+	vector<ASTNode*> &children = *node.getChildren();
+	if(children.size() == 1)
+	{
+		uselessNodes.push(&node);
+		children[0]->setParent(node.getParent());
+		updateParentChildren(node, *(SLNode*)children[0]);
+		children.erase(children.begin());
+	}
 }
 
 void UselessNodesRemovalVisitor::visit(TypeCtorNode &node)

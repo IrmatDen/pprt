@@ -244,6 +244,38 @@ void MnemonicGenVisitor::visit(PrimNode &node)
 	visitChildrenOf(node);
 }
 
+void MnemonicGenVisitor::visit(MultExprNode &node)
+{
+	// Push the second operand
+	ASTNode &op2 = *node.getChildren()->at(1);
+	if (op2.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op2.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op2)->accept(*this);
+	}
+	
+	// Push the first operand
+	ASTNode &op1 = *node.getChildren()->at(0);
+	if (op1.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op1.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op1)->accept(*this);
+	}
+
+	string instr("mult");
+	shader->parseInstr(instr);
+}
+
 void MnemonicGenVisitor::visit(AsgnExprNode &node)
 {
 	// If the expression is a terminal node, push it

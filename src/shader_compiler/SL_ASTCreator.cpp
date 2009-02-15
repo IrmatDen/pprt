@@ -171,6 +171,19 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return assignexpression;
 	}
 	
+	if (sym == SYMBOL_MULT_EXPR)
+	{
+		CREATE_NODE(MultExprNode, multExpr);
+		
+		multExpr->addChild (getASTNode(rdcChildren[0], multExpr));		// first operand
+
+		// Check if we're only a passthrough to a real value
+		if (rdcChildren.size() == 3)
+			multExpr->addChild (getASTNode(rdcChildren[2], multExpr));		// second operand
+
+		return multExpr;
+	}
+	
 	if (sym == SYMBOL_TYPE_CTOR)
 	{
 		CREATE_NODE(TypeCtorNode, type_ctor);

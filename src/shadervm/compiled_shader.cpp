@@ -21,6 +21,7 @@ void initOpCodeMappings()
 {
 	// mnemonic - Opcodes mapping
 	CompiledShader::opCodeMappings["push"]	= CompiledShader::Pushd;
+	CompiledShader::opCodeMappings["mult"]	= CompiledShader::Mult;
 	CompiledShader::opCodeMappings["call"]	= CompiledShader::Call;
 	CompiledShader::opCodeMappings["pop"]	= CompiledShader::Pop;
 	CompiledShader::opCodeMappings["ret"]	= CompiledShader::Ret;
@@ -143,6 +144,11 @@ void CompiledShader::parseInstr(const std::string &instr)
 			}
 		}
 	}
+	// Mult (single operand)
+	else if (bc.first == Mult)
+	{
+		// Second operand of bytecode is useless (ATM that is)
+	}
 	// Pop <something>
 	else if (bc.first == Pop)
 	{
@@ -227,6 +233,105 @@ void CompiledShader::exec(Color4 &out)
 
 		case Call:
 			(this->*any_cast<ShaderFunction>(eip->second))();
+			break;
+
+		case Mult:
+			{
+				ProgramStackElement op1 = execStack.top();	execStack.pop();
+				ProgramStackElement op2 = execStack.top();	execStack.pop();
+				switch(op1.first)
+				{
+				case VT_Double:
+					{
+						switch(op2.first)
+						{
+						case VT_Double:
+							{
+								double op1d = any_cast<double>(op1.second);
+								double op2d = any_cast<double>(op2.second);
+								execStack.push(make_pair(VT_Double, op1d * op2d));
+								break;
+							}
+							
+						case VT_Color:
+							{
+								float	op1f = (float)any_cast<double>(op1.second);
+								Color4	op2c = any_cast<Color4>(op2.second);
+								execStack.push(make_pair(VT_Color, op2c * op1f));
+								break;
+							}
+							
+						case VT_Vector:
+							{
+								double	op1d = any_cast<double>(op1.second);
+								Vec3	op2v = any_cast<Vec3>(op2.second);
+								execStack.push(make_pair(VT_Vector, op2v * op1d));
+								break;
+							}
+						}
+						break;
+					}
+
+				case VT_Color:
+					{
+						switch(op2.first)
+						{
+						case VT_Double:
+							{
+								Color4	op1c = any_cast<Color4>(op1.second);
+								float	op2f = (float)any_cast<double>(op2.second);
+								execStack.push(make_pair(VT_Color, op1c * op2f));
+								break;
+							}
+							
+						case VT_Color:
+							{
+								Color4	op1c = any_cast<Color4>(op1.second);
+								Color4	op2c = any_cast<Color4>(op2.second);
+								execStack.push(make_pair(VT_Color, op2c * op1c));
+								break;
+							}
+							
+						case VT_Vector:
+							{
+								// Color by vector mult is non-sense
+								execStack.push(make_pair(VT_Color, Color4(1, 0, 1, 1)));
+								break;
+							}
+						}
+						break;
+					}
+
+				case VT_Vector:
+					{
+						switch(op2.first)
+						{
+						case VT_Double:
+							{
+								Vec3	op1v = any_cast<Vec3>(op1.second);
+								double	op2d = any_cast<double>(op2.second);
+								execStack.push(make_pair(VT_Vector, op1v * op2d));
+								break;
+							}
+							
+						case VT_Color:
+							{
+								// vector by color mult is non-sense
+								execStack.push(make_pair(VT_Vector, Vec3()));
+							}
+							
+						case VT_Vector:
+							{
+								// vector by vector mult is not supported by the mult operator;
+								// only by dot & cross products
+								execStack.push(make_pair(VT_Vector, Vec3()));
+								break;
+							}
+						}
+						break;
+					}
+				}
+			}
 			break;
 
 		case Pop:

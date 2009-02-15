@@ -41,7 +41,7 @@ type			= real |string | vec3 | color4
 
 <def_expression>		::= identifier <def_init>
 
-<def_init>			::= '=' <primary>
+<def_init>			::= '=' <mult_expr>
 				 |  
 
 ! ------------------------------------- Statements
@@ -61,9 +61,9 @@ type			= real |string | vec3 | color4
 ! ------------------------------------- Expressions
 
 <expression>			::= <assignexpression>
-				 |  <primary>
+				 |  <mult_expr>
 
-<assignexpression>		::= identifier '=' <primary>
+<assignexpression>		::= identifier '=' <mult_expr>
 
 <type_ctor>			::= type '(' <proc_arguments> ')'
 
@@ -71,6 +71,9 @@ type			= real |string | vec3 | color4
 
 <proc_arguments>		::= <expression> ',' <proc_arguments>
 				 |  <expression>
+
+<mult_expr>			::= <mult_expr> '*' <primary>
+				 |  <primary>
 
 <primary>			::= number
 				 |  identifier

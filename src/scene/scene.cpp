@@ -173,7 +173,7 @@ void Scene::diffuse(const Ray &r, Color4 &out) const
 	{
 		const Light &light = **it;
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * 0.00001;
+		Vec3 p = r.origin + r.dir * 0.0000001;
 
 		// Check if the current light is occluded
 		Vec3 L2P = light.pos - p;

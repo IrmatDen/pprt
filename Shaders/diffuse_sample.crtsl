@@ -1,4 +1,4 @@
-surface diffuse_sample()
+surface diffuse_sample(color4 surfColor=color4(1, 0, 0);)
 {
-   out = diffuse(N);
+   out = surfColor * diffuse(N);
 }

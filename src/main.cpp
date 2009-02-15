@@ -15,7 +15,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	/*ShaderManager sm;
-	sm.loadFile("./Shaders/sample.crtsl");
+	sm.loadFile("./Shaders/diffuse_sample.crtsl");
 
 	return 0;*/
 

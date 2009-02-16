@@ -71,7 +71,8 @@ private:
 	typedef std::vector<ByteCode>					Instructions;
 
 	typedef std::pair<VariableType, boost::any>		ProgramStackElement;
-	typedef std::stack<ProgramStackElement>			ProgramStack;
+	typedef std::vector<ProgramStackElement>		ProgramStack;
+
 	typedef void (CompiledShader::*ShaderFunction)();
 
 private:
@@ -94,7 +95,9 @@ private:
 	Instructions				code;
 	Instructions::iterator		eip;
 	
-	ProgramStack				execStack;
+	//ProgramStack				execStack;
+	ProgramStackElement			execStack[15];
+	ProgramStackElement		*	esp;
 
 	Scene					*	scene;
 

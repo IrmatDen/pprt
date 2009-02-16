@@ -72,7 +72,7 @@ type			= real |string | vec3 | color4
 <proc_arguments>		::= <expression> ',' <proc_arguments>
 				 |  <expression>
 
-<add_expr>			::= <add_expr> '*' <mult_expr>
+<add_expr>			::= <add_expr> '+' <mult_expr>
 				 |  <mult_expr>
 
 <mult_expr>			::= <mult_expr> '*' <primary>

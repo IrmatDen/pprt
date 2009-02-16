@@ -37,7 +37,7 @@ void initOpCodeMappings()
 }
 
 CompiledShader::CompiledShader(ShaderType type)
-:scene(0)
+:scene(0)//, execStack(15)
 {
 	if (!opCodeMappingsInitialized)
 	{
@@ -59,7 +59,7 @@ CompiledShader::CompiledShader(ShaderType type)
 
 CompiledShader::CompiledShader(const CompiledShader &other)
 :shaderName(other.shaderName), varTable(other.varTable),
-code(other.code), scene(other.scene)
+code(other.code)/*, execStack(15)*/, scene(other.scene)
 {
 }
 
@@ -68,6 +68,7 @@ CompiledShader& CompiledShader::operator=(const CompiledShader &other)
 	shaderName	= other.shaderName;
 	varTable	= other.varTable;
 	code		= other.code;
+	//execStack	= other.execStack;
 	scene		= other.scene;
 
 	return *this;
@@ -216,19 +217,22 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 void CompiledShader::exec(Color4 &out)
 {
 	eip = code.begin();
+	esp = execStack;
 
 	while (eip != code.end())
 	{
 		switch(eip->first)
 		{
 		case Pushd:
-			execStack.push(make_pair(VT_Double, eip->second));
+			*esp = make_pair(VT_Double, eip->second);
+			++esp;
 			break;
 
 		case Pushv:
 			{
 				const Variable &var = varTable[*any_cast<int>(&eip->second)];
-				execStack.push(make_pair(var.type, var.content));
+				*esp = make_pair(var.type, var.content);
+				++esp;
 				break;
 			}
 
@@ -238,8 +242,8 @@ void CompiledShader::exec(Color4 &out)
 
 		case Mult:
 			{
-				ProgramStackElement op1 = execStack.top();	execStack.pop();
-				ProgramStackElement op2 = execStack.top();	execStack.pop();
+				--esp;	ProgramStackElement &op1 = *esp;
+				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
 				case VT_Double:
@@ -250,7 +254,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								double op1d = any_cast<double>(op1.second);
 								double op2d = any_cast<double>(op2.second);
-								execStack.push(make_pair(VT_Double, op1d * op2d));
+								*esp = make_pair(VT_Double, op1d * op2d);
+								++esp;
 								break;
 							}
 							
@@ -258,7 +263,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								float	op1f = (float)any_cast<double>(op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
-								execStack.push(make_pair(VT_Color, *op2c * op1f));
+								*esp = make_pair(VT_Color, *op2c * op1f);
+								++esp;
 								break;
 							}
 							
@@ -266,7 +272,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								double	op1d = any_cast<double>(op1.second);
 								Vec3	*op2v = any_cast<Vec3>(&op2.second);
-								execStack.push(make_pair(VT_Vector, *op2v * op1d));
+								*esp = make_pair(VT_Vector, *op2v * op1d);
+								++esp;
 								break;
 							}
 						}
@@ -281,7 +288,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
 								float	op2f = (float)any_cast<double>(op2.second);
-								execStack.push(make_pair(VT_Color, *op1c * op2f));
+								*esp = make_pair(VT_Color, *op1c * op2f);
+								++esp;
 								break;
 							}
 							
@@ -289,14 +297,16 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
-								execStack.push(make_pair(VT_Color, *op2c * *op1c));
+								*esp = make_pair(VT_Color, *op2c * *op1c);
+								++esp;
 								break;
 							}
 							
 						case VT_Vector:
 							{
 								// Color by vector mult is non-sense
-								execStack.push(make_pair(VT_Color, Color4(1, 0, 1, 1)));
+								*esp = make_pair(VT_Color, Color4(1, 0, 1, 1));
+								++esp;
 								break;
 							}
 						}
@@ -311,21 +321,25 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Vec3	*op1v = any_cast<Vec3>(&op1.second);
 								double	op2d = any_cast<double>(op2.second);
-								execStack.push(make_pair(VT_Vector, *op1v * op2d));
+								*esp = make_pair(VT_Vector, *op1v * op2d);
+								++esp;
 								break;
 							}
 							
 						case VT_Color:
 							{
 								// vector by color mult is non-sense
-								execStack.push(make_pair(VT_Vector, Vec3()));
+								*esp = make_pair(VT_Vector, Vec3());
+								++esp;
+								break;
 							}
 							
 						case VT_Vector:
 							{
 								// vector by vector mult is not supported by the mult operator;
 								// only by dot & cross products
-								execStack.push(make_pair(VT_Vector, Vec3()));
+								*esp = make_pair(VT_Vector, Vec3());
+								++esp;
 								break;
 							}
 						}
@@ -337,8 +351,8 @@ void CompiledShader::exec(Color4 &out)
 
 		case Add:
 			{
-				ProgramStackElement op1 = execStack.top();	execStack.pop();
-				ProgramStackElement op2 = execStack.top();	execStack.pop();
+				--esp;	ProgramStackElement &op1 = *esp;
+				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
 				case VT_Double:
@@ -349,7 +363,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								double op1d = any_cast<double>(op1.second);
 								double op2d = any_cast<double>(op2.second);
-								execStack.push(make_pair(VT_Double, op1d + op2d));
+								*esp = make_pair(VT_Double, op1d + op2d);
+								++esp;
 								break;
 							}
 							
@@ -357,14 +372,16 @@ void CompiledShader::exec(Color4 &out)
 							{
 								float	op1f = (float)any_cast<double>(op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
-								execStack.push(make_pair(VT_Color, *op2c + op1f));
+								*esp = make_pair(VT_Color, *op2c + op1f);
+								++esp;
 								break;
 							}
 							
 						case VT_Vector:
 							{
 								// Double + vec3 is unsupported
-								execStack.push(make_pair(VT_Vector, Vec3()));
+								*esp = make_pair(VT_Vector, Vec3());
+								++esp;
 								break;
 							}
 						}
@@ -379,7 +396,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
 								float	op2f = (float)any_cast<double>(op2.second);
-								execStack.push(make_pair(VT_Color, *op1c + op2f));
+								*esp = make_pair(VT_Color, *op1c + op2f);
+								++esp;
 								break;
 							}
 							
@@ -387,14 +405,16 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
-								execStack.push(make_pair(VT_Color, *op2c + *op1c));
+								*esp = make_pair(VT_Color, *op2c + *op1c);
+								++esp;
 								break;
 							}
 							
 						case VT_Vector:
 							{
 								// Color + vector is non-sense
-								execStack.push(make_pair(VT_Color, Color4(1, 0, 1, 1)));
+								*esp = make_pair(VT_Color, Color4(1, 0, 1, 1));
+								++esp;
 								break;
 							}
 						}
@@ -408,21 +428,25 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Double:
 							{
 								// vector + double is not supported
-								execStack.push(make_pair(VT_Vector, Vec3()));
+								*esp = make_pair(VT_Vector, Vec3());
+								++esp;
 								break;
 							}
 							
 						case VT_Color:
 							{
 								// vector + color is non-sense
-								execStack.push(make_pair(VT_Vector, Vec3()));
+								*esp = make_pair(VT_Vector, Vec3());
+								++esp;
+								break;
 							}
 							
 						case VT_Vector:
 							{
 								Vec3	*op1v = any_cast<Vec3>(&op1.second);
 								Vec3	*op2v = any_cast<Vec3>(&op2.second);
-								execStack.push(make_pair(VT_Vector, *op1v + *op2v));
+								*esp = make_pair(VT_Vector, *op1v + *op2v);
+								++esp;
 								break;
 							}
 						}
@@ -434,14 +458,10 @@ void CompiledShader::exec(Color4 &out)
 
 		case Pop:
 			{
+				--esp;
+				ProgramStackElement &pse = *esp;
 				Variable &var = varTable[*any_cast<int>(&eip->second)];
-
-				//! \todo replace assert by exception
-				assert(execStack.size() >= 1);
-				ProgramStackElement pse = execStack.top();
 				var.content = pse.second;
-
-				execStack.pop();
 			}
 
 		default:

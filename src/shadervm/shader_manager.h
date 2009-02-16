@@ -16,6 +16,9 @@ public:
 	void				setScene(Scene &scn)					{ scene = &scn; }
 
 	void				loadFile(const std::string &fileName);
+
+	void				addShader(const CompiledShader &shader);
+
 	CompiledShader		instanciate(const std::string &shaderName) const;
 
 private:

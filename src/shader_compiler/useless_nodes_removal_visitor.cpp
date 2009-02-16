@@ -15,6 +15,19 @@ void UselessNodesRemovalVisitor::visit(FileRootNode &node)
 {
 	visitChildrenOf(node);
 
+	// Eventually flatten "definitions" tree
+	if (node.getChildren()->size() == 2)
+	{
+		ASTNode *defsChild = (*node.getChildren())[1];
+		if(defsChild->getImage() == L"definitions" && defsChild->getChildren()->size() > 0)
+		{
+			uselessNodes.push((SLNode*)defsChild);
+			reparentAllChildren(node, *(SLNode*)defsChild);
+			defsChild->getChildren()->clear();
+			node.getChildren()->erase(node.getChildren()->begin() + 1);
+		}
+	}
+
 	deleteUselessNodes();
 }
 

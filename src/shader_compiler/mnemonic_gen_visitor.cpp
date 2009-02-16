@@ -5,6 +5,8 @@
 #include "mnemonic_gen_visitor.h"
 #include "SL_ASTNodes.h"
 
+#include "../shadervm/shader_manager.h"
+#include "../shadervm/compiled_shader.h"
 #include "../shadervm/symtab.h"
 
 using namespace std;
@@ -13,6 +15,16 @@ using namespace boost;
 std::string wstringToString(const std::wstring &ws)
 {
 	return std::string(ws.begin(), ws.end());
+}
+
+MnemonicGenVisitor::MnemonicGenVisitor(ShaderManager &shaderManager)
+	:shader(0), shaderMgr(shaderManager)
+{
+}
+
+MnemonicGenVisitor::~MnemonicGenVisitor()
+{
+	delete shader;
 }
 
 void MnemonicGenVisitor::visit(TermNode &node)
@@ -31,10 +43,14 @@ void MnemonicGenVisitor::visit(ShaderRootNode &node)
 
 	if (node.getChildren()->at(0)->getImage() == L"surface")
 		shader = new CompiledShader(CompiledShader::ST_Surface);
+	else
+		return; // Other shaders not yet supported
 
 	shader->setName(wstringToString(node.getChildren()->at(1)->getImage()));
 
 	visitChildrenOf(node);
+
+	shaderMgr.addShader(*shader);
 }
 
 void MnemonicGenVisitor::visit(FormalsNode &node)

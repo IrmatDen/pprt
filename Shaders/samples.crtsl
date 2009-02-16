@@ -1,0 +1,24 @@
+surface my_constant(color4 surfColor=color4(1, 0, 0);)
+{
+   out = surfColor;
+}
+
+surface diffuse_sample(color4 surfColor=color4(1, 0, 0);)
+{
+   out = surfColor * diffuse(N);
+}
+
+surface specular_sample(color4 surfColor=color4(1, 0, 0);
+					 real roughness=0.1;)
+{
+   #out = surfColor * (diffuse(N) * 0.5 + specular(N, roughness) * 0.5);
+   out = surfColor * diffuse(N) + color4(1, 1, 1, 1) * specular(N, roughness);
+}
+
+surface reflect_sample(color4 surfColor=color4(1, 0, 0);
+					real roughness=0.1;)
+{
+   vec3 r = reflect(I, N);
+   out = surfColor * (diffuse(N) * 0.5 + color4(0.5, 0.5, 0.5, 1) * specular(N, roughness));
+   out = out * 0.5 + trace(P, r) * 0.5;
+}

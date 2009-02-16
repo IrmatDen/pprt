@@ -24,7 +24,8 @@ type			= real |string | vec3 | color4
 
 ! ------------------------------------- Declarations
 
-<definitions>			::= <shader_definition>
+<definitions>			::= <shader_definition> <definitions>
+				 |  
 
 <shader_definition>		::= shader_type identifier '(' <formals> ')' <block>
 

@@ -1,7 +1,0 @@
-surface reflect_sample(color4 surfColor=color4(1, 0, 0);
-					real roughness=0.1;)
-{
-   vec3 r = reflect(I, N);
-   out = surfColor * diffuse(N) + color4(1, 1, 1, 1) * specular(N, roughness);
-   out = out + trace(P, r);
-}

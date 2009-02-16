@@ -61,19 +61,20 @@ void ShaderManager::loadFile(const std::string &fileName)
 	StdoutVisitor printer;
 	//printer.visit(*root);
 
-	MnemonicGenVisitor mnemonicGen;
+	MnemonicGenVisitor mnemonicGen(*this);
 	mnemonicGen.visit(*root);
-	
-	CompiledShader *shader = mnemonicGen.getShader();
-	if (shader)
-	{
-		shader->setScene(scene);
-		shaders[shader->name()] = *shader;
-		cout << "Loaded " << fileName.c_str() << endl;
-	}
+
+	cout << "Loaded " << fileName << endl;
 	
 	delete buffer;
 	delete root;
+}
+
+void ShaderManager::addShader(const CompiledShader &shader)
+{
+	shaders[shader.name()] = shader;
+	shaders[shader.name()].setScene(scene);
+	cout << "Added shader: " << shader.name() << endl;
 }
 
 CompiledShader ShaderManager::instanciate(const std::string &shaderName) const

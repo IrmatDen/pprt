@@ -27,7 +27,13 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 	{
 		CREATE_NODE(FileRootNode, definitions);
 
-		definitions->addChild(getASTNode(rdcChildren[0], definitions));
+		if (rdcChildren.size() != 0)
+		{
+			definitions->addChild (getASTNode(rdcChildren[0], definitions));	// first shader or function definition
+			if ( ((NonTerminal*)rdcChildren[1])->children.size() > 0)
+				definitions->addChild (getASTNode(rdcChildren[1], definitions));	// eventual other vars decl
+		}
+
 		return definitions;
 	}
 

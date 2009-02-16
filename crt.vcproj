@@ -237,10 +237,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\src\shadervm\shader_param.h"
-					>
-				</File>
-				<File
 					RelativePath=".\src\shadervm\shading_lighting_fun.cpp"
 					>
 				</File>
@@ -356,6 +352,10 @@
 				</File>
 				<File
 					RelativePath=".\src\shadervm\shader_manager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\shadervm\shader_param.h"
 					>
 				</File>
 				<File

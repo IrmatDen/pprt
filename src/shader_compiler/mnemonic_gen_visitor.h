@@ -5,16 +5,15 @@
 
 #include "SL_ASTVisitor.h"
 
-#include "../shadervm/compiled_shader.h"
+class ShaderManager;
+class CompiledShader;
 
 class MnemonicGenVisitor : public SL_ASTVisitor
 {
 public:
-	MnemonicGenVisitor():shader(0) {}
-	~MnemonicGenVisitor()
-	{
-		delete shader;
-	}
+	MnemonicGenVisitor(ShaderManager &shaderManager);
+
+	~MnemonicGenVisitor();
 
 	virtual void visit(TermNode &node);
 	virtual void visit(FileRootNode &node);
@@ -38,10 +37,9 @@ public:
 	virtual void visit(ProcCallNode &node);
 	virtual void visit(ProcArgsNode &node);
 
-	CompiledShader* getShader()			{ return shader; }
-
 private:
-	CompiledShader *shader;
+	CompiledShader	*	shader;
+	ShaderManager	&	shaderMgr;
 };
 
 #endif

@@ -49,7 +49,7 @@ public:
 	MaterialPtr	getMaterialByName(const std::string &name);
 
 	void		render();
-	Color4		trace(const Ray &eye, bool returnBackground = false);
+	Color4		trace(const Ray &eye, bool &hitSomething);
 
 	bool		collide(const Ray &r, double &t) const;
 

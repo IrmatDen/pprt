@@ -34,13 +34,24 @@ public:
 
 			for (int x = 0; x < scene.resX; x++, imgData += 4)
 			{
-				// Bring x & y in [-1,1] range, and generate primary's ray dir.
-				float fx = x * 1.0f / scene.resX * 2 - 1;
-				float fy = 1 - y * 1.0f / scene.resY * 2;
+				Color4 col(scene.background);
+				bool hitSomething;
 
-				scene.cam.project(fx, fy, ray);
+				for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
+				{
+					for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
+					{
+						// Bring x & y in [-1,1] range, and generate primary's ray dir.
+						float fx =		fragx * 1.0f / scene.resX * 2 - 1;
+						float fy = 1 -	fragy * 1.0f / scene.resY * 2;
 
-				Color4 col = scene.trace(ray, true);
+						scene.cam.project(fx, fy, ray);
+
+						Color4 traceCol = scene.trace(ray, hitSomething);
+						if (hitSomething)
+							col += traceCol * 0.25f;
+					}
+				}
 
 				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
@@ -98,13 +109,24 @@ void Scene::render()
 	{
 		for (int x = 0; x < resX; x++, imgData += 4)
 		{
-			// Bring x & y in [-1,1] range, and generate primary's ray dir.
-			float fx = x * 1.0f / resX * 2 - 1;
-			float fy = 1 - y * 1.0f / resY * 2;
+			Color4 col(background);
+			bool hitSomething;
 
-			cam.project(fx, fy, r);
+			for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
+			{
+				for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
+				{
+					// Bring x & y in [-1,1] range, and generate primary's ray dir.
+					float fx =		fragx * 1.0f / resX * 2 - 1;
+					float fy = 1 -	fragy * 1.0f / resY * 2;
 
-			Color4 col = trace(r, true);
+					cam.project(fx, fy, r);
+
+					Color4 traceCol = trace(r, hitSomething);
+					if (hitSomething)
+						col += traceCol * 0.25f;
+				}
+			}
 
 			imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 			imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
@@ -117,7 +139,7 @@ void Scene::render()
 	img.save(outName.c_str());
 }
 
-Color4 Scene::trace(const Ray &eye, bool returnBackground)
+Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 {
 	Color4 out(0, 0, 0, 0);
 	Ray ray = eye;
@@ -132,10 +154,11 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 
 	if (!nearestObj)
 	{
-		if (returnBackground)
-			return background;
+		hitSomething = false;
 		return out;
 	}
+
+	hitSomething = true;
 
 	// Object doesn't have shader, make it appear even for blind people!
 	if (!nearestObj->hasShader())
@@ -150,6 +173,16 @@ Color4 Scene::trace(const Ray &eye, bool returnBackground)
 	shader.setVarValueByIndex(CompiledShader::N, n);
 	shader.setVarValueByIndex(CompiledShader::I, ray.dir);
 	shader.exec(out);
+
+	const float exposure = -0.66f;
+	out.r = 1 - expf(out.r * exposure);
+	out.g = 1 - expf(out.g * exposure);
+	out.b = 1 - expf(out.b * exposure);
+
+	const float invGamma = 0.45f;
+	out.r = powf(out.r, invGamma);
+	out.g = powf(out.g, invGamma);
+	out.b = powf(out.b, invGamma);
 
 	return out.clamp();
 }

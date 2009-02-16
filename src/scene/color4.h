@@ -32,6 +32,7 @@ public:
 	
 public:
 	inline Color4&		operator+=(const Color4 &v)									{ r+=v.r; g+=v.g; b+=v.b; a+=v.a; return *this; }
+	inline Color4&		operator/=(float s)											{ r/=s; g/=s; b/=s; a/=s; return *this; }
 	
 public:
 	float r, g, b, a;

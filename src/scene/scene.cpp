@@ -142,7 +142,11 @@ void Scene::render()
 Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 {
 	Color4 out(0, 0, 0, 0);
-	Ray ray = eye;
+	if (eye.traceDepth == 2)
+		return out;
+
+	Ray ray(eye);
+	ray.traceDepth++;
 	double t = 20000;
 	GeometryPtr nearestObj((Geometry*)0);
 
@@ -169,12 +173,13 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 	nearestObj->normalAt(p, n);
 
 	CompiledShader shader(nearestObj->getShader());
+	shader.setCurrentDepth(ray.traceDepth);
 	shader.setVarValueByIndex(CompiledShader::P, p);
 	shader.setVarValueByIndex(CompiledShader::N, n);
 	shader.setVarValueByIndex(CompiledShader::I, ray.dir);
 	shader.exec(out);
 
-	const float exposure = -0.66f;
+	/*const float exposure = -0.66f;
 	out.r = 1 - expf(out.r * exposure);
 	out.g = 1 - expf(out.g * exposure);
 	out.b = 1 - expf(out.b * exposure);
@@ -182,7 +187,7 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 	const float invGamma = 0.45f;
 	out.r = powf(out.r, invGamma);
 	out.g = powf(out.g, invGamma);
-	out.b = powf(out.b, invGamma);
+	out.b = powf(out.b, invGamma);*/
 
 	return out.clamp();
 }

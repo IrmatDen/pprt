@@ -38,6 +38,7 @@ public:
 	CompiledShader& operator=(const CompiledShader &other);
 
 	void				setScene(Scene *scn)				{ scene = scn; }
+	void				setCurrentDepth(int depth)			{ currentDepth = depth; }
 
 	void				setName(const std::string &n)		{ shaderName = n; }
 	const std::string&	name() const						{ return shaderName; }
@@ -84,9 +85,13 @@ private:
 		// Type constructors
 		void color4Ctor();
 
+		// Geometric functions
+		void	reflect();
+
 		// Shading and lighting functions
 		void	diffuse();
 		void	specular();
+		void	trace();
 
 private:
 	std::string					shaderName;
@@ -95,11 +100,11 @@ private:
 	Instructions				code;
 	Instructions::iterator		eip;
 	
-	//ProgramStack				execStack;
 	ProgramStackElement			execStack[15];
 	ProgramStackElement		*	esp;
 
 	Scene					*	scene;
+	int							currentDepth;
 
 private:
 	typedef std::map<std::string, OpCode>			OpCodeMapping;

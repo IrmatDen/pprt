@@ -229,6 +229,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\shadervm\geometric_fun.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\shader_manager.cpp"
 					>
 				</File>

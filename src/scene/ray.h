@@ -6,12 +6,13 @@
 class Ray
 {
 public:
-	Ray() {}
-	Ray(const Vec3 &o, const Vec3 &d) : origin(o), dir(d)	{}
-	Ray(const Ray &r) : origin(r.origin), dir(r.dir) {}
+	Ray():traceDepth(0) {}
+	Ray(const Vec3 &o, const Vec3 &d) : origin(o), dir(d), traceDepth(0)			{}
+	Ray(const Ray &r) : origin(r.origin), dir(r.dir), traceDepth(r.traceDepth)		{}
 
 public:
-	Vec3 origin, dir;
+	Vec3	origin, dir;
+	int		traceDepth;
 };
 
 #endif

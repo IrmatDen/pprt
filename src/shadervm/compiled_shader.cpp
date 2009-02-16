@@ -31,9 +31,13 @@ void initOpCodeMappings()
 		// Type ctors
 	CompiledShader::fnMappings["color4"]	= CompiledShader::ShaderFunction(&CompiledShader::color4Ctor);
 		
+		// Geometric
+	CompiledShader::fnMappings["reflect"]	= CompiledShader::ShaderFunction(&CompiledShader::reflect);
+		
 		// Shading & lighting
 	CompiledShader::fnMappings["diffuse"]	= CompiledShader::ShaderFunction(&CompiledShader::diffuse);
 	CompiledShader::fnMappings["specular"]	= CompiledShader::ShaderFunction(&CompiledShader::specular);
+	CompiledShader::fnMappings["trace"]	= CompiledShader::ShaderFunction(&CompiledShader::trace);
 }
 
 CompiledShader::CompiledShader(ShaderType type)

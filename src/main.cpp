@@ -19,7 +19,7 @@ int main(int argc, char **argv)
 
 	return 0;*/
 
-	string scnFile = "ScnSamples/specular_shaded_sphere.crtscn";
+	string scnFile = "ScnSamples/trace_shaded_sphere.crtscn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);

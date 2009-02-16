@@ -183,7 +183,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 					}
 				}
 				else if (type == L"real")
-				{;
+				{
 #ifdef _DEBUG
 					assert(args.size() == 1);
 #endif
@@ -191,6 +191,8 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 				}
 			}
 		}
+
+		shader->addVar(v);
 
 		if (!initializationHandled)
 		{
@@ -201,8 +203,6 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			shader->parseInstr(instr);
 		}
 	}
-
-	shader->addVar(v);
 }
 
 void MnemonicGenVisitor::visit(VarInitNode &node)

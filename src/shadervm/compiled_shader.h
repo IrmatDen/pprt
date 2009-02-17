@@ -28,7 +28,8 @@ public:
 		Out = 0,
 		P	= 1,
 		N	= 2,
-		I	= 3
+		Ng	= 3,
+		I	= 4
 	};
 
 public:
@@ -86,6 +87,7 @@ private:
 		void color4Ctor();
 
 		// Geometric functions
+		void	faceForward();
 		void	reflect();
 
 		// Shading and lighting functions

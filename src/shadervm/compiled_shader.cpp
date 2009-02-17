@@ -32,6 +32,7 @@ void initOpCodeMappings()
 	CompiledShader::fnMappings["color4"]	= CompiledShader::ShaderFunction(&CompiledShader::color4Ctor);
 		
 		// Geometric
+	CompiledShader::fnMappings["faceforward"]	= CompiledShader::ShaderFunction(&CompiledShader::faceForward);
 	CompiledShader::fnMappings["reflect"]	= CompiledShader::ShaderFunction(&CompiledShader::reflect);
 		
 		// Shading & lighting
@@ -41,7 +42,7 @@ void initOpCodeMappings()
 }
 
 CompiledShader::CompiledShader(ShaderType type)
-:scene(0)//, execStack(15)
+:scene(0)
 {
 	if (!opCodeMappingsInitialized)
 	{
@@ -52,6 +53,7 @@ CompiledShader::CompiledShader(ShaderType type)
 	addVar(VST_Varying, VT_Color,	"out",	Color4());
 	addVar(VST_Varying, VT_Vector,	"P",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"N",	Vec3());
+	addVar(VST_Varying, VT_Vector,	"Ng",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"I",	Vec3());
 
 	switch(type)
@@ -63,7 +65,7 @@ CompiledShader::CompiledShader(ShaderType type)
 
 CompiledShader::CompiledShader(const CompiledShader &other)
 :shaderName(other.shaderName), varTable(other.varTable),
-code(other.code)/*, execStack(15)*/, scene(other.scene)
+code(other.code), scene(other.scene)
 {
 }
 
@@ -72,7 +74,6 @@ CompiledShader& CompiledShader::operator=(const CompiledShader &other)
 	shaderName	= other.shaderName;
 	varTable	= other.varTable;
 	code		= other.code;
-	//execStack	= other.execStack;
 	scene		= other.scene;
 
 	return *this;

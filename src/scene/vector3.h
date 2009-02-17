@@ -18,10 +18,10 @@ public:
 
 	// Algebraic
 public:
-	inline Vec3		operator+(const Vec3 &v) const				{ return Vec3(x + v.x, y + v.y, z + v.z); }
-	inline Vec3		operator-(const Vec3 &v) const				{ return Vec3(x - v.x, y - v.y, z - v.z); }
-	inline Vec3		operator*(double s)  const					{ return Vec3(x * s, y * s, z * s); }
-	inline Vec3		operator/(double s)  const					{ double div = 1/s; return *this * div; }
+	inline Vec3			operator+(const Vec3 &v) const			{ return Vec3(x + v.x, y + v.y, z + v.z); }
+	inline Vec3			operator-(const Vec3 &v) const			{ return Vec3(x - v.x, y - v.y, z - v.z); }
+	inline Vec3			operator*(double s)  const				{ return Vec3(x * s, y * s, z * s); }
+	inline Vec3			operator/(double s)  const				{ double div = 1/s; return *this * div; }
 
 	inline Vec3&		operator=(const Vec3 &v)				{ x = v.x; y = v.y; z = v.z; return *this; }
 
@@ -29,6 +29,8 @@ public:
 	inline Vec3&		operator-=(const Vec3 &v)				{ x -= v.x; y -= v.y; z -= v.z; return *this; }
 	inline Vec3&		operator*=(double s)					{ x *= s; y *= s; z *= s; return *this; }
 	inline Vec3&		operator/=(double s)					{ double div = 1/s; return *this *= div; }
+
+	inline Vec3			operator-(int) const						{ return Vec3(-x, -y, -z); }
 
 	// Geometric
 public:

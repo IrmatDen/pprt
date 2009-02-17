@@ -176,6 +176,7 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 	shader.setCurrentDepth(ray.traceDepth);
 	shader.setVarValueByIndex(CompiledShader::P, p);
 	shader.setVarValueByIndex(CompiledShader::N, n);
+	shader.setVarValueByIndex(CompiledShader::Ng, n);
 	shader.setVarValueByIndex(CompiledShader::I, ray.dir);
 	shader.exec(out);
 

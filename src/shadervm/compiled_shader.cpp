@@ -63,11 +63,17 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 	}
 }
 
-CompiledShader::CompiledShader(const CompiledShader &other)
-:type(other.type), shaderName(other.shaderName), varTable(other.varTable),
-code(other.code), codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
+CompiledShader::CompiledShader(const CompiledShader &other, bool runtime)
+:varTable(other.varTable),
+codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
 scene(other.scene)
 {
+	if (!runtime)
+	{
+		type = other.type;
+		shaderName = other.shaderName;
+		code = other.code;
+	}
 }
 
 CompiledShader& CompiledShader::operator=(const CompiledShader &other)

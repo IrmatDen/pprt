@@ -48,7 +48,7 @@ public:
 
 public:
 	CompiledShader(ShaderType shaderType = ST_Invalid);
-	CompiledShader(const CompiledShader &other);
+	CompiledShader(const CompiledShader &other, bool runtime = false);
 
 	CompiledShader& operator=(const CompiledShader &other);
 

@@ -172,7 +172,7 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 	Vec3 n;
 	nearestObj->normalAt(p, n);
 
-	CompiledShader shader(nearestObj->getShader());
+	CompiledShader shader(nearestObj->getShader(), true);
 	shader.setCurrentDepth(ray.traceDepth);
 	shader.setVarValueByIndex(CompiledShader::P, p);
 	shader.setVarValueByIndex(CompiledShader::N, n);

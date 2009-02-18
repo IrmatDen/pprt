@@ -28,7 +28,7 @@ void CompiledShader::specular()
 	Vec3 *n = any_cast<Vec3>(&(esp->second));
 	Vec3 *i = any_cast<Vec3>(&varTable[I].content);
 	--esp;
-	double roughness	= any_cast<double>(esp->second);
+	Real roughness	= any_cast<Real>(esp->second);
 
 	Color4 out;
 	scene->specular(Ray(*p, *n), *i, roughness, out);

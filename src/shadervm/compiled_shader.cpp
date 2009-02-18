@@ -41,8 +41,8 @@ void initOpCodeMappings()
 	CompiledShader::fnMappings["trace"]	= CompiledShader::ShaderFunction(&CompiledShader::trace);
 }
 
-CompiledShader::CompiledShader(ShaderType type)
-:scene(0)
+CompiledShader::CompiledShader(ShaderType shaderType)
+:type(shaderType), scene(0)
 {
 	if (!opCodeMappingsInitialized)
 	{
@@ -64,8 +64,9 @@ CompiledShader::CompiledShader(ShaderType type)
 }
 
 CompiledShader::CompiledShader(const CompiledShader &other)
-:shaderName(other.shaderName), varTable(other.varTable),
-code(other.code), scene(other.scene)
+:type(other.type), shaderName(other.shaderName), varTable(other.varTable),
+code(other.code), codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
+scene(other.scene)
 {
 }
 
@@ -77,6 +78,16 @@ CompiledShader& CompiledShader::operator=(const CompiledShader &other)
 	scene		= other.scene;
 
 	return *this;
+}
+
+CompiledShader CompiledShader::cloneWithCodePtr(ByteCode *bcode, size_t codeLen) const
+{
+	CompiledShader ret(*this);
+	ret.codePtr		= bcode;
+	ret.codeSize	= codeLen;
+	ret.codePtrEnd	= ret.codePtr + ret.codeSize;
+
+	return ret;
 }
 
 void CompiledShader::addVar(VariableStorageType varST, VariableType varT, const std::string &name, boost::any value)
@@ -133,7 +144,7 @@ void CompiledShader::parseInstr(const std::string &instr)
 		// Check if it's a number, in which case, it is pushed.
 		try
 		{
-			bc.second = lexical_cast<double>(tokens[1]);
+			bc.second = lexical_cast<Real>(tokens[1]);
 		}
 		catch (bad_lexical_cast &)
 		{
@@ -221,15 +232,15 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 
 void CompiledShader::exec(Color4 &out)
 {
-	eip = code.begin();
+	eip = codePtr;
 	esp = execStack;
 
-	while (eip != code.end())
+	while (eip != codePtrEnd)
 	{
 		switch(eip->first)
 		{
 		case Pushd:
-			*esp = make_pair(VT_Double, eip->second);
+			*esp = make_pair(VT_Real, eip->second);
 			++esp;
 			break;
 
@@ -251,22 +262,22 @@ void CompiledShader::exec(Color4 &out)
 				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
-				case VT_Double:
+				case VT_Real:
 					{
 						switch(op2.first)
 						{
-						case VT_Double:
+						case VT_Real:
 							{
-								double op1d = any_cast<double>(op1.second);
-								double op2d = any_cast<double>(op2.second);
-								*esp = make_pair(VT_Double, op1d * op2d);
+								Real op1d = any_cast<Real>(op1.second);
+								Real op2d = any_cast<Real>(op2.second);
+								*esp = make_pair(VT_Real, op1d * op2d);
 								++esp;
 								break;
 							}
 							
 						case VT_Color:
 							{
-								float	op1f = (float)any_cast<double>(op1.second);
+								float	op1f = (float)any_cast<Real>(op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
 								*esp = make_pair(VT_Color, *op2c * op1f);
 								++esp;
@@ -275,7 +286,7 @@ void CompiledShader::exec(Color4 &out)
 							
 						case VT_Vector:
 							{
-								double	op1d = any_cast<double>(op1.second);
+								Real	op1d = any_cast<Real>(op1.second);
 								Vec3	*op2v = any_cast<Vec3>(&op2.second);
 								*esp = make_pair(VT_Vector, *op2v * op1d);
 								++esp;
@@ -289,10 +300,10 @@ void CompiledShader::exec(Color4 &out)
 					{
 						switch(op2.first)
 						{
-						case VT_Double:
+						case VT_Real:
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
-								float	op2f = (float)any_cast<double>(op2.second);
+								float	op2f = (float)any_cast<Real>(op2.second);
 								*esp = make_pair(VT_Color, *op1c * op2f);
 								++esp;
 								break;
@@ -322,10 +333,10 @@ void CompiledShader::exec(Color4 &out)
 					{
 						switch(op2.first)
 						{
-						case VT_Double:
+						case VT_Real:
 							{
 								Vec3	*op1v = any_cast<Vec3>(&op1.second);
-								double	op2d = any_cast<double>(op2.second);
+								Real	op2d = any_cast<Real>(op2.second);
 								*esp = make_pair(VT_Vector, *op1v * op2d);
 								++esp;
 								break;
@@ -360,22 +371,22 @@ void CompiledShader::exec(Color4 &out)
 				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
-				case VT_Double:
+				case VT_Real:
 					{
 						switch(op2.first)
 						{
-						case VT_Double:
+						case VT_Real:
 							{
-								double op1d = any_cast<double>(op1.second);
-								double op2d = any_cast<double>(op2.second);
-								*esp = make_pair(VT_Double, op1d + op2d);
+								Real op1d = any_cast<Real>(op1.second);
+								Real op2d = any_cast<Real>(op2.second);
+								*esp = make_pair(VT_Real, op1d + op2d);
 								++esp;
 								break;
 							}
 							
 						case VT_Color:
 							{
-								float	op1f = (float)any_cast<double>(op1.second);
+								float	op1f = (float)any_cast<Real>(op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
 								*esp = make_pair(VT_Color, *op2c + op1f);
 								++esp;
@@ -384,7 +395,7 @@ void CompiledShader::exec(Color4 &out)
 							
 						case VT_Vector:
 							{
-								// Double + vec3 is unsupported
+								// Real + vec3 is unsupported
 								*esp = make_pair(VT_Vector, Vec3());
 								++esp;
 								break;
@@ -397,10 +408,10 @@ void CompiledShader::exec(Color4 &out)
 					{
 						switch(op2.first)
 						{
-						case VT_Double:
+						case VT_Real:
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
-								float	op2f = (float)any_cast<double>(op2.second);
+								float	op2f = (float)any_cast<Real>(op2.second);
 								*esp = make_pair(VT_Color, *op1c + op2f);
 								++esp;
 								break;
@@ -430,9 +441,9 @@ void CompiledShader::exec(Color4 &out)
 					{
 						switch(op2.first)
 						{
-						case VT_Double:
+						case VT_Real:
 							{
-								// vector + double is not supported
+								// vector + Real is not supported
 								*esp = make_pair(VT_Vector, Vec3());
 								++esp;
 								break;

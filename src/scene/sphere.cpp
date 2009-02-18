@@ -3,18 +3,18 @@
 
 #include "sphere.h"
 
-bool Sphere::hit(const Ray &ray, double &t) const
+bool Sphere::hit(const Ray &ray, Real &t) const
 {
 	const Vec3 dist	= pos - ray.origin;
 
-	const double b		= ray.dir.dot(dist);
-	const double d		= b*b - dist.dot(dist) + r*r;
+	const Real b		= ray.dir.dot(dist);
+	const Real d		= b*b - dist.dot(dist) + r*r;
 
 	if (d < 0)
 		return false;
 	
-	const double t0		= b - sqrt(d);
-	const double t1		= b + sqrt(d);
+	const Real t0		= b - sqrt(d);
+	const Real t1		= b + sqrt(d);
 
 	if (t0 > 0 && t0 < t)
 	{

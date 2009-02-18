@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-//#include <functional>
+#include <algorithm>
 
 #include "shader_manager.h"
 #include "compiled_shader.h"
@@ -19,6 +19,11 @@ ShaderManager::ShaderManager()
 :scene(0)
 {
 	bool cgtLoaded = grammar.load("./src/shadervm/crtsl.cgt");
+}
+
+ShaderManager::~ShaderManager()
+{
+	//! \todo free shader code
 }
 
 void ShaderManager::loadFile(const std::string &fileName)
@@ -74,6 +79,13 @@ void ShaderManager::addShader(const CompiledShader &shader)
 {
 	shaders[shader.name()] = shader;
 	shaders[shader.name()].setScene(scene);
+
+	CompiledShader::Instructions code = shader.getCode();
+	CompiledShader::ByteCode *bcode = new CompiledShader::ByteCode[code.size()];
+	shadersCodes[shader.name()] = bcode;
+	for(CompiledShader::Instructions::iterator it = code.begin(); it != code.end(); ++it, ++bcode)
+		*bcode = *it;
+
 	cout << "Added shader: " << shader.name() << endl;
 }
 
@@ -81,8 +93,9 @@ CompiledShader ShaderManager::instanciate(const std::string &shaderName) const
 {
 	//! \todo throw not found exception if needed
 	CompiledShaders::const_iterator it = shaders.find(shaderName);
+	ShadersCode::const_iterator cit = shadersCodes.find(shaderName);
 	if (it != shaders.end())
-		return it->second;
+		return it->second.cloneWithCodePtr(cit->second, it->second.getCode().size());
 
 	return CompiledShader();
 }

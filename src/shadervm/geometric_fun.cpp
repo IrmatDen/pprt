@@ -14,7 +14,7 @@ void CompiledShader::faceForward()
 
 	Vec3 *ng = any_cast<Vec3>(&(varTable[Ng].content));
 
-	double din = ((-i).dot(*ng) < 0 ? -1 : 1);
+	Real din = ((-i).dot(*ng) < 0 ? -1 : 1);
 
 	Vec3 r = n * din;
 	

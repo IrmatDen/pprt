@@ -9,13 +9,13 @@ void CompiledShader::color4Ctor()
 {
 	Color4 col;
 	--esp;
-	col.r = (float)any_cast<double>(esp->second);
+	col.r = (float)any_cast<Real>(esp->second);
 	--esp;
-	col.g = (float)any_cast<double>(esp->second);
+	col.g = (float)any_cast<Real>(esp->second);
 	--esp;
-	col.b = (float)any_cast<double>(esp->second);
+	col.b = (float)any_cast<Real>(esp->second);
 	--esp;
-	col.a = (float)any_cast<double>(esp->second);
+	col.a = (float)any_cast<Real>(esp->second);
 
 	*esp = make_pair(VT_Color, col);
 	++esp;

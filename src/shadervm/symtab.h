@@ -13,7 +13,7 @@ enum VariableStorageType
 
 enum VariableType
 {
-	VT_Double,
+	VT_Real,
 	VT_Color,
 	VT_Vector
 };

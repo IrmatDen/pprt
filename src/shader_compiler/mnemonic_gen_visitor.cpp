@@ -93,7 +93,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 	}
 	else if(type == L"real")
 	{
-		v.type = VT_Double;
+		v.type = VT_Real;
 		v.content = 0;
 	}
 	else if(type == L"vec3")
@@ -116,7 +116,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			// initializer is a terminal, check if it's a constant, if so, use it to initialize the var
 			try
 			{
-				double value = lexical_cast<double>(wstringToString(initializer->getImage()));
+				Real value = lexical_cast<Real>(wstringToString(initializer->getImage()));
 				if (type == L"color4")
 					v.content = Color4((float)value);
 				else if (type == L"real")
@@ -126,7 +126,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			}
 			catch (bad_lexical_cast &)
 			{
-				// if it's not a double, then it probably is a var, and so initialization is deferred at runtime.
+				// if it's not a Real, then it probably is a var, and so initialization is deferred at runtime.
 			}
 		}
 		else if (initializer->getImage() == L"type_ctor")
@@ -151,11 +151,11 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 				{
 					try
 					{
-						double value = lexical_cast<double>(wstringToString(args[i]->getImage()));
+						Real value = lexical_cast<Real>(wstringToString(args[i]->getImage()));
 					}
 					catch (bad_lexical_cast &)
 					{
-						// if it's not a double, then it probably is a var, and so initialization is deferred at runtime.
+						// if it's not a Real, then it probably is a var, and so initialization is deferred at runtime.
 						initializationHandled = false;
 					}
 				}
@@ -169,15 +169,15 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 					switch(args.size())
 					{
 					case 1:
-						v.content = Color4((float)lexical_cast<double>(wstringToString(args[0]->getImage())));
+						v.content = Color4((float)lexical_cast<Real>(wstringToString(args[0]->getImage())));
 						break;
 
 					case 3:
 						{
 							Color4 c;
-							c.r = (float)lexical_cast<double>(wstringToString(args[0]->getImage()));
-							c.g = (float)lexical_cast<double>(wstringToString(args[1]->getImage()));
-							c.b = (float)lexical_cast<double>(wstringToString(args[2]->getImage()));
+							c.r = (float)lexical_cast<Real>(wstringToString(args[0]->getImage()));
+							c.g = (float)lexical_cast<Real>(wstringToString(args[1]->getImage()));
+							c.b = (float)lexical_cast<Real>(wstringToString(args[2]->getImage()));
 							v.content = c;
 							break;
 						}
@@ -185,10 +185,10 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 					case 4:
 						{
 							Color4 c;
-							c.r = (float)lexical_cast<double>(wstringToString(args[0]->getImage()));
-							c.g = (float)lexical_cast<double>(wstringToString(args[1]->getImage()));
-							c.b = (float)lexical_cast<double>(wstringToString(args[2]->getImage()));
-							c.a = (float)lexical_cast<double>(wstringToString(args[3]->getImage()));
+							c.r = (float)lexical_cast<Real>(wstringToString(args[0]->getImage()));
+							c.g = (float)lexical_cast<Real>(wstringToString(args[1]->getImage()));
+							c.b = (float)lexical_cast<Real>(wstringToString(args[2]->getImage()));
+							c.a = (float)lexical_cast<Real>(wstringToString(args[3]->getImage()));
 							v.content = c;
 							break;
 						}
@@ -203,7 +203,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 #ifdef _DEBUG
 					assert(args.size() == 1);
 #endif
-					v.content = lexical_cast<double>(wstringToString(args[0]->getImage()));
+					v.content = lexical_cast<Real>(wstringToString(args[0]->getImage()));
 				}
 			}
 		}

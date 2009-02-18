@@ -32,11 +32,27 @@ public:
 		I	= 4
 	};
 
+	enum OpCode
+	{
+		Pushd,	//! Push a value
+		Pushv,	//! Push a var id
+		Mult,	//! Multiply the 2 first values in stack
+		Add,	//! Add the 2 first values in stack
+		Call,	//! Call a function
+		Pop,	//! Pop into a var id
+		Ret		//! End execution (only used in functions)
+	};
+
+	typedef std::pair<OpCode, boost::any>			ByteCode;
+	typedef std::vector<ByteCode>					Instructions;
+
 public:
-	CompiledShader(ShaderType type = ST_Invalid);
+	CompiledShader(ShaderType shaderType = ST_Invalid);
 	CompiledShader(const CompiledShader &other);
 
 	CompiledShader& operator=(const CompiledShader &other);
+
+	CompiledShader		cloneWithCodePtr(ByteCode *bcode, size_t codeLen) const;
 
 	void				setScene(Scene *scn)				{ scene = scn; }
 	void				setCurrentDepth(int depth)			{ currentDepth = depth; }
@@ -51,26 +67,12 @@ public:
 	void setVarValueByIndex(size_t index, boost::any value);
 
 	void parseInstr(const std::string &instr);
+	Instructions getCode() const { return code; }
 
 	void exec(Color4 &out);
 
 private:
-	enum OpCode
-	{
-		Pushd,	//! Push a value
-		Pushv,	//! Push a var id
-		Mult,	//! Multiply the 2 first values in stack
-		Add,	//! Add the 2 first values in stack
-		Call,	//! Call a function
-		Pop,	//! Pop into a var id
-		Ret		//! End execution (only used in functions)
-	};
-
-private:
 	typedef std::vector<Variable>					VariableTable;
-
-	typedef std::pair<OpCode, boost::any>			ByteCode;
-	typedef std::vector<ByteCode>					Instructions;
 
 	typedef std::pair<VariableType, boost::any>		ProgramStackElement;
 	typedef std::vector<ProgramStackElement>		ProgramStack;
@@ -96,11 +98,16 @@ private:
 		void	trace();
 
 private:
+	ShaderType					type;
 	std::string					shaderName;
 	VariableTable				varTable;
 
 	Instructions				code;
-	Instructions::iterator		eip;
+
+	ByteCode				*	codePtr;
+	ByteCode				*	codePtrEnd;
+	size_t						codeSize;
+	ByteCode				*	eip;
 	
 	ProgramStackElement			execStack[15];
 	ProgramStackElement		*	esp;

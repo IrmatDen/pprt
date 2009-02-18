@@ -51,12 +51,12 @@ public:
 	void		render();
 	Color4		trace(const Ray &eye, bool &hitSomething);
 
-	bool		collide(const Ray &r, double &t) const;
+	bool		collide(const Ray &r, Real &t) const;
 
 public:
 	// Shading & lighting functions
 	void		diffuse(const Ray &r, Color4 &out) const;
-	void		specular(const Ray &r, const Vec3 &viewDir, double roughness, Color4 &out) const;
+	void		specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color4 &out) const;
 
 private:
 	typedef std::vector<GeometryPtr> Geometries;

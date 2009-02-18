@@ -115,12 +115,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;BOOST_EXCEPTION_DISABLE"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
-				StructMemberAlignment="0"
+				StructMemberAlignment="5"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="false"
 				EnableEnhancedInstructionSet="2"
@@ -356,10 +358,6 @@
 				</File>
 				<File
 					RelativePath=".\src\shadervm\shader_param.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\shadervm\shading_lighting_fun.h"
 					>
 				</File>
 				<File

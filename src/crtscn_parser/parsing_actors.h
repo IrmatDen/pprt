@@ -77,7 +77,7 @@ struct shaderParams_a
 		paramName="";
 	}
 	
-	void operator()(double d) const
+	void operator()(Real d) const
 	{
 		params.push_back(ShaderParam(paramName, PT_Real, d));
 		paramName="";
@@ -127,7 +127,7 @@ struct newSphere_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		GeometryPtr g(new Sphere((float)radius, pos));
+		GeometryPtr g(new Sphere(radius, pos));
 		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
@@ -141,11 +141,11 @@ struct newSphere_a
 	}
 
 	Scene			&	scene;
-	static double		radius;
+	static Real			radius;
 	static Vec3			pos;
 	static std::string	matName;
 };
-double		newSphere_a::radius;
+Real		newSphere_a::radius;
 Vec3		newSphere_a::pos;
 std::string	newSphere_a::matName;
 
@@ -175,12 +175,12 @@ struct newPlane_a
 
 	Scene			&	scene;
 	static Vec3			normal;
-	static double		offset;
+	static Real			offset;
 	static bool			twoSided;
 	static std::string	matName;
 };
 Vec3		newPlane_a::normal;
-double		newPlane_a::offset;
+Real		newPlane_a::offset;
 bool		newPlane_a::twoSided;
 std::string	newPlane_a::matName;
 
@@ -209,12 +209,12 @@ struct newDisk_a
 	}
 
 	Scene			&	scene;
-	static double		radius;
+	static Real			radius;
 	static Vec3			pos;
 	static Vec3			normal;
 	static std::string	matName;
 };
-double		newDisk_a::radius;
+Real		newDisk_a::radius;
 Vec3		newDisk_a::pos;
 Vec3		newDisk_a::normal;
 std::string	newDisk_a::matName;

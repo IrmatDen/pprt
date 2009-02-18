@@ -37,13 +37,13 @@ public:
 				Color4 col(scene.background);
 				bool hitSomething;
 
-				for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
+				for (Real fragx = (Real)x; fragx < x + 1.0f; fragx += 0.5f)
 				{
-					for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
+					for (Real fragy = (Real)y; fragy < y + 1.0f; fragy += 0.5f)
 					{
 						// Bring x & y in [-1,1] range, and generate primary's ray dir.
-						float fx =		fragx * 1.0f / scene.resX * 2 - 1;
-						float fy = 1 -	fragy * 1.0f / scene.resY * 2;
+						Real fx =		fragx * 1.0f / scene.resX * 2 - 1;
+						Real fy = 1 -	fragy * 1.0f / scene.resY * 2;
 
 						scene.cam.project(fx, fy, ray);
 
@@ -147,7 +147,7 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 
 	Ray ray(eye);
 	ray.traceDepth++;
-	double t = 20000;
+	Real t = 20000;
 	GeometryPtr nearestObj((Geometry*)0);
 
 	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
@@ -193,7 +193,7 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 	return out.clamp();
 }
 
-bool Scene::collide(const Ray &r, double &t) const
+bool Scene::collide(const Ray &r, Real &t) const
 {
 	for(Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it)
 	{
@@ -212,11 +212,11 @@ void Scene::diffuse(const Ray &r, Color4 &out) const
 	{
 		const Light &light = **it;
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * 0.0000001;
+		Vec3 p = r.origin + r.dir * 0.01;
 
 		// Check if the current light is occluded
 		Vec3 L2P = light.pos - p;
-		double t = L2P.length();
+		Real t = L2P.length();
 		Ray ray(p, L2P.normalize());
 		bool lightOccluded = collide(ray, t);
 
@@ -227,7 +227,7 @@ void Scene::diffuse(const Ray &r, Color4 &out) const
 	}
 }
 
-void Scene::specular(const Ray &r, const Vec3 &viewDir, double roughness, Color4 &out) const
+void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color4 &out) const
 {
 	Vec3 normDir = r.dir.normalized();
 	Vec3 normVDir = -viewDir.normalized();
@@ -236,11 +236,11 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, double roughness, Color4
 	{
 		const Light &light = **it;
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * 0.0000001;
+		Vec3 p = r.origin + r.dir * 0.01;
 
 		// Check if the current light is occluded
 		Vec3 L2P = light.pos - p;
-		double t = L2P.length();
+		Real t = L2P.length();
 		Ray ray(p, L2P.normalize());
 		bool lightOccluded = collide(ray, t);
 

@@ -43,8 +43,11 @@ public:
 		Ret		//! End execution (only used in functions)
 	};
 
-	typedef std::pair<OpCode, boost::any>			ByteCode;
-	typedef std::vector<ByteCode>					Instructions;
+	typedef void (CompiledShader::*ShaderFunction)();
+
+	typedef boost::variant<Real, Color4, Vec3, int, ShaderFunction>	OpCodeArg;
+	typedef std::pair<OpCode, OpCodeArg>							ByteCode;
+	typedef std::vector<ByteCode>									Instructions;
 
 public:
 	CompiledShader(ShaderType shaderType = ST_Invalid);
@@ -61,10 +64,10 @@ public:
 	const std::string&	name() const						{ return shaderName; }
 
 	void addVar(const Variable &v)							{ varTable.push_back(v); }
-	void addVar(VariableStorageType varST, VariableType varT, const std::string &name, boost::any value);
+	void addVar(VariableStorageType varST, VariableType varT, const std::string &name, VarValue value);
 
-	void setVarValue(const std::string &name, boost::any value);
-	void setVarValueByIndex(size_t index, boost::any value);
+	void setVarValue(const std::string &name, VarValue value);
+	void setVarValueByIndex(size_t index, VarValue value);
 
 	void parseInstr(const std::string &instr);
 	Instructions getCode() const { return code; }
@@ -74,10 +77,8 @@ public:
 private:
 	typedef std::vector<Variable>					VariableTable;
 
-	typedef std::pair<VariableType, boost::any>		ProgramStackElement;
+	typedef std::pair<VariableType, VarValue>		ProgramStackElement;
 	typedef std::vector<ProgramStackElement>		ProgramStack;
-
-	typedef void (CompiledShader::*ShaderFunction)();
 
 private:
 	// Parsing helpers

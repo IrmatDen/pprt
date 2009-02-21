@@ -64,7 +64,7 @@ void ShaderManager::loadFile(const std::string &fileName)
 	cleaner.visit(*root);
 
 	StdoutVisitor printer;
-	//printer.visit(*root);
+	printer.visit(*root);
 
 	MnemonicGenVisitor mnemonicGen(*this);
 	mnemonicGen.visit(*root);

@@ -1,3 +1,6 @@
-> remplacer boost shared_ptr par * au runtime
-> remplacer iterator par *item au runtime
-> remplacer boost::any par boost::variant (ou void* ?)
+Scene:
+> remplacer boost shared_ptr par * au runtime (=> besoin d'un Scene::prepare())
+> remplacer iterator par *item au runtime (=> besoin d'un Scene::prepare())
+
+ShaderVM:
+> modifier les opérateurs binaires pour utiliser des paramètres et non la stack (modif lourde)

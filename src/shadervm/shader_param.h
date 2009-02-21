@@ -3,7 +3,8 @@
 
 #include <vector>
 #include <string>
-#include <boost/any.hpp>
+
+#include "symtab.h"
 
 enum ParamType
 {
@@ -14,11 +15,11 @@ enum ParamType
 struct ShaderParam
 {
 	ShaderParam()	{}
-	ShaderParam(const std::string &n, ParamType t, boost::any v) : name(n), type(t), value(v)	{}
+	ShaderParam(const std::string &n, ParamType t, VarValue v) : name(n), type(t), value(v)	{}
 
 	std::string		name;
 	ParamType		type;
-	boost::any		value;
+	VarValue		value;
 };
 
 typedef std::vector<ShaderParam>	ShaderParams;

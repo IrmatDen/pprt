@@ -3,6 +3,11 @@ surface my_constant(color4 surfColor=color4(1, 0, 0);)
    out = surfColor;
 }
 
+surface surfaceNormals()
+{
+	out = (N + 1) * 0.5;
+}
+
 surface diffuse_sample(color4 surfColor=color4(1, 0, 0);)
 {
    out = surfColor * diffuse(N);

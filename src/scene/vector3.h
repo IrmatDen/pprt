@@ -22,6 +22,9 @@ public:
 public:
 	inline Vec3			operator+(const Vec3 &v) const			{ return Vec3(x + v.x, y + v.y, z + v.z); }
 	inline Vec3			operator-(const Vec3 &v) const			{ return Vec3(x - v.x, y - v.y, z - v.z); }
+
+	inline Vec3			operator-(Real s)  const				{ return Vec3(x - s, y - s, z - s); }
+	inline Vec3			operator+(Real s)  const				{ return Vec3(x + s, y + s, z + s); }
 	inline Vec3			operator*(Real s)  const				{ return Vec3(x * s, y * s, z * s); }
 	inline Vec3			operator/(Real s)  const				{ Real div = 1/s; return *this * div; }
 

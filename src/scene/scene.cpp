@@ -142,7 +142,7 @@ void Scene::render()
 Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 {
 	Color4 out(0, 0, 0, 0);
-	if (eye.traceDepth == 2)
+	if (eye.traceDepth == 4)
 		return out;
 
 	Ray ray(eye);

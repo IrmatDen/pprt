@@ -3,7 +3,10 @@
 
 #include <string>
 
-#include <boost/any.hpp>
+#include <boost/variant.hpp>
+
+#include "../scene/vector3.h"
+#include "../scene/color4.h"
 
 enum VariableStorageType
 {
@@ -18,6 +21,8 @@ enum VariableType
 	VT_Vector
 };
 
+typedef boost::variant<Real, Color4, Vec3> VarValue;
+
 struct Variable
 {
 	Variable() : storageType(VST_Uniform)	{}
@@ -25,7 +30,7 @@ struct Variable
 	VariableStorageType		storageType;
 	VariableType			type;
 	std::string				name;
-	boost::any				content;
+	VarValue				content;
 };
 
 #endif

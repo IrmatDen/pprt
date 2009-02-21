@@ -19,6 +19,10 @@ int main(int argc, char **argv)
 
 	return 0;*/
 
+	//string scnFile = "ScnSamples/constant_color_shaded_sphere.crtscn";
+	//string scnFile = "ScnSamples/diffuse_shaded_sphere.crtscn";
+	//string scnFile = "ScnSamples/normals_shaded_sphere.crtscn";
+	//string scnFile = "ScnSamples/specular_shaded_sphere.crtscn";
 	string scnFile = "ScnSamples/trace_shaded_sphere.crtscn";
 
 	Scene scn;
@@ -27,6 +31,7 @@ int main(int argc, char **argv)
 	{
 		cout << endl << "Parsed \"" << scnFile << "\" successfully!" << endl;
 		cout << "Start rendering..." << endl;
+		scn.prepare();
 		__int64 begin = timeGetTime();
 		scn.render();
 		__int64 end = timeGetTime();

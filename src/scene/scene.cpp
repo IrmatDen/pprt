@@ -34,7 +34,7 @@ public:
 
 			for (int x = 0; x < scene.resX; x++, imgData += 4)
 			{
-				Color4 col(scene.background);
+				Color4 col;
 				bool hitSomething;
 
 				for (Real fragx = (Real)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -50,6 +50,8 @@ public:
 						Color4 traceCol = scene.trace(ray, hitSomething);
 						if (hitSomething)
 							col += traceCol * 0.25f;
+						else
+							col += scene.background * 0.25f;
 					}
 				}
 
@@ -65,6 +67,12 @@ private:
 	Scene		&	scn;
 	fipImage	&	img;
 };
+
+Scene::~Scene()
+{
+	delete [] rt_objects;
+	delete [] rt_lights;
+}
 
 bool Scene::loadScnFile(const std::string &filename)
 {
@@ -93,6 +101,21 @@ Camera& Scene::camera()
 	return cam;
 }
 
+void Scene::prepare()
+{
+	rt_objects = new Geometry*[objects.size() + 1];
+	int loop = 0;
+	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it, ++loop)
+		rt_objects[loop] = (*it).get();
+	rt_objects[loop] = 0;
+
+	rt_lights = new Light*[lights.size() + 1];
+	loop = 0;
+	for(Lights::iterator it = lights.begin(); it != lights.end(); ++it, ++loop)
+		rt_lights[loop] = (*it).get();
+	rt_lights[loop] = 0;
+}
+
 void Scene::render()
 {
 
@@ -109,7 +132,7 @@ void Scene::render()
 	{
 		for (int x = 0; x < resX; x++, imgData += 4)
 		{
-			Color4 col(background);
+			Color4 col;
 			bool hitSomething;
 
 			for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -125,6 +148,8 @@ void Scene::render()
 					Color4 traceCol = trace(r, hitSomething);
 					if (hitSomething)
 						col += traceCol * 0.25f;
+					else
+						col += background * 0.25f;
 				}
 			}
 
@@ -142,18 +167,20 @@ void Scene::render()
 Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 {
 	Color4 out(0, 0, 0, 0);
-	if (eye.traceDepth == 4)
+	if (eye.traceDepth == 10)
 		return out;
 
 	Ray ray(eye);
 	ray.traceDepth++;
 	Real t = 20000;
-	GeometryPtr nearestObj((Geometry*)0);
+	const Geometry *nearestObj(0);
+	const Geometry **obj = (const Geometry**)rt_objects;
 
-	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
+	while (*obj)
 	{
-		if ((*it)->hit(ray, t))
-			nearestObj = *it;
+		if ((*obj)->hit(ray, t))
+			nearestObj = *obj;
+		++obj;
 	}
 
 	if (!nearestObj)
@@ -195,10 +222,13 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 
 bool Scene::collide(const Ray &r, Real &t) const
 {
-	for(Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it)
+	const Geometry **obj = (const Geometry**)rt_objects;
+
+	while (*obj)
 	{
-		if ((*it)->hit(r, t))
+		if ((*obj)->hit(r, t))
 			return true;
+		++obj;
 	}
 
 	return false;
@@ -208,22 +238,24 @@ void Scene::diffuse(const Ray &r, Color4 &out) const
 {
 	Vec3 normDir = r.dir.normalized();
 
-	for(Lights::const_iterator it = lights.begin(); it != lights.end(); ++it)
+	const Light **light = (const Light**)rt_lights;
+	while (*light)
 	{
-		const Light &light = **it;
 		// Slightly shift the origin to avoid hitting the same object
 		Vec3 p = r.origin + r.dir * 0.0000001;
 
 		// Check if the current light is occluded
-		Vec3 L2P = light.pos - p;
+		Vec3 L2P = (*light)->pos - p;
 		Real t = L2P.length();
 		Ray ray(p, L2P.normalize());
 		bool lightOccluded = collide(ray, t);
 
 		if (!lightOccluded)
 		{
-			out += light.color * (float)L2P.dot(normDir);
+			out += (*light)->color * (float)L2P.dot(normDir);
 		}
+
+		++light;
 	}
 }
 
@@ -232,14 +264,14 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color4 &
 	Vec3 normDir = r.dir.normalized();
 	Vec3 normVDir = -viewDir.normalized();
 
-	for(Lights::const_iterator it = lights.begin(); it != lights.end(); ++it)
+	const Light **light = (const Light**)rt_lights;
+	while (*light)
 	{
-		const Light &light = **it;
 		// Slightly shift the origin to avoid hitting the same object
 		Vec3 p = r.origin + r.dir * 0.0000001;
 
 		// Check if the current light is occluded
-		Vec3 L2P = light.pos - p;
+		Vec3 L2P = (*light)->pos - p;
 		Real t = L2P.length();
 		Ray ray(p, L2P.normalize());
 		bool lightOccluded = collide(ray, t);
@@ -247,7 +279,9 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color4 &
 		if (!lightOccluded)
 		{
 			Vec3 H = (L2P + normVDir).normalize();
-			out += light.color * static_cast<float>(pow(max(0, normDir.dot(H)), 1/roughness));
+			out += (*light)->color * static_cast<float>(pow(max(0, normDir.dot(H)), 1/roughness));
 		}
+
+		++light;
 	}
 }

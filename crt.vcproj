@@ -119,6 +119,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;BOOST_EXCEPTION_DISABLE"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -151,9 +152,10 @@
 				GenerateDebugInformation="true"
 				AssemblyDebug="2"
 				SubSystem="1"
+				TerminalServerAware="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="0"
+				OptimizeForWindows98="1"
 				TargetMachine="1"
 			/>
 			<Tool

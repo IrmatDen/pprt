@@ -25,11 +25,14 @@ public:
 	#pragma warning(disable:4355)
 	Scene(int width=0, int height=0)
 		: resX(width), resY(height), storeZ(false),
-		background(0, 0, 0, 0)
+		background(0, 0, 0, 0),
+		rt_objects(0), rt_lights(0)
 	{
 		shaderManager.setScene(*this);
 	}
 	#pragma warning(default:4355)
+
+	~Scene();
 
 	bool		loadScnFile(const std::string &filename);
 
@@ -47,6 +50,8 @@ public:
 	void		addLight(LightPtr l)						{ lights.push_back(l); }
 
 	MaterialPtr	getMaterialByName(const std::string &name);
+
+	void		prepare();
 
 	void		render();
 	Color4		trace(const Ray &eye, bool &hitSomething);
@@ -75,6 +80,9 @@ private:
 	Geometries				objects;
 	Materials				materials;
 	Lights					lights;
+
+	Geometry			**	rt_objects;
+	Light				**	rt_lights;
 };
 
 #endif

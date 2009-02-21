@@ -63,8 +63,8 @@ void ShaderManager::loadFile(const std::string &fileName)
 	UselessNodesRemovalVisitor cleaner;
 	cleaner.visit(*root);
 
-	StdoutVisitor printer;
-	printer.visit(*root);
+	/*StdoutVisitor printer;
+	printer.visit(*root);*/
 
 	MnemonicGenVisitor mnemonicGen(*this);
 	mnemonicGen.visit(*root);

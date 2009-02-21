@@ -35,8 +35,8 @@ int main(int argc, char **argv)
 	else
 		cout << "Loading " << scnFile << " failed!" << endl;
 	
-	cout << endl << "Press return to quit..." << endl;
-	cin.get();
+	/*cout << endl << "Press return to quit..." << endl;
+	cin.get();*/
 
 	return !scnLoaded;
 }

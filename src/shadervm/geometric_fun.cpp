@@ -18,7 +18,8 @@ void CompiledShader::faceForward()
 
 	Vec3 r = n * din;
 	
-	*esp = std::make_pair(VT_Vector, r);
+	esp->first = VT_Vector;
+	esp->second = r;
 	++esp;
 }
 
@@ -32,6 +33,7 @@ void CompiledShader::reflect()
 
 	Vec3 r = i.reflect(n);
 	
-	*esp = std::make_pair(VT_Vector, r);
+	esp->first = VT_Vector;
+	esp->second = r;
 	++esp;
 }

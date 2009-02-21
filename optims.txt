@@ -1,0 +1,3 @@
+> remplacer boost shared_ptr par * au runtime
+> remplacer iterator par *item au runtime
+> remplacer boost::any par boost::variant (ou void* ?)

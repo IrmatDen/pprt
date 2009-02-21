@@ -15,7 +15,8 @@ void CompiledShader::diffuse()
 	Color4 out;
 	scene->diffuse(Ray(*p, *n), out);
 	
-	*esp = make_pair(VT_Color, out);
+	esp->first = VT_Color;
+	esp->second = out;
 	++esp;
 }
 
@@ -33,7 +34,8 @@ void CompiledShader::specular()
 	Color4 out;
 	scene->specular(Ray(*p, *n), *i, roughness, out);
 	
-	*esp = make_pair(VT_Color, out);
+	esp->first = VT_Color;
+	esp->second = out;
 	++esp;
 }
 
@@ -54,6 +56,7 @@ void CompiledShader::trace()
 	static bool dummy;
 	Color4 out = scene->trace(r, dummy);
 	
-	*esp = make_pair(VT_Color, out);
+	esp->first = VT_Color;
+	esp->second = out;
 	++esp;
 }

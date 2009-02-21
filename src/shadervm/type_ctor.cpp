@@ -17,6 +17,7 @@ void CompiledShader::color4Ctor()
 	--esp;
 	col.a = (float)any_cast<Real>(esp->second);
 
-	*esp = make_pair(VT_Color, col);
+	esp->first = VT_Color;
+	esp->second = col;
 	++esp;
 }

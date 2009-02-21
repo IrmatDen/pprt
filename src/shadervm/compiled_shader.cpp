@@ -246,14 +246,16 @@ void CompiledShader::exec(Color4 &out)
 		switch(eip->first)
 		{
 		case Pushd:
-			*esp = make_pair(VT_Real, eip->second);
+			esp->first = VT_Real;
+			esp->second = eip->second;
 			++esp;
 			break;
 
 		case Pushv:
 			{
 				const Variable &var = varTable[*any_cast<int>(&eip->second)];
-				*esp = make_pair(var.type, var.content);
+				esp->first = var.type;
+				esp->second = var.content;
 				++esp;
 				break;
 			}
@@ -276,7 +278,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Real op1d = any_cast<Real>(op1.second);
 								Real op2d = any_cast<Real>(op2.second);
-								*esp = make_pair(VT_Real, op1d * op2d);
+								esp->first = VT_Real;
+								esp->second = op1d * op2d;
 								++esp;
 								break;
 							}
@@ -285,7 +288,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								float	op1f = (float)any_cast<Real>(op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
-								*esp = make_pair(VT_Color, *op2c * op1f);
+								esp->first = VT_Color;
+								esp->second = *op2c * op1f;
 								++esp;
 								break;
 							}
@@ -294,7 +298,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Real	op1d = any_cast<Real>(op1.second);
 								Vec3	*op2v = any_cast<Vec3>(&op2.second);
-								*esp = make_pair(VT_Vector, *op2v * op1d);
+								esp->first = VT_Vector;
+								esp->second = *op2v * op1d;
 								++esp;
 								break;
 							}
@@ -310,7 +315,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
 								float	op2f = (float)any_cast<Real>(op2.second);
-								*esp = make_pair(VT_Color, *op1c * op2f);
+								esp->first = VT_Color;
+								esp->second = *op1c * op2f;
 								++esp;
 								break;
 							}
@@ -319,7 +325,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
-								*esp = make_pair(VT_Color, *op2c * *op1c);
+								esp->first = VT_Color;
+								esp->second = *op2c * *op1c;
 								++esp;
 								break;
 							}
@@ -327,7 +334,8 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Vector:
 							{
 								// Color by vector mult is non-sense
-								*esp = make_pair(VT_Color, Color4(1, 0, 1, 1));
+								esp->first = VT_Color;
+								esp->second = Color4(1, 0, 1, 1);
 								++esp;
 								break;
 							}
@@ -341,9 +349,10 @@ void CompiledShader::exec(Color4 &out)
 						{
 						case VT_Real:
 							{
-								Vec3	*op1v = any_cast<Vec3>(&op1.second);
-								Real	op2d = any_cast<Real>(op2.second);
-								*esp = make_pair(VT_Vector, *op1v * op2d);
+								Vec3 *op1v = any_cast<Vec3>(&op1.second);
+								Real  op2d = any_cast<Real>(op2.second);
+								esp->first = VT_Vector;
+								esp->second = *op1v * op2d;
 								++esp;
 								break;
 							}
@@ -351,7 +360,8 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Color:
 							{
 								// vector by color mult is non-sense
-								*esp = make_pair(VT_Vector, Vec3());
+								esp->first = VT_Vector;
+								esp->second = Vec3();
 								++esp;
 								break;
 							}
@@ -360,7 +370,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								// vector by vector mult is not supported by the mult operator;
 								// only by dot & cross products
-								*esp = make_pair(VT_Vector, Vec3());
+								esp->first = VT_Vector;
+								esp->second = Vec3();
 								++esp;
 								break;
 							}
@@ -385,7 +396,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Real op1d = any_cast<Real>(op1.second);
 								Real op2d = any_cast<Real>(op2.second);
-								*esp = make_pair(VT_Real, op1d + op2d);
+								esp->first = VT_Real;
+								esp->second = op1d + op2d;
 								++esp;
 								break;
 							}
@@ -394,7 +406,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								float	op1f = (float)any_cast<Real>(op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
-								*esp = make_pair(VT_Color, *op2c + op1f);
+								esp->first = VT_Color;
+								esp->second = *op2c + op1f;
 								++esp;
 								break;
 							}
@@ -402,7 +415,8 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Vector:
 							{
 								// Real + vec3 is unsupported
-								*esp = make_pair(VT_Vector, Vec3());
+								esp->first = VT_Vector;
+								esp->second = Vec3();
 								++esp;
 								break;
 							}
@@ -418,7 +432,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
 								float	op2f = (float)any_cast<Real>(op2.second);
-								*esp = make_pair(VT_Color, *op1c + op2f);
+								esp->first = VT_Color;
+								esp->second = *op1c + op2f;
 								++esp;
 								break;
 							}
@@ -427,7 +442,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Color4	*op1c = any_cast<Color4>(&op1.second);
 								Color4	*op2c = any_cast<Color4>(&op2.second);
-								*esp = make_pair(VT_Color, *op2c + *op1c);
+								esp->first = VT_Color;
+								esp->second = *op2c + *op1c;
 								++esp;
 								break;
 							}
@@ -435,7 +451,8 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Vector:
 							{
 								// Color + vector is non-sense
-								*esp = make_pair(VT_Color, Color4(1, 0, 1, 1));
+								esp->first = VT_Color;
+								esp->second = Color4(1, 0, 1, 1);
 								++esp;
 								break;
 							}
@@ -450,7 +467,8 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Real:
 							{
 								// vector + Real is not supported
-								*esp = make_pair(VT_Vector, Vec3());
+								esp->first = VT_Vector;
+								esp->second = Vec3();
 								++esp;
 								break;
 							}
@@ -458,7 +476,8 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Color:
 							{
 								// vector + color is non-sense
-								*esp = make_pair(VT_Vector, Vec3());
+								esp->first = VT_Vector;
+								esp->second = Vec3();
 								++esp;
 								break;
 							}
@@ -467,7 +486,8 @@ void CompiledShader::exec(Color4 &out)
 							{
 								Vec3	*op1v = any_cast<Vec3>(&op1.second);
 								Vec3	*op2v = any_cast<Vec3>(&op2.second);
-								*esp = make_pair(VT_Vector, *op1v + *op2v);
+								esp->first = VT_Vector;
+								esp->second = *op1v + *op2v;
 								++esp;
 								break;
 							}

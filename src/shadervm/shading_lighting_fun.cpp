@@ -41,7 +41,7 @@ void CompiledShader::specular()
 
 void CompiledShader::trace()
 {
-	static Ray r;
+	Ray r;
 
 	// 2 parameters expected: origin & direction
 	--esp;

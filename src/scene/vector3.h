@@ -5,6 +5,8 @@
 
 typedef double Real;
 
+#define Epsilon 0.0000001
+
 class Vec3
 {
 	// Construction
@@ -43,7 +45,7 @@ public:
 	inline Vec3			cross(const Vec3 &v) const				{ Vec3 out(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x); return out; }
 	inline Real			length() const							{ return sqrt(dot(*this)); }
 	inline Real			squaredLength() const					{ return dot(*this); }
-	inline Vec3&		normalize()								{ Real l = length(); if (l > 0.00001) *this /= length(); return *this; }
+	inline Vec3&		normalize()								{ Real l = length(); if (l > Epsilon) *this /= length(); return *this; }
 	inline Vec3			normalized() const						{ Vec3 v(*this); return v.normalize(); }
 	inline Vec3&		reflect(const Vec3 &n)					{ *this - n * 2 * dot(n); return *this; }
 	inline Vec3			reflect(const Vec3 &n) const			{ Vec3 v = *this - n * 2 * dot(n); return v; }

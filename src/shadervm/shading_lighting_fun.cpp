@@ -49,12 +49,16 @@ void CompiledShader::trace()
 	--esp;
 	r.dir = boost::get<Vec3>(esp->second);
 	
-	r.origin += r.dir * 0.0000001;
+	r.origin += r.dir * Epsilon;
 	
 	r.traceDepth = currentDepth;
 
 	static bool dummy;
 	Color4 out = scene->trace(r, dummy);
+
+	// Ensure alpha is 1 since the reflected color shall not influence the
+	// level of opacity for this <something>-xel.
+	out.a = 1;
 	
 	esp->first = VT_Color;
 	esp->second = out;

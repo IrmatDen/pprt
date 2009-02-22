@@ -34,7 +34,7 @@ public:
 
 			for (int x = 0; x < scene.resX; x++, imgData += 4)
 			{
-				Color4 col;
+				Color4 col(0, 0, 0, 0);
 				bool hitSomething;
 
 				for (Real fragx = (Real)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -132,7 +132,7 @@ void Scene::render()
 	{
 		for (int x = 0; x < resX; x++, imgData += 4)
 		{
-			Color4 col;
+			Color4 col(0, 0, 0, 0);
 			bool hitSomething;
 
 			for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -167,7 +167,7 @@ void Scene::render()
 Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 {
 	Color4 out(0, 0, 0, 0);
-	if (eye.traceDepth == 10)
+	if (eye.traceDepth == 4)
 		return out;
 
 	Ray ray(eye);
@@ -242,7 +242,7 @@ void Scene::diffuse(const Ray &r, Color4 &out) const
 	while (*light)
 	{
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * 0.0000001;
+		Vec3 p = r.origin + r.dir * Epsilon;
 
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
@@ -268,7 +268,7 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color4 &
 	while (*light)
 	{
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * 0.0000001;
+		Vec3 p = r.origin + r.dir * Epsilon;
 
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;

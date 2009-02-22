@@ -160,14 +160,13 @@ void Scene::render()
 		}
 	}*/
 
-	img.flipVertical();
 	img.save(outName.c_str());
 }
 
 Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 {
 	Color4 out(0, 0, 0, 0);
-	if (eye.traceDepth == 4)
+	if (eye.traceDepth == 16)
 		return out;
 
 	Ray ray(eye);

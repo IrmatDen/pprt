@@ -4,8 +4,7 @@
 
 void Camera::init(int width, int height)
 {
-	// Compute real fov
-	fov = 18.3;
+	fov = 47;
 
 	double fovx = fov * PIOVER180;
 	double hFov = tan(fovx);
@@ -19,7 +18,7 @@ void Camera::init(int width, int height)
 	u = up.cross(w);
 	u *= hFov;
 
-	v = w.cross(u);
+	v = w.cross(-u);
 	v *= vFov;
 }
 

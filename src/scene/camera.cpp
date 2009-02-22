@@ -2,9 +2,14 @@
 
 #define PIOVER180 0.017453292519943295769236907684886
 
-void Camera::init()
+void Camera::init(int width, int height)
 {
-	float angleOfView = tan(float(PIOVER180) * 0.5f * fov);
+	// Compute real fov
+	fov = 18.3;
+
+	double fovx = fov * PIOVER180;
+	double hFov = tan(fovx);
+	double vFov = tan(((double)height / width) * 47 * PIOVER180);
 	
 	up.normalize();
 	
@@ -12,12 +17,10 @@ void Camera::init()
 	w.normalize();
 
 	u = up.cross(w);
-	u.normalize();
-	u *= angleOfView;
+	u *= hFov;
 
 	v = w.cross(u);
-	v.normalize();
-	v *= angleOfView;
+	v *= vFov;
 }
 
 void Camera::project(Real x, Real y, Ray &r) const

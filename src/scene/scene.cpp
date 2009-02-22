@@ -122,7 +122,7 @@ void Scene::render()
 	fipImage img(FIT_BITMAP, (WORD)resX, (WORD)resY, 32);
 	BYTE *imgData = img.accessPixels();
 
-	cam.init();
+	cam.init(resX, resY);
 
 	tbb::task_scheduler_init tbbInit;
 	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());

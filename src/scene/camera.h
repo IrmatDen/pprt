@@ -11,7 +11,7 @@ public:
 	{
 	}
 
-	void		init();
+	void		init(int width, int height);
 	void		project(Real x, Real y, Ray &r) const;
 
 public:

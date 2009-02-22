@@ -4,7 +4,7 @@
 
 void Camera::init(int width, int height)
 {
-	fov = 47;
+	fov = 18.3;
 
 	double fovx = fov * PIOVER180;
 	double hFov = tan(fovx);

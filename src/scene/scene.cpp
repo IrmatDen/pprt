@@ -8,6 +8,7 @@
 
 #include <tbb/task_scheduler_init.h>
 #include <tbb/blocked_range.h>
+#include <tbb/blocked_range2d.h>
 #include <tbb/parallel_for.h>
 
 #include "scene.h"
@@ -21,18 +22,22 @@ public:
 	{
 	}
 
-	void operator()(const tbb::blocked_range<int> &r) const
+	void operator()(const tbb::blocked_range2d<int> &r) const
+	//void operator()(const tbb::blocked_range<int> &r) const
 	{
 		Scene &scene = scn;
 
 		Ray ray;
 		ray.origin = scene.cam.pos;
 
-		for (int y = r.begin(); y != r.end(); ++y)
+		for (int y = r.rows().begin(); y != r.rows().end(); ++y)
+		//for (int y = r.begin(); y != r.end(); ++y)
 		{
 			BYTE *imgData = img.getScanLine(y);
+			imgData += 4 * r.cols().begin();
 
-			for (int x = 0; x < scene.resX; x++, imgData += 4)
+			for (int x = r.cols().begin(); x < r.cols().end(); x++, imgData += 4)
+			//for (int x = 0; x < scene.resX; x++, imgData += 4)
 			{
 				Color4 col(0, 0, 0, 0);
 				bool hitSomething;
@@ -125,7 +130,8 @@ void Scene::render()
 	cam.init(resX, resY);
 
 	tbb::task_scheduler_init tbbInit;
-	tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());
+	tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), TraceScanLine(*this, img), tbb::auto_partitioner());
+	//tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());
 	/*Ray r;
 	r.origin = cam.pos;
 	for (int y = 0; y < resY; y++)

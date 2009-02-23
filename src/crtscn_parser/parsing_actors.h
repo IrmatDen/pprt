@@ -40,40 +40,12 @@ struct shaderPath_a
 //-----------------------------------------------------------------------------------------------------------
 // Material actors
 
-struct newMaterial_a
-{
-	newMaterial_a(Scene &scn) : scene(scn) {}
-	
-	//! \todo throw material not found
-	void operator()(const iterator_t&, const iterator_t&) const
-	{
-		MaterialPtr m(new Material);
-		m->name			= name;
-		m->color		= color;
-		m->reflexivity	= (float)reflexivity;
-		scene.addMaterial(m);
-
-		// Reset fields to allow for defaults
-		name = "";
-		color = Color4(0, 0);
-		reflexivity = 0;
-	}
-
-	Scene			&	scene;
-	static std::string	name;
-	static Color4		color;
-	static double		reflexivity;
-};
-std::string	newMaterial_a::name;
-Color4		newMaterial_a::color;
-double		newMaterial_a::reflexivity;
-
 #include "../shadervm/shader_param.h"
 struct shaderParams_a
 {
-	void operator()(const Color4 &col) const
+	void operator()(const Color &col) const
 	{
-		params.push_back(ShaderParam(paramName, PT_Color4, col));
+		params.push_back(ShaderParam(paramName, PT_Color, col));
 		paramName="";
 	}
 	
@@ -88,6 +60,13 @@ struct shaderParams_a
 };
 std::string		shaderParams_a::paramName;
 ShaderParams	shaderParams_a::params;
+
+struct currentColor_a
+{
+	static Color		color;
+};
+Color currentColor_a::color(1,1,1);
+
 //-----------------------------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------------------------
@@ -105,15 +84,15 @@ struct newPointLight_a
 
 		// Reset fields to allow for defaults
 		pos = Vec3(0);
-		color = Color4(0, 0);
+		color = Color(0);
 	}
 
 	Scene			&	scene;
 	static Vec3			pos;
-	static Color4		color;
+	static Color		color;
 };
 Vec3	newPointLight_a::pos;
-Color4	newPointLight_a::color;
+Color	newPointLight_a::color;
 //-----------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------

@@ -6,10 +6,9 @@
 #include <cmath>
 
 #include "camera.h"
-#include "color4.h"
+#include "color.h"
 #include "geometry.h"
 #include "light.h"
-#include "material.h"
 #include "ray.h"
 
 #include "../shadervm/shader_manager.h"
@@ -25,7 +24,7 @@ public:
 	#pragma warning(disable:4355)
 	Scene(int width=0, int height=0)
 		: resX(width), resY(height), storeZ(false),
-		background(0, 0, 0, 0),
+		background(0, 0, 0),
 		rt_objects(0), rt_lights(0)
 	{
 		shaderManager.setScene(*this);
@@ -43,29 +42,25 @@ public:
 
 	Camera&		camera();
 
-	void		setBackground(const Color4 &bg)				{ background = bg; }
+	void		setBackground(const Color &bg)				{ background = bg; }
 
 	void		addGeometry(GeometryPtr obj)				{ objects.push_back(obj); }
-	void		addMaterial(MaterialPtr mat)				{ materials.push_back(mat); }
 	void		addLight(LightPtr l)						{ lights.push_back(l); }
-
-	MaterialPtr	getMaterialByName(const std::string &name);
 
 	void		prepare();
 
 	void		render();
-	Color4		trace(const Ray &eye, bool &hitSomething);
+	Color		trace(const Ray &eye, bool &hitSomething);
 
 	bool		collide(const Ray &r, Real &t) const;
 
 public:
 	// Shading & lighting functions
-	void		diffuse(const Ray &r, Color4 &out) const;
-	void		specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color4 &out) const;
+	void		diffuse(const Ray &r, Color &out) const;
+	void		specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const;
 
 private:
 	typedef std::vector<GeometryPtr> Geometries;
-	typedef std::vector<MaterialPtr> Materials;
 	typedef std::vector<LightPtr> Lights;
 
 private:
@@ -73,12 +68,11 @@ private:
 	int						resX, resY;
 	bool					storeZ;
 
-	Color4					background;
+	Color					background;
 
 	Camera					cam;
 
 	Geometries				objects;
-	Materials				materials;
 	Lights					lights;
 
 	Geometry			**	rt_objects;

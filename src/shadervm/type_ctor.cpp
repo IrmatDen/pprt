@@ -5,17 +5,15 @@
 using namespace std;
 using namespace boost;
 
-void CompiledShader::color4Ctor()
+void CompiledShader::colorCtor()
 {
-	Color4 col;
+	Color col;
 	--esp;
 	col.r = (float)boost::get<Real>(esp->second);
 	--esp;
 	col.g = (float)boost::get<Real>(esp->second);
 	--esp;
 	col.b = (float)boost::get<Real>(esp->second);
-	--esp;
-	col.a = (float)boost::get<Real>(esp->second);
 
 	esp->first = VT_Color;
 	esp->second = col;

@@ -7,8 +7,7 @@
 
 #include "compiled_shader.h"
 
-#include "../Scene/color4.h"
-#include "../Scene/scene.h"
+#include "../scene/scene.h"
 
 using namespace std;
 using namespace boost;
@@ -29,7 +28,7 @@ void initOpCodeMappings()
 
 	// Function name - fn pointers mapping
 		// Type ctors
-	CompiledShader::fnMappings["color4"]	= CompiledShader::ShaderFunction(&CompiledShader::color4Ctor);
+	CompiledShader::fnMappings["color"]		= CompiledShader::ShaderFunction(&CompiledShader::colorCtor);
 		
 		// Geometric
 	CompiledShader::fnMappings["faceforward"]	= CompiledShader::ShaderFunction(&CompiledShader::faceForward);
@@ -50,7 +49,7 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 		opCodeMappingsInitialized = true;
 	}
 	
-	addVar(VST_Varying, VT_Color,	"out",	Color4());
+	addVar(VST_Varying, VT_Color,	"out",	Color());
 	addVar(VST_Varying, VT_Vector,	"P",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"N",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"Ng",	Vec3());
@@ -236,7 +235,7 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 	return true;
 }
 
-void CompiledShader::exec(Color4 &out)
+void CompiledShader::exec(Color &out)
 {
 	eip = codePtr;
 	esp = execStack;
@@ -290,7 +289,7 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Color:
 							{
 								float	op1f = (float)boost::get<Real>(op1.second);
-								Color4	&op2c = boost::get<Color4>(op2.second);
+								Color	&op2c = boost::get<Color>(op2.second);
 								esp->first = VT_Color;
 								esp->second = op2c * op1f;
 								++esp;
@@ -316,7 +315,7 @@ void CompiledShader::exec(Color4 &out)
 						{
 						case VT_Real:
 							{
-								Color4	&op1c = boost::get<Color4>(op1.second);
+								Color	&op1c = boost::get<Color>(op1.second);
 								float	op2f = (float)boost::get<Real>(op2.second);
 								esp->first = VT_Color;
 								esp->second = op1c * op2f;
@@ -326,8 +325,8 @@ void CompiledShader::exec(Color4 &out)
 							
 						case VT_Color:
 							{
-								Color4	&op1c = boost::get<Color4>(op1.second);
-								Color4	&op2c = boost::get<Color4>(op2.second);
+								Color	&op1c = boost::get<Color>(op1.second);
+								Color	&op2c = boost::get<Color>(op2.second);
 								esp->first = VT_Color;
 								esp->second = op2c * op1c;
 								++esp;
@@ -338,7 +337,7 @@ void CompiledShader::exec(Color4 &out)
 							{
 								// Color by vector mult is non-sense
 								esp->first = VT_Color;
-								esp->second = Color4(1, 0, 1, 1);
+								esp->second = Color(1, 0, 1);
 								++esp;
 								break;
 							}
@@ -408,7 +407,7 @@ void CompiledShader::exec(Color4 &out)
 						case VT_Color:
 							{
 								float	op1f = (float)boost::get<Real>(op1.second);
-								Color4	&op2c = boost::get<Color4>(op2.second);
+								Color	&op2c = boost::get<Color>(op2.second);
 								esp->first = VT_Color;
 								esp->second = op2c + op1f;
 								++esp;
@@ -433,7 +432,7 @@ void CompiledShader::exec(Color4 &out)
 						{
 						case VT_Real:
 							{
-								Color4	&op1c = boost::get<Color4>(op1.second);
+								Color	&op1c = boost::get<Color>(op1.second);
 								float	op2f = (float)boost::get<Real>(op2.second);
 								esp->first = VT_Color;
 								esp->second = op1c + op2f;
@@ -443,8 +442,8 @@ void CompiledShader::exec(Color4 &out)
 							
 						case VT_Color:
 							{
-								Color4	&op1c = boost::get<Color4>(op1.second);
-								Color4	&op2c = boost::get<Color4>(op2.second);
+								Color	&op1c = boost::get<Color>(op1.second);
+								Color	&op2c = boost::get<Color>(op2.second);
 								esp->first = VT_Color;
 								esp->second = op2c + op1c;
 								++esp;
@@ -455,7 +454,7 @@ void CompiledShader::exec(Color4 &out)
 							{
 								// Color + vector is non-sense
 								esp->first = VT_Color;
-								esp->second = Color4(1, 0, 1, 1);
+								esp->second = Color(1, 0, 1);
 								++esp;
 								break;
 							}
@@ -518,11 +517,11 @@ void CompiledShader::exec(Color4 &out)
 						switch(pse.first)
 						{
 						case VT_Real:
-							var.content = Color4((float)boost::get<Real>(pse.second));
+							var.content = Color((float)boost::get<Real>(pse.second));
 							break;
 
 						case VT_Vector:
-							var.content = Color4(boost::get<Vec3>(pse.second));
+							var.content = Color(boost::get<Vec3>(pse.second));
 							break;
 						}
 						break;
@@ -536,7 +535,7 @@ void CompiledShader::exec(Color4 &out)
 
 						case VT_Color:
 							{
-								Color4 &c = boost::get<Color4>(pse.second);
+								Color &c = boost::get<Color>(pse.second);
 								var.content = Vec3(c.r, c.g, c.b);
 								break;
 							}
@@ -556,5 +555,5 @@ void CompiledShader::exec(Color4 &out)
 
 	// "out" variable should always be at index 0
 	assert(varTable[0].name == "out");
-	out = boost::get<Color4>(varTable[0].content);
+	out = boost::get<Color>(varTable[0].content);
 }

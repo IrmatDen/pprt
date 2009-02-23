@@ -1,9 +1,9 @@
-surface constant(color4 surfColor = color4(1, 1, 1);)
+surface constant(color surfColor = color(1, 1, 1);)
 {
 	out = surfColor;
 }
 
-surface matte(	color4 surfColor = color4(1, 1, 1);
+surface matte(	color surfColor = color(1, 1, 1);
 				real Ka = 1;
 				real Kd = 1;)
 {

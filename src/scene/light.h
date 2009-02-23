@@ -4,13 +4,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include "vector3.h"
-#include "color4.h"
+#include "color.h"
 
 class Light
 {
 public:
 	Vec3		pos;
-	Color4		color;
+	Color		color;
 };
 
 typedef boost::shared_ptr<Light> LightPtr;

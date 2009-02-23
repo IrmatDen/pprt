@@ -12,7 +12,7 @@ void CompiledShader::diffuse()
 	--esp;
 	Vec3 &n = boost::get<Vec3>(esp->second);
 
-	Color4 out;
+	Color out;
 	scene->diffuse(Ray(p, n), out);
 	
 	esp->first = VT_Color;
@@ -31,7 +31,7 @@ void CompiledShader::specular()
 	--esp;
 	Real roughness	= boost::get<Real>(esp->second);
 
-	Color4 out;
+	Color out;
 	scene->specular(Ray(p, n), i, roughness, out);
 	
 	esp->first = VT_Color;
@@ -54,11 +54,7 @@ void CompiledShader::trace()
 	r.traceDepth = currentDepth;
 
 	static bool dummy;
-	Color4 out = scene->trace(r, dummy);
-
-	// Ensure alpha is 1 since the reflected color shall not influence the
-	// level of opacity for this <something>-xel.
-	out.a = 1;
+	Color out = scene->trace(r, dummy);
 	
 	esp->first = VT_Color;
 	esp->second = out;

@@ -8,7 +8,7 @@
 
 enum ParamType
 {
-	PT_Color4,
+	PT_Color,
 	PT_Real
 };
 

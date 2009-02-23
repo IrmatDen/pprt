@@ -39,7 +39,7 @@ public:
 			for (int x = r.cols().begin(); x < r.cols().end(); x++, imgData += 4)
 			//for (int x = 0; x < scene.resX; x++, imgData += 4)
 			{
-				Color4 col(0, 0, 0, 0);
+				Color col(0, 0, 0);
 				bool hitSomething;
 
 				for (Real fragx = (Real)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -52,7 +52,7 @@ public:
 
 						scene.cam.project(fx, fy, ray);
 
-						Color4 traceCol = scene.trace(ray, hitSomething);
+						Color traceCol = scene.trace(ray, hitSomething);
 						if (hitSomething)
 							col += traceCol * 0.25f;
 						else
@@ -60,10 +60,22 @@ public:
 					}
 				}
 
+				const float exposure = -0.66f;
+				col.r = 1 - expf(col.r * exposure);
+				col.g = 1 - expf(col.g * exposure);
+				col.b = 1 - expf(col.b * exposure);
+
+				const float invGamma = 0.45f;
+				col.r = powf(col.r, invGamma);
+				col.g = powf(col.g, invGamma);
+				col.b = powf(col.b, invGamma);
+
+				//col.clamp();
+
 				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
 				imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
-				imgData[FI_RGBA_ALPHA]	= BYTE(col.a * 255);
+				imgData[FI_RGBA_ALPHA]	= 255;
 			}
 		}
 	}
@@ -85,20 +97,6 @@ bool Scene::loadScnFile(const std::string &filename)
 	bool parseRes = scnParser.parseFile(filename);
 
 	return parseRes;
-}
-
-MaterialPtr	Scene::getMaterialByName(const std::string &name)
-{
-	using namespace boost::lambda;
-
-	Materials::iterator matIt = std::find_if(materials.begin(),
-											 materials.end(),
-											 boost::lambda::_1 == name
-											);
-	if (matIt != materials.end())
-		return *matIt;
-
-	return MaterialPtr((Material*)0);
 }
 
 Camera& Scene::camera()
@@ -138,7 +136,7 @@ void Scene::render()
 	{
 		for (int x = 0; x < resX; x++, imgData += 4)
 		{
-			Color4 col(0, 0, 0, 0);
+			Color col(0, 0, 0, 0);
 			bool hitSomething;
 
 			for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -151,7 +149,7 @@ void Scene::render()
 
 					cam.project(fx, fy, r);
 
-					Color4 traceCol = trace(r, hitSomething);
+					Color traceCol = trace(r, hitSomething);
 					if (hitSomething)
 						col += traceCol * 0.25f;
 					else
@@ -169,9 +167,9 @@ void Scene::render()
 	img.save(outName.c_str());
 }
 
-Color4 Scene::trace(const Ray &eye, bool &hitSomething)
+Color Scene::trace(const Ray &eye, bool &hitSomething)
 {
-	Color4 out(0, 0, 0, 0);
+	Color out(0, 0, 0);
 	if (eye.traceDepth == 16)
 		return out;
 
@@ -198,7 +196,7 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 
 	// Object doesn't have shader, make it appear even for blind people!
 	if (!nearestObj->hasShader())
-		return Color4(1, 0, 1, 1);
+		return Color(1, 0, 1);
 
 	Vec3 p = ray.origin + ray.dir * t;
 	Vec3 n;
@@ -212,17 +210,7 @@ Color4 Scene::trace(const Ray &eye, bool &hitSomething)
 	shader.setVarValueByIndex(CompiledShader::I, ray.dir);
 	shader.exec(out);
 
-	/*const float exposure = -0.66f;
-	out.r = 1 - expf(out.r * exposure);
-	out.g = 1 - expf(out.g * exposure);
-	out.b = 1 - expf(out.b * exposure);
-
-	const float invGamma = 0.45f;
-	out.r = powf(out.r, invGamma);
-	out.g = powf(out.g, invGamma);
-	out.b = powf(out.b, invGamma);*/
-
-	return out.clamp();
+	return out;
 }
 
 bool Scene::collide(const Ray &r, Real &t) const
@@ -239,7 +227,7 @@ bool Scene::collide(const Ray &r, Real &t) const
 	return false;
 }
 
-void Scene::diffuse(const Ray &r, Color4 &out) const
+void Scene::diffuse(const Ray &r, Color &out) const
 {
 	Vec3 normDir = r.dir.normalized();
 
@@ -264,7 +252,7 @@ void Scene::diffuse(const Ray &r, Color4 &out) const
 	}
 }
 
-void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color4 &out) const
+void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const
 {
 	Vec3 normDir = r.dir.normalized();
 	Vec3 normVDir = -viewDir.normalized();

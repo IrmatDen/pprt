@@ -46,43 +46,44 @@ enum SymbolConstants
 
 enum RuleConstants
 {
-   RULE_DEFINITIONS                                            =  0, // <definitions> ::= <shader_definition>
-   RULE_SHADER_DEFINITION_SHADER_TYPE_IDENTIFIER_LPARAN_RPARAN =  1, // <shader_definition> ::= 'shader_type' identifier '(' <formals> ')' <block>
-   RULE_FORMALS                                                =  2, // <formals> ::= <variable_definitions> <formals>
-   RULE_FORMALS2                                               =  3, // <formals> ::= 
-   RULE_VARIABLES                                              =  4, // <variables> ::= <variable_definitions> <variables>
-   RULE_VARIABLES2                                             =  5, // <variables> ::= 
-   RULE_VARIABLE_DEFINITIONS_TYPE_SEMI                         =  6, // <variable_definitions> ::= type <def_expressions> ';'
-   RULE_DEF_EXPRESSIONS                                        =  7, // <def_expressions> ::= <def_expression>
-   RULE_DEF_EXPRESSIONS_COMMA                                  =  8, // <def_expressions> ::= <def_expression> ',' <def_expressions>
-   RULE_DEF_EXPRESSION_IDENTIFIER                              =  9, // <def_expression> ::= identifier <def_init>
-   RULE_DEF_INIT_EQ                                            = 10, // <def_init> ::= '=' <add_expr>
-   RULE_DEF_INIT                                               = 11, // <def_init> ::= 
-   RULE_BLOCK_LBRACE_RBRACE                                    = 12, // <block> ::= '{' <variables> <statements> '}'
-   RULE_STATEMENTS                                             = 13, // <statements> ::= <statements> <statement>
-   RULE_STATEMENTS2                                            = 14, // <statements> ::= 
-   RULE_STATEMENT_SEMI                                         = 15, // <statement> ::= <assignexpression> ';'
-   RULE_STATEMENT_SEMI2                                        = 16, // <statement> ::= <procedurecall> ';'
-   RULE_STATEMENT_SEMI3                                        = 17, // <statement> ::= <returnstmt> ';'
-   RULE_STATEMENT                                              = 18, // <statement> ::= <block>
-   RULE_RETURNSTMT_RETURN                                      = 19, // <returnstmt> ::= return <expression>
-   RULE_EXPRESSION                                             = 20, // <expression> ::= <assignexpression>
-   RULE_EXPRESSION2                                            = 21, // <expression> ::= <add_expr>
-   RULE_ASSIGNEXPRESSION_IDENTIFIER_EQ                         = 22, // <assignexpression> ::= identifier '=' <add_expr>
-   RULE_TYPE_CTOR_TYPE_LPARAN_RPARAN                           = 23, // <type_ctor> ::= type '(' <proc_arguments> ')'
-   RULE_PROCEDURECALL_IDENTIFIER_LPARAN_RPARAN                 = 24, // <procedurecall> ::= identifier '(' <proc_arguments> ')'
-   RULE_PROC_ARGUMENTS_COMMA                                   = 25, // <proc_arguments> ::= <expression> ',' <proc_arguments>
-   RULE_PROC_ARGUMENTS                                         = 26, // <proc_arguments> ::= <expression>
-   RULE_ADD_EXPR_PLUS                                          = 27, // <add_expr> ::= <add_expr> '+' <mult_expr>
-   RULE_ADD_EXPR                                               = 28, // <add_expr> ::= <mult_expr>
-   RULE_MULT_EXPR_TIMES                                        = 29, // <mult_expr> ::= <mult_expr> '*' <primary>
-   RULE_MULT_EXPR                                              = 30, // <mult_expr> ::= <primary>
-   RULE_PRIMARY_NUMBER                                         = 31, // <primary> ::= number
-   RULE_PRIMARY_IDENTIFIER                                     = 32, // <primary> ::= identifier
-   RULE_PRIMARY_STRINGCONSTANT                                 = 33, // <primary> ::= stringconstant
-   RULE_PRIMARY                                                = 34, // <primary> ::= <type_ctor>
-   RULE_PRIMARY2                                               = 35, // <primary> ::= <procedurecall>
-   RULE_PRIMARY_LPARAN_RPARAN                                  = 36  // <primary> ::= '(' <expression> ')'
+   RULE_DEFINITIONS                                            =  0, // <definitions> ::= <shader_definition> <definitions>
+   RULE_DEFINITIONS2                                           =  1, // <definitions> ::= 
+   RULE_SHADER_DEFINITION_SHADER_TYPE_IDENTIFIER_LPARAN_RPARAN =  2, // <shader_definition> ::= 'shader_type' identifier '(' <formals> ')' <block>
+   RULE_FORMALS                                                =  3, // <formals> ::= <variable_definitions> <formals>
+   RULE_FORMALS2                                               =  4, // <formals> ::= 
+   RULE_VARIABLES                                              =  5, // <variables> ::= <variable_definitions> <variables>
+   RULE_VARIABLES2                                             =  6, // <variables> ::= 
+   RULE_VARIABLE_DEFINITIONS_TYPE_SEMI                         =  7, // <variable_definitions> ::= type <def_expressions> ';'
+   RULE_DEF_EXPRESSIONS                                        =  8, // <def_expressions> ::= <def_expression>
+   RULE_DEF_EXPRESSIONS_COMMA                                  =  9, // <def_expressions> ::= <def_expression> ',' <def_expressions>
+   RULE_DEF_EXPRESSION_IDENTIFIER                              = 10, // <def_expression> ::= identifier <def_init>
+   RULE_DEF_INIT_EQ                                            = 11, // <def_init> ::= '=' <add_expr>
+   RULE_DEF_INIT                                               = 12, // <def_init> ::= 
+   RULE_BLOCK_LBRACE_RBRACE                                    = 13, // <block> ::= '{' <variables> <statements> '}'
+   RULE_STATEMENTS                                             = 14, // <statements> ::= <statements> <statement>
+   RULE_STATEMENTS2                                            = 15, // <statements> ::= 
+   RULE_STATEMENT_SEMI                                         = 16, // <statement> ::= <assignexpression> ';'
+   RULE_STATEMENT_SEMI2                                        = 17, // <statement> ::= <procedurecall> ';'
+   RULE_STATEMENT_SEMI3                                        = 18, // <statement> ::= <returnstmt> ';'
+   RULE_STATEMENT                                              = 19, // <statement> ::= <block>
+   RULE_RETURNSTMT_RETURN                                      = 20, // <returnstmt> ::= return <expression>
+   RULE_EXPRESSION                                             = 21, // <expression> ::= <assignexpression>
+   RULE_EXPRESSION2                                            = 22, // <expression> ::= <add_expr>
+   RULE_ASSIGNEXPRESSION_IDENTIFIER_EQ                         = 23, // <assignexpression> ::= identifier '=' <add_expr>
+   RULE_TYPE_CTOR_TYPE_LPARAN_RPARAN                           = 24, // <type_ctor> ::= type '(' <proc_arguments> ')'
+   RULE_PROCEDURECALL_IDENTIFIER_LPARAN_RPARAN                 = 25, // <procedurecall> ::= identifier '(' <proc_arguments> ')'
+   RULE_PROC_ARGUMENTS_COMMA                                   = 26, // <proc_arguments> ::= <expression> ',' <proc_arguments>
+   RULE_PROC_ARGUMENTS                                         = 27, // <proc_arguments> ::= <expression>
+   RULE_ADD_EXPR_PLUS                                          = 28, // <add_expr> ::= <add_expr> '+' <mult_expr>
+   RULE_ADD_EXPR                                               = 29, // <add_expr> ::= <mult_expr>
+   RULE_MULT_EXPR_TIMES                                        = 30, // <mult_expr> ::= <mult_expr> '*' <primary>
+   RULE_MULT_EXPR                                              = 31, // <mult_expr> ::= <primary>
+   RULE_PRIMARY_NUMBER                                         = 32, // <primary> ::= number
+   RULE_PRIMARY_IDENTIFIER                                     = 33, // <primary> ::= identifier
+   RULE_PRIMARY_STRINGCONSTANT                                 = 34, // <primary> ::= stringconstant
+   RULE_PRIMARY                                                = 35, // <primary> ::= <type_ctor>
+   RULE_PRIMARY2                                               = 36, // <primary> ::= <procedurecall>
+   RULE_PRIMARY_LPARAN_RPARAN                                  = 37  // <primary> ::= '(' <expression> ')'
 };
 
 #endif

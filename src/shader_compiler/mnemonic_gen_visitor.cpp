@@ -86,10 +86,10 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 	// Get type
 	ASTNode *typeNode = node.getParent()->getParent()->getChildren()->at(0);
 	const wstring &type = typeNode->getImage();
-	if (type == L"color4")
+	if (type == L"color")
 	{
 		v.type = VT_Color;
-		v.content = Color4();
+		v.content = Color();
 	}
 	else if(type == L"real")
 	{
@@ -117,8 +117,8 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			try
 			{
 				Real value = lexical_cast<Real>(wstringToString(initializer->getImage()));
-				if (type == L"color4")
-					v.content = Color4((float)value);
+				if (type == L"color")
+					v.content = Color((float)value);
 				else if (type == L"real")
 					v.content = value;
 
@@ -147,7 +147,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 				{
 					initializationHandled = false;
 				}
-				else if (type == L"color4")
+				else if (type == L"color")
 				{
 					try
 					{
@@ -164,17 +164,17 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			// Checks on constantnes is done, do the proper initialization.
 			if (initializationHandled)
 			{
-				if (type == L"color4")
+				if (type == L"color")
 				{
 					switch(args.size())
 					{
 					case 1:
-						v.content = Color4((float)lexical_cast<Real>(wstringToString(args[0]->getImage())));
+						v.content = Color((float)lexical_cast<Real>(wstringToString(args[0]->getImage())));
 						break;
 
 					case 3:
 						{
-							Color4 c;
+							Color c;
 							c.r = (float)lexical_cast<Real>(wstringToString(args[0]->getImage()));
 							c.g = (float)lexical_cast<Real>(wstringToString(args[1]->getImage()));
 							c.b = (float)lexical_cast<Real>(wstringToString(args[2]->getImage()));
@@ -184,11 +184,10 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 
 					case 4:
 						{
-							Color4 c;
+							Color c;
 							c.r = (float)lexical_cast<Real>(wstringToString(args[0]->getImage()));
 							c.g = (float)lexical_cast<Real>(wstringToString(args[1]->getImage()));
 							c.b = (float)lexical_cast<Real>(wstringToString(args[2]->getImage()));
-							c.a = (float)lexical_cast<Real>(wstringToString(args[3]->getImage()));
 							v.content = c;
 							break;
 						}

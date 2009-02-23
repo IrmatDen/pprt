@@ -6,7 +6,7 @@
 #include <boost/variant.hpp>
 
 #include "../scene/vector3.h"
-#include "../scene/color4.h"
+#include "../scene/color.h"
 
 enum VariableStorageType
 {
@@ -21,7 +21,7 @@ enum VariableType
 	VT_Vector
 };
 
-typedef boost::variant<Real, Color4, Vec3> VarValue;
+typedef boost::variant<Real, Color, Vec3> VarValue;
 
 struct Variable
 {

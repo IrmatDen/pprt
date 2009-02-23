@@ -8,7 +8,7 @@
 
 #include "symtab.h"
 
-#include "../scene/color4.h"
+#include "../scene/color.h"
 
 class Scene;
 
@@ -45,7 +45,7 @@ public:
 
 	typedef void (CompiledShader::*ShaderFunction)();
 
-	typedef boost::variant<Real, Color4, Vec3, int, ShaderFunction>	OpCodeArg;
+	typedef boost::variant<Real, Color, Vec3, int, ShaderFunction>	OpCodeArg;
 	typedef std::pair<OpCode, OpCodeArg>							ByteCode;
 	typedef std::vector<ByteCode>									Instructions;
 
@@ -72,7 +72,7 @@ public:
 	void parseInstr(const std::string &instr);
 	Instructions getCode() const { return code; }
 
-	void exec(Color4 &out);
+	void exec(Color &out);
 
 private:
 	typedef std::vector<Variable>					VariableTable;
@@ -87,7 +87,7 @@ private:
 	
 	// Functions
 		// Type constructors
-		void color4Ctor();
+		void colorCtor();
 
 		// Geometric functions
 		void	faceForward();

@@ -169,10 +169,10 @@ namespace tools
 	}
 }
 
-//! Build a Color4 out of the scanner
-struct color4_parser
+//! Build a Color out of the scanner
+struct color_parser
 {
-	typedef Color4		result_t;
+	typedef Color		result_t;
 
 	//! \todo throw malformed exception
 	template <typename ScannerT>
@@ -193,8 +193,8 @@ struct color4_parser
 			return -1;
 		len += matched;
 
-		float res[4];
-		for (int i = 0; i < 4; i++)
+		float res[3];
+		for (int i = 0; i < 3; i++)
 		{
 			matched = tools::scanFloat(scan, res[i], 0, 1);
 			if (matched == -1)
@@ -219,12 +219,11 @@ struct color4_parser
 		result.r = res[0];
 		result.g = res[1];
 		result.b = res[2];
-		result.a = res[3];
 
 		return len;
 	}
 };
-functor_parser<color4_parser> color4_p;
+functor_parser<color_parser> color_p;
 
 //! Build a Vec3 out of the scanner
 struct vec3_parser

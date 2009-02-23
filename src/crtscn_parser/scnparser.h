@@ -64,7 +64,7 @@ namespace ScnParser
 								!(blank_p >> str_p("+z")[bind(&Scene::storeZValues)(var(self.scene), true)])			// store Z?
 							  );
 
-					background = "Background" >> +blank_p >> color4_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
+					background = "Background" >> +blank_p >> color_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
 
 					camLookAt = "CamLookAt"	>> +blank_p >> vec3_p[assign_a(self.scene.camera().pos)] >> +blank_p
 														>> vec3_p[assign_a(self.scene.camera().target)];
@@ -72,17 +72,8 @@ namespace ScnParser
 				// Lights definitions
 					lights = pointLight;
 					pointLight = ("PointLight" >> +blank_p	>> vec3_p[assign_a(newPointLight_a::pos)] >> +blank_p
-															>> color4_p[assign_a(newPointLight_a::color)]
+															>> color_p[assign_a(newPointLight_a::color)]
 								  )[newPointLight_a(self.scene)];
-
-				// Material definition
-					material = ("Material" >> +blank_p >> (+alnum_p)[assign_a(newMaterial_a::name)] >> ending >>
-								'{' >> ending >>
-									+(	(*blank_p >> "Color"		>> +blank_p >> color4_p[assign_a(newMaterial_a::color)] >> ending) |
-										(*blank_p >> "Reflexivity"	>> +blank_p >> real_p[assign_a(newMaterial_a::reflexivity)] >> ending)
-									) >>
-								'}'
-							   )[newMaterial_a(self.scene)];
 
 				// Geometry definitions
 					geometries =	sphere
@@ -110,7 +101,7 @@ namespace ScnParser
 
 					shaderParams =	(
 										'"' >> (+alnum_p)[assign_a(shaderParams_a::paramName)] >> '"' >> +blank_p >>
-										(color4_p[shaderParams_a()] | real_p[shaderParams_a()])
+										(color_p[shaderParams_a()] | real_p[shaderParams_a()])
 									) % blank_p;
 				
 				// Grammar line definition & root.

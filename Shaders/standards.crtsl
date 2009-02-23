@@ -1,12 +1,11 @@
-surface constant(color surfColor = color(1, 1, 1);)
+surface constant()
 {
-	out = surfColor;
+	Ci = Cs;
 }
 
-surface matte(	color surfColor = color(1, 1, 1);
-				real Ka = 1;
+surface matte(	real Ka = 1;
 				real Kd = 1;)
 {
 	vec3 Nf = faceforward(N, I);
-	out = surfColor * (Kd * diffuse(Nf));
+	Ci = Cs * (Kd * diffuse(Nf));
 }

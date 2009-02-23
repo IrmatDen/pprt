@@ -21,4 +21,6 @@ void Geometry::setShaderParams(ShaderParams p)
 	{
 		shader->setVarValue(it->name, it->value);
 	}
+
+	shader->setVarValueByIndex(CompiledShader::Cs, color);
 }

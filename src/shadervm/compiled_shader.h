@@ -25,11 +25,15 @@ public:
 
 	enum STDVarIndices
 	{
-		Out = 0,
+		// input vars
+		Cs	= 0,
 		P	= 1,
 		N	= 2,
 		Ng	= 3,
-		I	= 4
+		I	= 4,
+
+		// output vars
+		Ci	= 5
 	};
 
 	enum OpCode

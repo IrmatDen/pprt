@@ -63,6 +63,10 @@ ShaderParams	shaderParams_a::params;
 
 struct currentColor_a
 {
+	void operator()(const Color &col) const
+	{
+	}
+
 	static Color		color;
 };
 Color currentColor_a::color(1,1,1);
@@ -107,6 +111,7 @@ struct newSphere_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Sphere(radius, pos));
+		g->setColor(currentColor_a::color);
 		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
@@ -139,6 +144,7 @@ struct newPlane_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Plane(normal.normalize(), (float)offset, !twoSided));
+		g->setColor(currentColor_a::color);
 		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
@@ -174,6 +180,7 @@ struct newDisk_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Disk((float)radius, pos, normal.normalize()));
+		g->setColor(currentColor_a::color);
 		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);

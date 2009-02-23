@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "ray.h"
+#include "color.h"
 
 #include "../shadervm/shader_param.h"
 
@@ -20,6 +21,9 @@ public:
 
 	const Vec3&				position() const						{ return pos; }
 
+	void					setColor(const Color &c)				{ color = c; }
+	const Color&			getColor()								{ return color; }
+
 	void					setShader(const CompiledShader &cs);
 	bool					hasShader() const						{ return shader != 0; }
 	CompiledShader&			getShader() const						{ return *shader; }
@@ -28,11 +32,13 @@ public:
 	const ShaderParams&		getShaderParams() const					{ return shaderParams; }
 
 protected:
-	Geometry() : shader(0)											{}
-	Geometry(const Vec3 &p) : pos(p), shader(0)						{}
+	Geometry() : color(1), shader(0) 								{}
+	Geometry(const Vec3 &p) : pos(p), color(1), shader(0)			{}
 
 protected:
 	Vec3					pos;
+
+	Color					color;
 
 	CompiledShader		*	shader;
 	ShaderParams			shaderParams;

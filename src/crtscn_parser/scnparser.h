@@ -69,6 +69,9 @@ namespace ScnParser
 					camLookAt = "CamLookAt"	>> +blank_p >> vec3_p[assign_a(self.scene.camera().pos)] >> +blank_p
 														>> vec3_p[assign_a(self.scene.camera().target)];
 
+				// Graphics state
+					color = ("Color" >> +blank_p >> color_p[assign_a(currentColor_a::color)]);
+
 				// Lights definitions
 					lights = pointLight;
 					pointLight = ("PointLight" >> +blank_p	>> vec3_p[assign_a(newPointLight_a::pos)] >> +blank_p
@@ -108,7 +111,7 @@ namespace ScnParser
 					element =	  option
 								| scene
 								| lights
-								| material
+								| color
 								| geometries;
 					statement = *blank_p >> !element >> ending >> *blank_p;
 					base_expression = *statement;
@@ -125,7 +128,7 @@ namespace ScnParser
 			rule<ScannerT> option;
 			rule<ScannerT> scene, output, background, camLookAt;
 			rule<ScannerT> lights, pointLight;
-			rule<ScannerT> material;
+			rule<ScannerT> color;
 			rule<ScannerT> geometries, sphere, plane, disk;
 			rule<ScannerT> shaderParams;
 

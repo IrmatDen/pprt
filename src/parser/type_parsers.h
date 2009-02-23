@@ -183,10 +183,6 @@ struct color_parser
 
 		int len = 0;
 		char ch = *scan;
-		if (ch != '(')
-			return -1;
-		++scan;
-		++len;
 
 		int matched = tools::eatWhitespaces(scan);
 		if (matched == -1)
@@ -200,21 +196,11 @@ struct color_parser
 			if (matched == -1)
 				return -1;
 			len += matched;
-			matched = tools::eatSeparator(scan);
+			matched = tools::eatWhitespaces(scan);
 			if (matched == -1)
 				return -1;
 			len += matched;
 		}
-
-		matched = tools::eatWhitespaces(scan);
-		if (matched == -1)
-			return -1;
-		len += matched;
-
-		if (scan.at_end() || *scan != ')')
-			return -1;
-		++scan;
-		++len;
 
 		result.r = res[0];
 		result.g = res[1];

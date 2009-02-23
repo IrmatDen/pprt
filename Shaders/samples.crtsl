@@ -1,29 +1,27 @@
-surface my_constant(color surfColor=color(1, 0, 0);)
+surface my_constant()
 {
-   out = surfColor;
+   Ci = Cs;
 }
 
 surface surfaceNormals()
 {
-	out = (N + 1) * 0.5;
+	Ci = (N + 1) * 0.5;
 }
 
-surface diffuse_sample(color surfColor=color(1, 0, 0);)
+surface diffuse_sample()
 {
-   out = surfColor * diffuse(N);
+   Ci = Cs * diffuse(N);
 }
 
-surface specular_sample(color surfColor=color(1, 0, 0);
-					 real roughness=0.1;)
+surface specular_sample(real roughness=0.1;)
 {
    #out = surfColor * (diffuse(N) * 0.5 + specular(N, roughness) * 0.5);
-   out = surfColor * diffuse(N) + color(1, 1, 1) * specular(N, roughness);
+   Ci = Cs * diffuse(N) + color(1, 1, 1) * specular(N, roughness);
 }
 
-surface reflect_sample(color surfColor=color(1, 0, 0);
-					real roughness=0.1;)
+surface reflect_sample(real roughness=0.1;)
 {
    vec3 r = reflect(I, N);
-   out = surfColor * (diffuse(N) + specular(N, roughness));
-   out = out + trace(P, r);
+   Ci = Cs * (diffuse(N) + specular(N, roughness));
+   Ci = Ci + trace(P, r);
 }

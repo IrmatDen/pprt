@@ -49,11 +49,15 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 		opCodeMappingsInitialized = true;
 	}
 	
-	addVar(VST_Varying, VT_Color,	"out",	Color());
+	// input
+	addVar(VST_Varying, VT_Color,	"Cs",	Color());
 	addVar(VST_Varying, VT_Vector,	"P",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"N",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"Ng",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"I",	Vec3());
+
+	// output
+	addVar(VST_Varying, VT_Color,	"Ci",	Color());
 
 	switch(type)
 	{
@@ -553,7 +557,5 @@ void CompiledShader::exec(Color &out)
 		++eip;
 	}
 
-	// "out" variable should always be at index 0
-	assert(varTable[0].name == "out");
-	out = boost::get<Color>(varTable[0].content);
+	out = boost::get<Color>(varTable[Ci].content);
 }

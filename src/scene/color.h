@@ -42,4 +42,14 @@ inline Color operator *(float s, const Color &v)
 	return v * s;
 }
 
+inline Color operator -(float s, const Color &v)
+{
+	return Color(s - v.r, s - v.g, s - v.b);
+}
+
+inline bool isOpaque(const Color &c)
+{
+	return c.r >= OneMinusEpsilon && c.g >= OneMinusEpsilon && c.b >= OneMinusEpsilon;
+}
+
 #endif

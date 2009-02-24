@@ -102,16 +102,18 @@ namespace tools
 
 		// Scan fractional part
 		int frac_part;
-		matched = scanNumber(scan, frac_part);
+		float frac_length;
+		frac_length = (float)scanNumber(scan, frac_part);
+		matched += (int)frac_length;
 		if (matched == -1 || frac_part < 0)
 			return -1;
 
 		matchedLen += matched;
 
 		// Compose the result
-		int decal = 10 + (int)log10((float)frac_part) * 10;
-		if (decal != 0 && frac_part != 0)
-			out += float(frac_part) / decal;
+		frac_length = pow(10.0f, frac_length);
+		if (frac_length != 0 && frac_part != 0)
+			out += frac_part / frac_length;
 
 		// Check min/max boundary
 		if (bounding && (out < minBound || out > maxBound))

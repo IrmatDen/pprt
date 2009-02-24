@@ -1,27 +1,31 @@
 surface my_constant()
 {
-   Ci = Cs;
+	Oi = Os;
+	Ci = Os * Cs;
 }
 
 surface surfaceNormals()
 {
-	Ci = (N + 1) * 0.5;
+	Oi = Os;
+	Ci = Os * (N + 1) * 0.5;
 }
 
 surface diffuse_sample()
 {
-   Ci = Cs * diffuse(N);
+	Oi = Os;
+	Ci = Os * Cs * diffuse(N);
 }
 
 surface specular_sample(real roughness=0.1;)
 {
-   #out = surfColor * (diffuse(N) * 0.5 + specular(N, roughness) * 0.5);
-   Ci = Cs * diffuse(N) + color(1, 1, 1) * specular(N, roughness);
+	#out = surfColor * (diffuse(N) * 0.5 + specular(N, roughness) * 0.5);
+	Oi = Os;
+	Ci = Os * (Cs * diffuse(N) + color(1, 1, 1) * specular(N, roughness));
 }
 
 surface reflect_sample(real roughness=0.1;)
 {
-   vec3 r = reflect(I, N);
-   Ci = Cs * (diffuse(N) + specular(N, roughness));
-   Ci = Ci + trace(P, r);
+	vec3 r = reflect(I, N);
+	Oi = Os;
+	Ci = Os * Cs * (diffuse(N) + specular(N, roughness)) + trace(P, r);
 }

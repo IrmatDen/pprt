@@ -1,0 +1,21 @@
+Option shaderspath ./Shaders
+
+Output opa_sphere.png 1024 768 +z
+Background 0 0 0
+CamLookAt <-3, 1.5, -3> <0, 0, 5>
+
+PointLight <-4, -1.5, 3> 1 1 1
+PointLight < 4, -5,   3> 1 1 1
+
+Sphere 1 < 0, 0, 8> surfaceNormals
+
+Color 1 0 0
+Opacity 0.3 0.3 0.3
+Sphere 1 < 0,  -0.8, 5> reflect_sample
+
+Color 0 1 0
+Sphere 1 <-0.8, 0.8, 5> reflect_sample
+
+Color 0 0 1
+Opacity 1 1 1
+Sphere 1 < 0.8, 0.8, 5> reflect_sample

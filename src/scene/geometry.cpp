@@ -23,4 +23,5 @@ void Geometry::setShaderParams(ShaderParams p)
 	}
 
 	shader->setVarValueByIndex(CompiledShader::Cs, color);
+	shader->setVarValueByIndex(CompiledShader::Os, opacity);
 }

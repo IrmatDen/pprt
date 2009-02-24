@@ -26,14 +26,16 @@ public:
 	enum STDVarIndices
 	{
 		// input vars
-		Cs	= 0,
-		P	= 1,
-		N	= 2,
-		Ng	= 3,
-		I	= 4,
+		Cs,
+		Os,
+		P,
+		N,
+		Ng,
+		I,
 
 		// output vars
-		Ci	= 5
+		Ci,
+		Oi
 	};
 
 	enum OpCode
@@ -72,11 +74,13 @@ public:
 
 	void setVarValue(const std::string &name, VarValue value);
 	void setVarValueByIndex(size_t index, VarValue value);
+	
+	void getOutput(Color &color, Color &opacity);
 
 	void parseInstr(const std::string &instr);
 	Instructions getCode() const { return code; }
 
-	void exec(Color &out);
+	void exec();
 
 private:
 	typedef std::vector<Variable>					VariableTable;

@@ -22,14 +22,14 @@ public:
 	const Vec3&				position() const						{ return pos; }
 
 	void					setColor(const Color &c)				{ color = c; }
-	const Color&			getColor()								{ return color; }
+	void					setOpacity(const Color &o)				{ opacity = o; }
+	const Color&			getOpacity() const						{ return opacity; }
 
 	void					setShader(const CompiledShader &cs);
 	bool					hasShader() const						{ return shader != 0; }
 	CompiledShader&			getShader() const						{ return *shader; }
 
 	void					setShaderParams(ShaderParams p);
-	const ShaderParams&		getShaderParams() const					{ return shaderParams; }
 
 protected:
 	Geometry() : color(1), shader(0) 								{}
@@ -39,6 +39,7 @@ protected:
 	Vec3					pos;
 
 	Color					color;
+	Color					opacity;
 
 	CompiledShader		*	shader;
 	ShaderParams			shaderParams;

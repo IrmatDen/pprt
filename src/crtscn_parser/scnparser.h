@@ -70,7 +70,10 @@ namespace ScnParser
 														>> vec3_p[assign_a(self.scene.camera().target)];
 
 				// Graphics state
-					color = ("Color" >> +blank_p >> color_p[assign_a(currentColor_a::color)]);
+					graphicsState = color | opacity;
+					
+					color	= ("Color" >> +blank_p >> color_p[assign_a(currentColorOpa_a::color)]);
+					opacity	= ("Opacity" >> +blank_p >> color_p[assign_a(currentColorOpa_a::opacity)]);
 
 				// Lights definitions
 					lights = pointLight;
@@ -111,7 +114,7 @@ namespace ScnParser
 					element =	  option
 								| scene
 								| lights
-								| color
+								| graphicsState
 								| geometries;
 					statement = *blank_p >> !element >> ending >> *blank_p;
 					base_expression = *statement;
@@ -127,8 +130,8 @@ namespace ScnParser
 			// Specific elements
 			rule<ScannerT> option;
 			rule<ScannerT> scene, output, background, camLookAt;
+			rule<ScannerT> graphicsState, color, opacity;
 			rule<ScannerT> lights, pointLight;
-			rule<ScannerT> color;
 			rule<ScannerT> geometries, sphere, plane, disk;
 			rule<ScannerT> shaderParams;
 

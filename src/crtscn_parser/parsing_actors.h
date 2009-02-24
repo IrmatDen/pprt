@@ -61,15 +61,28 @@ struct shaderParams_a
 std::string		shaderParams_a::paramName;
 ShaderParams	shaderParams_a::params;
 
-struct currentColor_a
+struct currentColorOpa_a
 {
-	void operator()(const Color &col) const
+	void operator()(const iterator_t&, const iterator_t&) const
 	{
+		int n = 42;
+		n++;
+		color += (float)n;
+	}
+
+	template <typename ValueT>
+	void operator()(const ValueT &v) const
+	{
+		int n = 42;
+		n++;
+		color += (float)n;
 	}
 
 	static Color		color;
+	static Color		opacity;
 };
-Color currentColor_a::color(1,1,1);
+Color currentColorOpa_a::color(1,1,1);
+Color currentColorOpa_a::opacity(1,1,1);
 
 //-----------------------------------------------------------------------------------------------------------
 
@@ -111,7 +124,8 @@ struct newSphere_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Sphere(radius, pos));
-		g->setColor(currentColor_a::color);
+		g->setColor(currentColorOpa_a::color);
+		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
@@ -144,7 +158,8 @@ struct newPlane_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Plane(normal.normalize(), (float)offset, !twoSided));
-		g->setColor(currentColor_a::color);
+		g->setColor(currentColorOpa_a::color);
+		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);
@@ -180,7 +195,8 @@ struct newDisk_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		GeometryPtr g(new Disk((float)radius, pos, normal.normalize()));
-		g->setColor(currentColor_a::color);
+		g->setColor(currentColorOpa_a::color);
+		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
 		g->setShaderParams(shaderParams_a::params);
 		scene.addGeometry(g);

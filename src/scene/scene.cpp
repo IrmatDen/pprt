@@ -60,7 +60,7 @@ public:
 					}
 				}
 
-				const float exposure = -0.66f;
+				/*const float exposure = -0.66f;
 				col.r = 1 - expf(col.r * exposure);
 				col.g = 1 - expf(col.g * exposure);
 				col.b = 1 - expf(col.b * exposure);
@@ -68,9 +68,9 @@ public:
 				const float invGamma = 0.45f;
 				col.r = powf(col.r, invGamma);
 				col.g = powf(col.g, invGamma);
-				col.b = powf(col.b, invGamma);
+				col.b = powf(col.b, invGamma);*/
 
-				//col.clamp();
+				col.clamp();
 
 				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
@@ -136,7 +136,7 @@ void Scene::render()
 	{
 		for (int x = 0; x < resX; x++, imgData += 4)
 		{
-			Color col(0, 0, 0, 0);
+			Color col(0, 0, 0);
 			bool hitSomething;
 
 			for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -157,10 +157,12 @@ void Scene::render()
 				}
 			}
 
+			col.clamp();
+
 			imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 			imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
 			imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
-			imgData[FI_RGBA_ALPHA]	= BYTE(col.a * 255);
+			imgData[FI_RGBA_ALPHA]	= 255;
 		}
 	}*/
 
@@ -169,9 +171,8 @@ void Scene::render()
 
 Color Scene::trace(const Ray &eye, bool &hitSomething)
 {
-	Color out(0, 0, 0);
-	if (eye.traceDepth == 16)
-		return out;
+	if (eye.traceDepth == 6)
+		return Color(0, 0, 0);
 
 	Ray ray(eye);
 	ray.traceDepth++;
@@ -189,7 +190,7 @@ Color Scene::trace(const Ray &eye, bool &hitSomething)
 	if (!nearestObj)
 	{
 		hitSomething = false;
-		return out;
+		return Color(0, 0, 0);
 	}
 
 	hitSomething = true;
@@ -208,19 +209,35 @@ Color Scene::trace(const Ray &eye, bool &hitSomething)
 	shader.setVarValueByIndex(CompiledShader::N, n);
 	shader.setVarValueByIndex(CompiledShader::Ng, n);
 	shader.setVarValueByIndex(CompiledShader::I, ray.dir);
-	shader.exec(out);
+	shader.exec();
 
-	return out;
+	Color Ci, Oi;
+	shader.getOutput(Ci, Oi);
+
+	if (isOpaque(Oi))
+		return Ci;
+
+	bool dummy;
+	ray.origin += ray.dir * (t + Epsilon);
+	return Ci + (1 - Oi) * trace(ray, dummy);
 }
 
 bool Scene::collide(const Ray &r, Real &t) const
 {
 	const Geometry **obj = (const Geometry**)rt_objects;
 
+	Ray ray = r;
+	ray.traceDepth++;
+	Color Ci, Oi;
+
 	while (*obj)
 	{
 		if ((*obj)->hit(r, t))
-			return true;
+		{
+			if (isOpaque((*obj)->getOpacity()))
+				return true;
+		}
+
 		++obj;
 	}
 
@@ -250,6 +267,8 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 		++light;
 	}
+
+	//out.clamp();
 }
 
 void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const
@@ -277,4 +296,6 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 
 		++light;
 	}
+
+	//out.clamp();
 }

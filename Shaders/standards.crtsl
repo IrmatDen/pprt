@@ -1,11 +1,36 @@
 surface constant()
 {
-	Ci = Cs;
+	Oi = Os;
+	Ci = Os * Cs;
 }
 
-surface matte(	real Ka = 1;
+surface matte(
+				real Ka = 1;
 				real Kd = 1;)
 {
 	vec3 Nf = faceforward(N, I);
-	Ci = Cs * (Kd * diffuse(Nf));
+	Oi = Os;
+	Ci = Os * Cs * (Kd * diffuse(Nf));
+}
+
+surface metal(
+				real Ka = 1;
+				real Ks = 1;
+				real roughness = 0.1;)
+{
+	vec3 Nf = faceforward(N, I);
+	Oi = Os;
+	Ci = Os * Cs * (Ks * specular(Nf, roughness));
+}
+
+surface plastic(
+				real Ka = 1;
+				real Kd = 0.5;
+				real Ks = 0.5;
+				real roughness = 0.1;
+				color specularcolor = 1;)
+{
+	vec3 Nf = faceforward(N, I);
+	Oi = Os;
+	Ci = Os * Cs * (Kd * diffuse(Nf) + specularcolor * Ks * specular(Nf, roughness));
 }

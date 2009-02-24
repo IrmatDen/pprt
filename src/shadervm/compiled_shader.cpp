@@ -51,6 +51,7 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 	
 	// input
 	addVar(VST_Varying, VT_Color,	"Cs",	Color());
+	addVar(VST_Varying, VT_Color,	"Os",	Color());
 	addVar(VST_Varying, VT_Vector,	"P",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"N",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"Ng",	Vec3());
@@ -58,6 +59,7 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 
 	// output
 	addVar(VST_Varying, VT_Color,	"Ci",	Color());
+	addVar(VST_Varying, VT_Color,	"Oi",	Color());
 
 	switch(type)
 	{
@@ -126,6 +128,12 @@ void CompiledShader::setVarValueByIndex(size_t index, VarValue value)
 	assert(index < varTable.size());
 
 	varTable[index].content = value;
+}
+
+void CompiledShader::getOutput(Color &color, Color &opacity)
+{
+	color	= boost::get<Color>(varTable[Ci].content);
+	opacity	= boost::get<Color>(varTable[Oi].content);
 }
 
 void CompiledShader::parseInstr(const std::string &instr)
@@ -239,7 +247,7 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 	return true;
 }
 
-void CompiledShader::exec(Color &out)
+void CompiledShader::exec()
 {
 	eip = codePtr;
 	esp = execStack;
@@ -556,6 +564,4 @@ void CompiledShader::exec(Color &out)
 
 		++eip;
 	}
-
-	out = boost::get<Color>(varTable[Ci].content);
 }

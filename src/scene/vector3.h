@@ -6,6 +6,7 @@
 typedef double Real;
 
 #define Epsilon 0.0000001
+#define OneMinusEpsilon (1 - Epsilon)
 
 class Vec3
 {

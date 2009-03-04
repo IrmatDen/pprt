@@ -222,7 +222,7 @@ Color Scene::trace(const Ray &eye, bool &hitSomething)
 	return Ci + (1 - Oi) * trace(ray, dummy);
 }
 
-bool Scene::collide(const Ray &r, Real &t) const
+bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
 {
 	const Geometry **obj = (const Geometry**)rt_objects;
 
@@ -230,12 +230,26 @@ bool Scene::collide(const Ray &r, Real &t) const
 	ray.traceDepth++;
 	Color Ci, Oi;
 
+	visQty.r = visQty.g = visQty.b = 1;
+
 	while (*obj)
 	{
 		if ((*obj)->hit(r, t))
 		{
 			if (isOpaque((*obj)->getOpacity()))
+			{
+				visQty.r = visQty.g = visQty.b = 0;
 				return true;
+			}
+			else
+			{
+				visQty -= (*obj)->getOpacity();
+				if (visQty.r <= 0 || visQty.g <= 0 || visQty.b <= 0)
+				{
+					visQty.r = visQty.g = visQty.b = 0;
+					return true;
+				}
+			}
 		}
 
 		++obj;
@@ -247,8 +261,10 @@ bool Scene::collide(const Ray &r, Real &t) const
 void Scene::diffuse(const Ray &r, Color &out) const
 {
 	Vec3 normDir = r.dir.normalized();
-
 	const Light **light = (const Light**)rt_lights;
+
+	Color visibility;
+
 	while (*light)
 	{
 		// Slightly shift the origin to avoid hitting the same object
@@ -256,19 +272,27 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
+		Real L2PdotN = L2P.dot(normDir);
+		
+		if (L2PdotN < 0)
+		{
+			++light;
+			continue;
+		}
+		else if (L2PdotN > 1)
+			L2PdotN = 1;
+
 		Real t = L2P.length();
 		Ray ray(p, L2P.normalize());
-		bool lightOccluded = collide(ray, t);
+		bool lightOccluded = collide(ray, t, visibility);
 
 		if (!lightOccluded)
 		{
-			out += (*light)->color * (float)L2P.dot(normDir);
+			out += (*light)->color * (float)L2PdotN * visibility;
 		}
 
 		++light;
 	}
-
-	//out.clamp();
 }
 
 void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const
@@ -277,6 +301,9 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 	Vec3 normVDir = -viewDir.normalized();
 
 	const Light **light = (const Light**)rt_lights;
+
+	Color visibility;
+
 	while (*light)
 	{
 		// Slightly shift the origin to avoid hitting the same object
@@ -284,18 +311,17 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
+
 		Real t = L2P.length();
 		Ray ray(p, L2P.normalize());
-		bool lightOccluded = collide(ray, t);
+		bool lightOccluded = collide(ray, t, visibility);
 
 		if (!lightOccluded)
 		{
 			Vec3 H = (L2P + normVDir).normalize();
-			out += (*light)->color * static_cast<float>(pow(max(0, normDir.dot(H)), 1/roughness));
+			out += (*light)->color * static_cast<float>(pow(max(0, normDir.dot(H)), 1/roughness)) * visibility;
 		}
 
 		++light;
 	}
-
-	//out.clamp();
 }

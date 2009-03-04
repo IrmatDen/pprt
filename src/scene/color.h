@@ -30,6 +30,7 @@ public:
 	inline Color		operator/(float s) const								{ float div = 1 / s; return *this * div; }
 	
 public:
+	inline Color&		operator-=(const Color &v)								{ r-=v.r; g-=v.g; b-=v.b; return *this; }
 	inline Color&		operator+=(const Color &v)								{ r+=v.r; g+=v.g; b+=v.b; return *this; }
 	inline Color&		operator/=(float s)										{ r/=s; g/=s; b/=s; return *this; }
 	

@@ -9,7 +9,7 @@ bool Sphere::hit(const Ray &ray, Real &t) const
 	const Real b		= ray.dir.dot(dist);
 	const Real d		= b*b - dist.dot(dist) + r*r;
 
-	if (d < 0)
+	if (d < 0 || b < 0)
 		return false;
 	
 	const Real t0		= b - sqrt(d);

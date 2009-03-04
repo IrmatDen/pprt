@@ -286,97 +286,89 @@ void CompiledShader::exec()
 				{
 				case VT_Real:
 					{
+						Real &op1r = boost::get<Real>(op1.second);
+
 						switch(op2.first)
 						{
 						case VT_Real:
 							{
-								Real &op1d = boost::get<Real>(op1.second);
 								Real &op2d = boost::get<Real>(op2.second);
 								esp->first = VT_Real;
-								esp->second = op1d * op2d;
-								++esp;
+								esp->second = op1r * op2d;
 								break;
 							}
 							
 						case VT_Color:
 							{
-								float	op1f = (float)boost::get<Real>(op1.second);
 								Color	&op2c = boost::get<Color>(op2.second);
 								esp->first = VT_Color;
-								esp->second = op2c * op1f;
-								++esp;
+								esp->second = op2c * (float)op1r;
 								break;
 							}
 							
 						case VT_Vector:
 							{
-								Real	&op1d = boost::get<Real>(op1.second);
 								Vec3	&op2v = boost::get<Vec3>(op2.second);
 								esp->first = VT_Vector;
-								esp->second = op2v * op1d;
-								++esp;
+								esp->second = op2v * op1r;
 								break;
 							}
 						}
+						++esp;
 						break;
 					}
 
 				case VT_Color:
 					{
+						Color	&op1c = boost::get<Color>(op1.second);
+
 						switch(op2.first)
 						{
 						case VT_Real:
 							{
-								Color	&op1c = boost::get<Color>(op1.second);
 								float	op2f = (float)boost::get<Real>(op2.second);
-								esp->first = VT_Color;
 								esp->second = op1c * op2f;
-								++esp;
 								break;
 							}
 							
 						case VT_Color:
 							{
-								Color	&op1c = boost::get<Color>(op1.second);
 								Color	&op2c = boost::get<Color>(op2.second);
-								esp->first = VT_Color;
 								esp->second = op2c * op1c;
-								++esp;
 								break;
 							}
 							
 						case VT_Vector:
 							{
-								// Color by vector mult is non-sense
-								esp->first = VT_Color;
-								esp->second = Color(1, 0, 1);
-								++esp;
+								Color	op2c(boost::get<Vec3>(op2.second));
+								esp->second = op2c * op1c;
 								break;
 							}
 						}
+						esp->first = VT_Color;
+						++esp;
 						break;
 					}
 
 				case VT_Vector:
 					{
+						Vec3 &op1v = boost::get<Vec3>(op1.second);
+
 						switch(op2.first)
 						{
 						case VT_Real:
 							{
-								Vec3 &op1v = boost::get<Vec3>(op1.second);
 								Real &op2d = boost::get<Real>(op2.second);
 								esp->first = VT_Vector;
 								esp->second = op1v * op2d;
-								++esp;
 								break;
 							}
 							
 						case VT_Color:
 							{
-								// vector by color mult is non-sense
-								esp->first = VT_Vector;
-								esp->second = Vec3();
-								++esp;
+								Color	&op2c = boost::get<Color>(op2.second);
+								esp->first = VT_Color;
+								esp->second = op2c * Color(boost::get<Vec3>(op1.second));
 								break;
 							}
 							
@@ -386,10 +378,10 @@ void CompiledShader::exec()
 								// only by dot & cross products
 								esp->first = VT_Vector;
 								esp->second = Vec3();
-								++esp;
 								break;
 							}
 						}
+						++esp;
 						break;
 					}
 				}
@@ -404,103 +396,95 @@ void CompiledShader::exec()
 				{
 				case VT_Real:
 					{
+						Real &op1r = boost::get<Real>(op1.second);
+
 						switch(op2.first)
 						{
 						case VT_Real:
 							{
-								Real &op1d = boost::get<Real>(op1.second);
 								Real &op2d = boost::get<Real>(op2.second);
 								esp->first = VT_Real;
-								esp->second = op1d + op2d;
-								++esp;
+								esp->second = op1r + op2d;
 								break;
 							}
 							
 						case VT_Color:
 							{
-								float	op1f = (float)boost::get<Real>(op1.second);
 								Color	&op2c = boost::get<Color>(op2.second);
 								esp->first = VT_Color;
-								esp->second = op2c + op1f;
-								++esp;
+								esp->second = op2c + (float)op1r;
 								break;
 							}
 							
 						case VT_Vector:
 							{
-								// Real + vec3 is unsupported
+								Vec3	&op2v = boost::get<Vec3>(op2.second);
 								esp->first = VT_Vector;
-								esp->second = Vec3();
-								++esp;
+								esp->second = op2v + op1r;
 								break;
 							}
 						}
+						++esp;
 						break;
 					}
 
 				case VT_Color:
 					{
+						Color	&op1c = boost::get<Color>(op1.second);
+
 						switch(op2.first)
 						{
 						case VT_Real:
 							{
-								Color	&op1c = boost::get<Color>(op1.second);
 								float	op2f = (float)boost::get<Real>(op2.second);
-								esp->first = VT_Color;
-								esp->second = op1c + op2f;
-								++esp;
+								esp->second = op1c + (float)op2f;
 								break;
 							}
 							
 						case VT_Color:
 							{
-								Color	&op1c = boost::get<Color>(op1.second);
 								Color	&op2c = boost::get<Color>(op2.second);
-								esp->first = VT_Color;
 								esp->second = op2c + op1c;
-								++esp;
 								break;
 							}
 							
 						case VT_Vector:
 							{
-								// Color + vector is non-sense
-								esp->first = VT_Color;
-								esp->second = Color(1, 0, 1);
-								++esp;
+								Color	op2c(boost::get<Vec3>(op2.second));
+								esp->second = op2c + op1c;
 								break;
 							}
 						}
+						esp->first = VT_Color;
+						++esp;
 						break;
 					}
 
 				case VT_Vector:
 					{
+						Vec3	&op1v = boost::get<Vec3>(op1.second);
+
 						switch(op2.first)
 						{
 						case VT_Real:
 							{
-								// vector + Real is not supported
-								Vec3	&op1v = boost::get<Vec3>(op1.second);
 								Real	op2f = boost::get<Real>(op2.second);
 								esp->first = VT_Vector;
 								esp->second = op1v + op2f;
-								++esp;
 								break;
 							}
 							
 						case VT_Color:
 							{
-								// vector + color is non-sense
-								esp->first = VT_Vector;
-								esp->second = Vec3();
+								Color	&op2c = boost::get<Color>(op2.second);
+								esp->first = VT_Color;
+								esp->second = op2c + Color(op1v);
 								++esp;
 								break;
 							}
 							
 						case VT_Vector:
 							{
-								Vec3	&op1v = boost::get<Vec3>(op1.second);
 								Vec3	&op2v = boost::get<Vec3>(op2.second);
 								esp->first = VT_Vector;
 								esp->second = op1v + op2v;
@@ -508,6 +492,7 @@ void CompiledShader::exec()
 								break;
 							}
 						}
+						++esp;
 						break;
 					}
 				}

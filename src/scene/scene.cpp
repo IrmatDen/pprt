@@ -202,11 +202,9 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 
 	hitSomething = true;
 
-#ifdef _DEBUG
 	// Object doesn't have shader, make it appear even for blind people!
 	if (!nearestObj->hasShader())
 		return Color(1, 0, 1);
-#endif
 
 	Vec3 p = ray.origin + ray.dir * t;
 	Vec3 n;

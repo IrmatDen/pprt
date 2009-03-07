@@ -13,7 +13,9 @@ void CompiledShader::diffuse()
 	Vec3 &n = boost::get<Vec3>(esp->second);
 
 	Color out;
-	scene->diffuse(Ray(p, n), out);
+	Ray r(p, n);
+	r.traceDepth = currentDepth;
+	scene->diffuse(r, out);
 	
 	esp->first = VT_Color;
 	esp->second = out;
@@ -32,7 +34,9 @@ void CompiledShader::specular()
 	Real roughness	= boost::get<Real>(esp->second);
 
 	Color out;
-	scene->specular(Ray(p, n), i, roughness, out);
+	Ray r(p, n);
+	r.traceDepth = currentDepth;
+	scene->specular(r, i, roughness, out);
 	
 	esp->first = VT_Color;
 	esp->second = out;

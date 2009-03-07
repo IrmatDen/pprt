@@ -1,0 +1,15 @@
+Option shaderspath ./Shaders
+
+Output inner_reflexion.png 1024 768 +z
+Background 0 0 0
+CamLookAt <-3, 1.5, -3> <0, 0, 5>
+
+PointLight <-4, -1.5, 3> 1 1 1
+PointLight < 4, -5,   3> 2 2 2
+
+Sphere 1 < 0, 0, 8> surfaceNormals
+
+Color 0.1 1 0.2
+Opacity 0.3 0.3 0.3
+
+Sphere 1 < 0, 0.8, 5> reflect_sample

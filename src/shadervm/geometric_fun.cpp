@@ -16,10 +16,10 @@ void CompiledShader::faceForward()
 
 	Real din = ((-i).dot(ng) < 0 ? -1 : 1);
 
-	Vec3 r(n * din);
+	Vec3 fw(n * din);
 	
 	esp->first = VT_Vector;
-	esp->second = r;
+	esp->second = fw;
 	++esp;
 }
 

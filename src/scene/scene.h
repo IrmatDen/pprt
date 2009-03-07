@@ -50,12 +50,13 @@ public:
 	void		prepare();
 
 	void		render();
-	Color		trace(const Ray &eye, bool &hitSomething);
+	Color		trace(const Ray &ray, bool &hitSomething);
 
 	bool		collide(const Ray &r, Real &t, Color &visQty) const;
 
 public:
 	// Shading & lighting functions
+	Color		traceNoDepthMod(Ray &eye, bool &hitSomething);
 	void		diffuse(const Ray &r, Color &out) const;
 	void		specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const;
 

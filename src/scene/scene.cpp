@@ -60,7 +60,7 @@ public:
 					}
 				}
 
-				/*const float exposure = -0.66f;
+				const float exposure = -0.66f;
 				col.r = 1 - expf(col.r * exposure);
 				col.g = 1 - expf(col.g * exposure);
 				col.b = 1 - expf(col.b * exposure);
@@ -68,9 +68,9 @@ public:
 				const float invGamma = 0.45f;
 				col.r = powf(col.r, invGamma);
 				col.g = powf(col.g, invGamma);
-				col.b = powf(col.b, invGamma);*/
+				col.b = powf(col.b, invGamma);
 
-				col.clamp();
+				//col.clamp();
 
 				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
@@ -169,17 +169,24 @@ void Scene::render()
 	img.save(outName.c_str());
 }
 
+bool dummy;
 Color Scene::trace(const Ray &eye, bool &hitSomething)
 {
-	if (eye.traceDepth == 6)
+	if (eye.traceDepth == 16)
 		return Color(0, 0, 0);
 
 	Ray ray(eye);
 	ray.traceDepth++;
-	Real t = 20000;
+
+	return traceNoDepthMod(ray, hitSomething);
+}
+
+Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
+{
 	const Geometry *nearestObj(0);
 	const Geometry **obj = (const Geometry**)rt_objects;
 
+	Real t = 20000;
 	while (*obj)
 	{
 		if ((*obj)->hit(ray, t))
@@ -195,9 +202,11 @@ Color Scene::trace(const Ray &eye, bool &hitSomething)
 
 	hitSomething = true;
 
+#ifdef _DEBUG
 	// Object doesn't have shader, make it appear even for blind people!
 	if (!nearestObj->hasShader())
 		return Color(1, 0, 1);
+#endif
 
 	Vec3 p = ray.origin + ray.dir * t;
 	Vec3 n;
@@ -217,18 +226,25 @@ Color Scene::trace(const Ray &eye, bool &hitSomething)
 	if (isOpaque(Oi))
 		return Ci;
 
-	bool dummy;
 	ray.origin += ray.dir * (t + Epsilon);
-	return Ci + (1 - Oi) * trace(ray, dummy);
+	return Ci + (1 - Oi) * traceNoDepthMod(ray, dummy);
 }
 
 bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
 {
 	const Geometry **obj = (const Geometry**)rt_objects;
 
+	if (r.traceDepth >= 4)
+	{
+		visQty = Color();
+		return true;
+	}
+
 	Ray ray = r;
 	ray.traceDepth++;
+
 	Color Ci, Oi;
+	Vec3 n, p;
 
 	visQty.r = visQty.g = visQty.b = 1;
 
@@ -236,15 +252,41 @@ bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
 	{
 		if ((*obj)->hit(r, t))
 		{
-			if (isOpaque((*obj)->getOpacity()))
+			p = ray.origin + ray.dir * t;
+			(*obj)->normalAt(p, n);
+
+			CompiledShader shader((*obj)->getShader(), true);
+			shader.setCurrentDepth(ray.traceDepth);
+			shader.setVarValueByIndex(CompiledShader::P, p);
+			shader.setVarValueByIndex(CompiledShader::N, n);
+			shader.setVarValueByIndex(CompiledShader::Ng, n);
+			shader.setVarValueByIndex(CompiledShader::I, ray.dir);
+			shader.exec();
+
+			shader.getOutput(Ci, Oi);
+
+			if (isOpaque(Oi))
 			{
 				visQty.r = visQty.g = visQty.b = 0;
 				return true;
 			}
 			else
 			{
-				visQty -= (*obj)->getOpacity();
-				if (visQty.r <= 0 || visQty.g <= 0 || visQty.b <= 0)
+				if (visQty.r > Oi.r)
+					visQty.r = Oi.r;
+				if (visQty.g > Oi.g)
+					visQty.g = Oi.g;
+				if (visQty.b > Oi.b)
+					visQty.b = Oi.b;
+
+				if (visQty.r <= 0.01f)
+					visQty.r = 0;
+				if (visQty.g <= 0.01f)
+					visQty.g = 0;
+				if (visQty.b <= 0.01f)
+					visQty.b = 0;
+
+				if (visQty.r <= 0.01f && visQty.g <= 0.01f && visQty.b <= 0.01f)
 				{
 					visQty.r = visQty.g = visQty.b = 0;
 					return true;
@@ -264,6 +306,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	const Light **light = (const Light**)rt_lights;
 
 	Color visibility;
+	Ray ray(r);
 
 	while (*light)
 	{
@@ -272,6 +315,8 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
+		Real t = L2P.length();
+		L2P.normalize();
 		Real L2PdotN = L2P.dot(normDir);
 		
 		if (L2PdotN < 0)
@@ -279,11 +324,9 @@ void Scene::diffuse(const Ray &r, Color &out) const
 			++light;
 			continue;
 		}
-		else if (L2PdotN > 1)
-			L2PdotN = 1;
 
-		Real t = L2P.length();
-		Ray ray(p, L2P.normalize());
+		ray.origin = p;
+		ray.dir = L2P;
 		bool lightOccluded = collide(ray, t, visibility);
 
 		if (!lightOccluded)
@@ -303,6 +346,7 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 	const Light **light = (const Light**)rt_lights;
 
 	Color visibility;
+	Ray ray(r);
 
 	while (*light)
 	{
@@ -313,15 +357,18 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 		Vec3 L2P = (*light)->pos - p;
 
 		Real t = L2P.length();
-		Ray ray(p, L2P.normalize());
+		ray.origin = p;
+		ray.dir = L2P.normalize();
 		bool lightOccluded = collide(ray, t, visibility);
 
 		if (!lightOccluded)
 		{
 			Vec3 H = (L2P + normVDir).normalize();
-			out += (*light)->color * static_cast<float>(pow(max(0, normDir.dot(H)), 1/roughness)) * visibility;
+			Real NdH = normDir.dot(H);
+			out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness)) * visibility;
 		}
 
 		++light;
 	}
+	out.clamp();
 }

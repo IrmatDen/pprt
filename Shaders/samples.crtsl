@@ -25,15 +25,16 @@ surface specular_sample(real roughness=0.1;)
 
 surface reflect_sample(real roughness=0.1;)
 {
-	vec3 r = reflect(I, N);
+	vec3 Nf = faceforward(N, I);
+	vec3 r = reflect(I, Nf);
 	Oi = Os;
-	Ci = Os * Cs * (diffuse(N) + specular(N, roughness)) + trace(P, r);
+	Ci = Os * Cs * (diffuse(Nf) + specular(Nf, roughness)) + trace(P, r);
 }
 
 surface matte_opa(real Ka = 1;
 				real Kd = 1;)
 {
-	vec3 Nf = faceforward(N, I);
+	#vec3 Nf = faceforward(N, I);
 	Oi = Os;
-	Ci = Os * Cs * (Kd * diffuse(Nf));
+	Ci = Os * Cs * (Kd * diffuse(N));
 }

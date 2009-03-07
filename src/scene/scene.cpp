@@ -270,19 +270,13 @@ bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
 			}
 			else
 			{
-				if (visQty.r > Oi.r)
-					visQty.r = Oi.r;
-				if (visQty.g > Oi.g)
-					visQty.g = Oi.g;
-				if (visQty.b > Oi.b)
-					visQty.b = Oi.b;
+				visQty.r = visQty.r > Oi.r ? Oi.r : visQty.r;
+				visQty.g = visQty.g > Oi.g ? Oi.g : visQty.g;
+				visQty.b = visQty.b > Oi.b ? Oi.b : visQty.b;
 
-				if (visQty.r <= 0.01f)
-					visQty.r = 0;
-				if (visQty.g <= 0.01f)
-					visQty.g = 0;
-				if (visQty.b <= 0.01f)
-					visQty.b = 0;
+				visQty.r = visQty.r <= 0.01f ? 0 : visQty.r;
+				visQty.g = visQty.g <= 0.01f ? 0 : visQty.g;
+				visQty.b = visQty.b <= 0.01f ? 0 : visQty.b;
 
 				if (visQty.r <= 0.01f && visQty.g <= 0.01f && visQty.b <= 0.01f)
 				{

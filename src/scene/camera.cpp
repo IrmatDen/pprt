@@ -26,6 +26,7 @@ void Camera::project(Real x, Real y, Ray &r) const
 {
 	r.origin = pos;
 
-	r.dir = x * u + y * v + w;
-	r.dir.normalize();
+	Vec3 dir = x * u + y * v + w;
+	dir.normalize();
+	r.setDirection(dir);
 }

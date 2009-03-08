@@ -6,7 +6,7 @@ bool Sphere::hit(const Ray &ray, Real &t) const
 {
 	const Vec3 dist	= pos - ray.origin;
 
-	const Real b		= ray.dir.dot(dist);
+	const Real b		= ray.direction().dot(dist);
 	const Real d		= b*b - dist.dot(dist) + r*r;
 
 	if (d < 0 || b < 0)

@@ -11,11 +11,11 @@ bool Disk::hit(const Ray &ray, Real &t) const
 {
 	// Code is extracted from Plane::hit(...) to avoid too much vfunc calls.
 
-	Real dist = (d - ray.origin.dot(n)) / (ray.dir.dot(n));
+	Real dist = (d - ray.origin.dot(n)) / (ray.direction().dot(n));
 
 	if(dist > 0 && dist < t)
 	{
-		Vec3 p = ray.origin + ray.dir * dist;
+		Vec3 p = ray.origin + ray.direction() * dist;
 		p -= pos;
 		Real pSquaredL = p.squaredLength();
 		if (pSquaredL < rSquared)

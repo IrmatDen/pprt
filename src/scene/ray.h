@@ -7,12 +7,19 @@ class Ray
 {
 public:
 	Ray():traceDepth(0) {}
-	Ray(const Vec3 &o, const Vec3 &d) : origin(o), dir(d), traceDepth(0)			{}
-	Ray(const Ray &r) : origin(r.origin), dir(r.dir), traceDepth(r.traceDepth)		{}
+	Ray(const Vec3 &o, const Vec3 &d) : origin(o), dir(d), invDir(1/dir), traceDepth(0)				{}
+	Ray(const Ray &r) : origin(r.origin), dir(r.dir), invDir(r.invDir), traceDepth(r.traceDepth)	{}
+
+	const Vec3&		direction() const				{ return dir; }
+	void			setDirection(const Vec3 &d)		{ dir = d; invDir = 1 / dir; }
 
 public:
-	Vec3	origin, dir;
+	Vec3	origin;
+	Vec3	invDir;
 	int		traceDepth;
+
+private:
+	Vec3	dir;
 };
 
 #endif

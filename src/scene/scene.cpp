@@ -189,7 +189,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	Real t = 20000;
 	while (*obj)
 	{
-		if ((*obj)->hit(ray, t))
+		if (/*(*obj)->getAABB().hit(ray, t) &&*/ (*obj)->hit(ray, t))
 			nearestObj = *obj;
 		++obj;
 	}
@@ -206,7 +206,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	if (!nearestObj->hasShader())
 		return Color(1, 0, 1);
 
-	Vec3 p = ray.origin + ray.dir * t;
+	Vec3 p = ray.origin + ray.direction() * t;
 	Vec3 n;
 	nearestObj->normalAt(p, n);
 
@@ -215,7 +215,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	shader.setVarValueByIndex(CompiledShader::P, p);
 	shader.setVarValueByIndex(CompiledShader::N, n);
 	shader.setVarValueByIndex(CompiledShader::Ng, n);
-	shader.setVarValueByIndex(CompiledShader::I, ray.dir);
+	shader.setVarValueByIndex(CompiledShader::I, ray.direction());
 	shader.exec();
 
 	Color Ci, Oi;
@@ -224,7 +224,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	if (isOpaque(Oi))
 		return Ci;
 
-	ray.origin += ray.dir * (t + Epsilon);
+	ray.origin += ray.direction() * (t + Epsilon);
 	return Ci + (1 - Oi) * traceNoDepthMod(ray, dummy);
 }
 
@@ -248,9 +248,9 @@ bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
 
 	while (*obj)
 	{
-		if ((*obj)->hit(r, t))
+		if (/*(*obj)->getAABB().hit(r, t) &&*/ (*obj)->hit(r, t))
 		{
-			p = ray.origin + ray.dir * t;
+			p = ray.origin + ray.direction() * t;
 			(*obj)->normalAt(p, n);
 
 			CompiledShader shader((*obj)->getShader(), true);
@@ -258,7 +258,7 @@ bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
 			shader.setVarValueByIndex(CompiledShader::P, p);
 			shader.setVarValueByIndex(CompiledShader::N, n);
 			shader.setVarValueByIndex(CompiledShader::Ng, n);
-			shader.setVarValueByIndex(CompiledShader::I, ray.dir);
+			shader.setVarValueByIndex(CompiledShader::I, ray.direction());
 			shader.exec();
 
 			shader.getOutput(Ci, Oi);
@@ -294,7 +294,7 @@ bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
 
 void Scene::diffuse(const Ray &r, Color &out) const
 {
-	Vec3 normDir = r.dir.normalized();
+	Vec3 normDir = r.direction().normalized();
 	const Light **light = (const Light**)rt_lights;
 
 	Color visibility;
@@ -303,7 +303,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	while (*light)
 	{
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * Epsilon;
+		Vec3 p = r.origin + r.direction() * Epsilon;
 
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
@@ -318,7 +318,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 		}
 
 		ray.origin = p;
-		ray.dir = L2P;
+		ray.setDirection(L2P);
 		bool lightOccluded = collide(ray, t, visibility);
 
 		if (!lightOccluded)
@@ -332,7 +332,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const
 {
-	Vec3 normDir = r.dir.normalized();
+	Vec3 normDir = r.direction().normalized();
 	Vec3 normVDir = -viewDir.normalized();
 
 	const Light **light = (const Light**)rt_lights;
@@ -343,14 +343,14 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 	while (*light)
 	{
 		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.dir * Epsilon;
+		Vec3 p = r.origin + r.direction() * Epsilon;
 
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
 
 		Real t = L2P.length();
 		ray.origin = p;
-		ray.dir = L2P.normalize();
+		ray.setDirection(L2P.normalize());
 		bool lightOccluded = collide(ray, t, visibility);
 
 		if (!lightOccluded)

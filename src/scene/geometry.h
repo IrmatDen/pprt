@@ -4,6 +4,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 
+#include "aabb.h"
 #include "ray.h"
 #include "color.h"
 
@@ -18,6 +19,8 @@ public:
 
 	virtual bool			hit(const Ray &ray, Real &t) const = 0;
 	virtual void			normalAt(const Vec3 &p, Vec3 &n) const = 0;
+
+	const AABB&				getAABB() const							{ return aabb; }
 
 	const Vec3&				position() const						{ return pos; }
 
@@ -36,6 +39,8 @@ protected:
 	Geometry(const Vec3 &p) : pos(p), color(1), shader(0)			{}
 
 protected:
+	AABB					aabb;
+
 	Vec3					pos;
 
 	Color					color;

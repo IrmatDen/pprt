@@ -51,9 +51,9 @@ void CompiledShader::trace()
 	--esp;
 	r.origin = boost::get<Vec3>(esp->second);
 	--esp;
-	r.dir = boost::get<Vec3>(esp->second);
+	r.setDirection(boost::get<Vec3>(esp->second));
 	
-	r.origin += r.dir * Epsilon;
+	r.origin += r.direction() * Epsilon;
 	
 	r.traceDepth = currentDepth;
 

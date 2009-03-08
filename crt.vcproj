@@ -197,6 +197,10 @@
 				Name="Scene"
 				>
 				<File
+					RelativePath=".\src\scene\aabb.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\scene\camera.cpp"
 					>
 				</File>
@@ -278,6 +282,10 @@
 			<Filter
 				Name="Scene"
 				>
+				<File
+					RelativePath=".\src\scene\aabb.h"
+					>
+				</File>
 				<File
 					RelativePath=".\src\scene\camera.h"
 					>

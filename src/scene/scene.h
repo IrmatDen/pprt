@@ -67,13 +67,12 @@ private:
 
 	struct BVHNode
 	{
-		BVHNode() : left(0), right(0), geoLeft(0), geoRight(0)	{}
-
-		inline bool		isLeaf() { return !left && !right; }
+		BVHNode() : isLeaf(false), left(0), right(0)	{}
 
 		bool			visit(const Ray &ray, Real &t) const;
 
 		AABB			aabb;
+		bool			isLeaf;
 
 		union
 		{

@@ -157,7 +157,7 @@ void Scene::prepare()
 			}
 
 			// Build the leaf node.
-			assert(*obj != closest);
+			currentLeafNode->isLeaf		= true;
 			currentLeafNode->geoLeft	= *obj;
 			currentLeafNode->geoRight	= closest;
 

@@ -7,9 +7,13 @@
 class AABB
 {
 public:
-	bool hit(const Ray &ray, Real &t) const;
+	bool	hit(const Ray &ray, const Real &t) const;
 
-	void mergeFrom(const AABB &v0, const AABB &v1);
+	Real	distanceTo(const AABB &other) const;
+	Real	surfaceArea() const;
+
+	void	mergeFrom(const AABB &v0, const AABB &v1);
+	void	mergeWith(const AABB &other);
 
 public:
 	Vec3	_min;

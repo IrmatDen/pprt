@@ -11,9 +11,9 @@ public:
 	BVH() : root(0) {}
 	~BVH();
 
-	void		build(const Scene::Geometries &objects);
+	void			build(const Scene::Geometries &objects);
 
-	Geometry*	traverse(const Ray &ray, Real &t) const;
+	const Geometry*	findClosest(const Ray &ray, Real &t) const;
 
 private:
 	struct BVHNode
@@ -46,11 +46,22 @@ private:
 		};
 	};
 
-private:
-	void		buildTwoObjMax(const Scene::Geometries &objects);
-	void		genericBuild(const Scene::Geometries &objects);
+	enum SplitAxis
+	{
+		SA_X,
+		SA_Y,
+		SA_Z
+	};
 
-	void		buildLeafNodes(const Scene::Geometries &objects, BVHNode *leafNodes, size_t &leafNodesCount);
+private:
+	void		setAABBFor(AABB &aabb, const Scene::Geometries &objects) const;
+
+	void		buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects);
+
+	// Search for best axis to cut a given aabb
+	SplitAxis	bestNodeCut(const AABB &aabb) const;
+
+	const Geometry*	innerTraverse(BVHNode *node, const Ray &ray, Real &t) const;
 
 private:
 	BVHNode *root;

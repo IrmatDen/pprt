@@ -13,9 +13,14 @@
 
 #include "../shadervm/shader_manager.h"
 
+class BVH;
+
 class Scene
 {
 	friend class TraceScanLine;
+
+public:
+	typedef std::vector<GeometryPtr> Geometries;
 
 public:
 	ShaderManager shaderManager;
@@ -62,32 +67,7 @@ public:
 	void		specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const;
 
 private:
-	typedef std::vector<GeometryPtr> Geometries;
 	typedef std::vector<LightPtr> Lights;
-
-	struct BVHNode
-	{
-		BVHNode() : isLeaf(false), left(0), right(0)	{}
-
-		bool			visit(const Ray &ray, Real &t) const;
-
-		AABB			aabb;
-		bool			isLeaf;
-
-		union
-		{
-			struct
-			{
-				BVHNode	*	left;
-				BVHNode	*	right;
-			};
-			struct
-			{
-				Geometry *	geoLeft;
-				Geometry *	geoRight;
-			};
-		};
-	};
 
 private:
 	std::string				outName;
@@ -104,7 +84,7 @@ private:
 	Geometry			**	rt_objects;
 	Light				**	rt_lights;
 
-	BVHNode				*	bvhRoot;
+	BVH					*	bvhRoot;
 };
 
 #endif

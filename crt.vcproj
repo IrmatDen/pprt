@@ -201,6 +201,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\scene\bvh.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\scene\camera.cpp"
 					>
 				</File>
@@ -284,6 +288,10 @@
 				>
 				<File
 					RelativePath=".\src\scene\aabb.h"
+					>
+				</File>
+				<File
+					RelativePath=".\src\scene\bvh.h"
 					>
 				</File>
 				<File

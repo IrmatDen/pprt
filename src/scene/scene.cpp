@@ -13,6 +13,7 @@
 #include <tbb/parallel_for.h>
 
 #include "scene.h"
+#include "bvh.h"
 #include "../crtscn_parser/scnparser.h"
 
 class TraceScanLine
@@ -118,59 +119,9 @@ void Scene::prepare()
 	for(Lights::iterator it = lights.begin(); it != lights.end(); ++it, ++loop)
 		rt_lights[loop] = (*it).get();
 	rt_lights[loop] = 0;
-
-	// Build scene's bvh
-	Geometry **obj = rt_objects;
-	std::set<Geometry*> freeObjects;
-	while (*obj)
-	{
-		freeObjects.insert(*obj);
-		++obj;
-	}
-
-	const size_t bvhLeafNodesCount = (size_t)ceil(objects.size() / 2.f);
-	BVHNode *leafNodes = new BVHNode[bvhLeafNodesCount];
-
-	BVHNode *currentLeafNode = leafNodes;
-	obj = rt_objects;
-	while (*obj)
-	{
-		if (freeObjects.find(*obj) != freeObjects.end())
-		{
-			freeObjects.erase(*obj);
-
-			// Find closest non visited geometry's AABB.
-			Geometry *closest(0);
-			Real minDist = -log(0.f);
-
-			for(std::set<Geometry*>::const_iterator it = freeObjects.begin();
-				it != freeObjects.end(); ++it)
-			{
-				const Vec3 dir = (*it)->position() - (*obj)->position();
-				const Real dist = dir.length();
-
-				if (dist < minDist)
-				{
-					minDist = dist;
-					closest = *it;
-				}
-			}
-
-			// Build the leaf node.
-			currentLeafNode->isLeaf		= true;
-			currentLeafNode->geoLeft	= *obj;
-			currentLeafNode->geoRight	= closest;
-
-			if (closest)
-			{
-				freeObjects.erase(closest);
-				currentLeafNode->aabb.mergeFrom((*obj)->getAABB(), closest->getAABB());
-			}
-		}
-
-		++currentLeafNode;
-		++obj;
-	}
+	
+	bvhRoot = new BVH();
+	bvhRoot->build(objects);
 }
 
 void Scene::render()

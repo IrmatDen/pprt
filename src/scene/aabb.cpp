@@ -1,5 +1,6 @@
 #include "aabb.h"
 
+
 static inline Real min(Real v0, Real v1)
 {
 	return v0 < v1 ? v0 : v1;
@@ -27,5 +28,5 @@ bool AABB::hit(const Ray &ray, Real &t) const
 	t0 = max(min(l1, l2), t0);
 	t1 = min(max(l1, l2), t1);
 
-	return t1 >= t0 && t1 >= 0 && t > (min(t1, min(t0, 0)));
+	return t1 >= t0 && t1 >= 0;// && t > (min(t1, min(t0, 0)));
 }

@@ -73,13 +73,21 @@ private:
 
 		bool			visit(const Ray &ray, Real &t) const;
 
-		AABB		aabb;
+		AABB			aabb;
 
-		BVHNode	*	left;
-		BVHNode	*	right;
-
-		Geometry *	geoLeft;
-		Geometry *	geoRight;
+		union
+		{
+			struct
+			{
+				BVHNode	*	left;
+				BVHNode	*	right;
+			};
+			struct
+			{
+				Geometry *	geoLeft;
+				Geometry *	geoRight;
+			};
+		};
 	};
 
 private:

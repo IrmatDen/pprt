@@ -228,7 +228,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	return Ci + (1 - Oi) * traceNoDepthMod(ray, dummy);
 }
 
-bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
+bool Scene::collide(const Ray &r, Real t, Color &visQty) const
 {
 	const Geometry **obj = (const Geometry**)rt_objects;
 
@@ -298,18 +298,20 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	const Light **light = (const Light**)rt_lights;
 
 	Color visibility;
+	
+	// Slightly shift the origin to avoid hitting the same object
+	const Vec3 p = r.origin + r.direction() * Epsilon;
+
 	Ray ray(r);
+	ray.origin = p;
 
 	while (*light)
 	{
-		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.direction() * Epsilon;
-
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
-		Real t = L2P.length();
+		const Real t = L2P.length();
 		L2P.normalize();
-		Real L2PdotN = L2P.dot(normDir);
+		const Real L2PdotN = L2P.dot(normDir);
 		
 		if (L2PdotN < 0)
 		{
@@ -317,7 +319,6 @@ void Scene::diffuse(const Ray &r, Color &out) const
 			continue;
 		}
 
-		ray.origin = p;
 		ray.setDirection(L2P);
 		bool lightOccluded = collide(ray, t, visibility);
 
@@ -332,31 +333,32 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const
 {
-	Vec3 normDir = r.direction().normalized();
-	Vec3 normVDir = -viewDir.normalized();
+	const Vec3 normDir = r.direction().normalized();
+	const Vec3 normVDir = -viewDir.normalized();
 
 	const Light **light = (const Light**)rt_lights;
 
 	Color visibility;
+	
+	// Slightly shift the origin to avoid hitting the same object
+	const Vec3 p = r.origin + r.direction() * Epsilon;
+
 	Ray ray(r);
+	ray.origin = p;
 
 	while (*light)
 	{
-		// Slightly shift the origin to avoid hitting the same object
-		Vec3 p = r.origin + r.direction() * Epsilon;
-
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
 
 		Real t = L2P.length();
-		ray.origin = p;
 		ray.setDirection(L2P.normalize());
 		bool lightOccluded = collide(ray, t, visibility);
 
 		if (!lightOccluded)
 		{
-			Vec3 H = (L2P + normVDir).normalize();
-			Real NdH = normDir.dot(H);
+			const Vec3 H = (L2P + normVDir).normalize();
+			const Real NdH = normDir.dot(H);
 			out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness)) * visibility;
 		}
 

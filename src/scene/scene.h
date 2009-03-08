@@ -52,7 +52,7 @@ public:
 	void		render();
 	Color		trace(const Ray &ray, bool &hitSomething);
 
-	bool		collide(const Ray &r, Real &t, Color &visQty) const;
+	bool		collide(const Ray &r, Real t, Color &visQty) const;
 
 public:
 	// Shading & lighting functions

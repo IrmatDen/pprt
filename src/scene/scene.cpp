@@ -189,7 +189,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	Real t = 20000;
 	while (*obj)
 	{
-		if (/*(*obj)->getAABB().hit(ray, t) &&*/ (*obj)->hit(ray, t))
+		if ((*obj)->getAABB().hit(ray, t) && (*obj)->hit(ray, t))
 			nearestObj = *obj;
 		++obj;
 	}
@@ -248,7 +248,7 @@ bool Scene::collide(const Ray &r, Real &t, Color &visQty) const
 
 	while (*obj)
 	{
-		if (/*(*obj)->getAABB().hit(r, t) &&*/ (*obj)->hit(r, t))
+		if ((*obj)->getAABB().hit(r, t) && (*obj)->hit(r, t))
 		{
 			p = ray.origin + ray.direction() * t;
 			(*obj)->normalAt(p, n);

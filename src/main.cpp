@@ -32,12 +32,18 @@ int main(int argc, char **argv)
 	if (scnLoaded)
 	{
 		cout << endl << "Parsed \"" << scnFile << "\" successfully!" << endl;
-		cout << "Start rendering..." << endl;
-		scn.prepare();
+
+		cout << "Preparing scene..." << endl;
 		__int64 begin = timeGetTime();
-		scn.render();
+		scn.prepare();
 		__int64 end = timeGetTime();
-		cout << "Finished rendering, time: " << end - begin << " ms" << endl;
+		cout << "Finished preparing, duration: " << end - begin << " ms" << endl;
+
+		cout << "Start rendering..." << endl;
+		begin = timeGetTime();
+		scn.render();
+		end = timeGetTime();
+		cout << "Finished rendering, duration: " << end - begin << " ms" << endl;
 	}
 	else
 		cout << "Loading " << scnFile << " failed!" << endl;

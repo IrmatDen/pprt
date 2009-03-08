@@ -30,3 +30,14 @@ bool AABB::hit(const Ray &ray, Real &t) const
 
 	return t1 >= t0 && t1 >= 0;// && t > (min(t1, min(t0, 0)));
 }
+
+void AABB::mergeFrom(const AABB &v0, const AABB &v1)
+{
+	_min.x = min(v0._min.x, v1._min.x);
+	_min.y = min(v0._min.y, v1._min.y);
+	_min.z = min(v0._min.z, v1._min.z);
+	
+	_max.x = max(v0._max.x, v1._max.x);
+	_max.y = max(v0._max.y, v1._max.y);
+	_max.z = max(v0._max.z, v1._max.z);
+}

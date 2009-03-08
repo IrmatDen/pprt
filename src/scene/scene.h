@@ -25,7 +25,8 @@ public:
 	Scene(int width=0, int height=0)
 		: resX(width), resY(height), storeZ(false),
 		background(0, 0, 0),
-		rt_objects(0), rt_lights(0)
+		rt_objects(0), rt_lights(0),
+		bvhRoot(0)
 	{
 		shaderManager.setScene(*this);
 	}
@@ -64,6 +65,23 @@ private:
 	typedef std::vector<GeometryPtr> Geometries;
 	typedef std::vector<LightPtr> Lights;
 
+	struct BVHNode
+	{
+		BVHNode() : left(0), right(0), geoLeft(0), geoRight(0)	{}
+
+		inline bool		isLeaf() { return !left && !right; }
+
+		bool			visit(const Ray &ray, Real &t) const;
+
+		AABB		aabb;
+
+		BVHNode	*	left;
+		BVHNode	*	right;
+
+		Geometry *	geoLeft;
+		Geometry *	geoRight;
+	};
+
 private:
 	std::string				outName;
 	int						resX, resY;
@@ -78,6 +96,8 @@ private:
 
 	Geometry			**	rt_objects;
 	Light				**	rt_lights;
+
+	BVHNode				*	bvhRoot;
 };
 
 #endif

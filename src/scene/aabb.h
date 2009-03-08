@@ -9,6 +9,8 @@ class AABB
 public:
 	bool hit(const Ray &ray, Real &t) const;
 
+	void mergeFrom(const AABB &v0, const AABB &v1);
+
 public:
 	Vec3	_min;
 	Vec3	_max;

@@ -142,13 +142,10 @@ const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, Real &t) const
 
 	if (!node->isLeaf)
 	{
-		const Geometry *leftResult = innerTraverse(node->left, ray, t);
-		if (leftResult)
-			return leftResult;
-		else if (node->right)
-			return innerTraverse(node->right, ray, t);
-		else
-			return 0;
+		const Geometry *lResult(innerTraverse(node->left, ray, t));
+		const Geometry *rResult(innerTraverse(node->right, ray, t));
+		
+		return rResult ? rResult : lResult;
 	}
 
 	const Geometry *closest(0);

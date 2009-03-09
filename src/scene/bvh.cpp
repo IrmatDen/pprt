@@ -145,8 +145,10 @@ const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, Real &t) const
 		const Geometry *leftResult = innerTraverse(node->left, ray, t);
 		if (leftResult)
 			return leftResult;
-		else
+		else if (node->right)
 			return innerTraverse(node->right, ray, t);
+		else
+			return 0;
 	}
 
 	const Geometry *closest(0);
@@ -160,4 +162,44 @@ const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, Real &t) const
 	}
 	
 	return closest;
+}
+
+size_t BVH::gatherAlong(const Ray &ray, Real &t, Geometry **accum, Real *distances, size_t maxObj) const
+{
+	size_t start = 0;
+	innerGather(root, ray, t, accum, distances, start, maxObj);
+	return start;
+}
+
+void BVH::innerGather(BVHNode *node, const Ray &ray, Real &t, Geometry **accum, Real *distances, size_t &startIdx, size_t maxObj) const
+{
+	if (!node->aabb.hit(ray, t) || startIdx == maxObj)
+		return;
+
+	if (!node->isLeaf)
+	{
+		innerGather(node->left, ray, t, accum, distances, startIdx, maxObj);
+		innerGather(node->right, ray, t, accum, distances, startIdx, maxObj);
+		return;
+	}
+
+	if (node->geoLeft)
+	{
+		Real to = t;
+		if (node->geoLeft->hit(ray, to))
+		{
+			accum[startIdx] = node->geoLeft;
+			distances[startIdx++] = to;
+		}
+
+		if (node->geoRight && startIdx < maxObj)
+		{
+			to = t;
+			if (node->geoRight->hit(ray, t))
+			{
+				accum[startIdx] = node->geoRight;
+				distances[startIdx++] = to;
+			}
+		}
+	}
 }

@@ -8,23 +8,19 @@ PointLight <-4, -1.5, 3> 1 1 1
 PointLight < 4, -5,   3> 1 1 1
 
 Opacity 0.25 0.25 0.25
-
-# Column 1
 Color 0.1 0.5 0.5
 Sphere 1 < 0, 0, 5> matte_opa
+Sphere 1 < 0, 0, 9> matte_opa
+Sphere 1 < 3, 0, 5> matte_opa
+Sphere 1 < 6, 0, 5> matte_opa
+Sphere 1 < 6, 0, 9> matte_opa
 
 Color 0.5 0.1 0.5
 Sphere 1 < 0, 0, 7> matte_opa
-
-Color 0.1 0.5 0.5
-Sphere 1 < 0, 0, 9> matte_opa
-
-Color 0.5 0.1 0.5
 Sphere 1 < 0, 0, 11> matte_opa
-
-# Column 2
-Color 0.1 0.5 0.5
-Sphere 1 < 3, 0, 5> matte_opa
+Sphere 1 < 3, 0, 11> matte_opa
+Sphere 1 < 6, 0, 7> matte_opa
+Sphere 1 < 6, 0, 11> matte_opa
 
 Opacity 1 1 1
 Color 0.5 0.1 0.5
@@ -32,20 +28,3 @@ Sphere 1 < 3, 0, 7> reflect_sample
 
 Color 0.1 0.5 0.5
 Sphere 1 < 3, 0, 9> reflect_sample
-
-Opacity 0.25 0.25 0.25
-Color 0.5 0.1 0.5
-Sphere 1 < 3, 0, 11> matte_opa
-
-# Column 3
-Color 0.1 0.5 0.5
-Sphere 1 < 6, 0, 5> matte_opa
-
-Color 0.5 0.1 0.5
-Sphere 1 < 6, 0, 7> matte_opa
-
-Color 0.1 0.5 0.5
-Sphere 1 < 6, 0, 9> matte_opa
-
-Color 0.5 0.1 0.5
-Sphere 1 < 6, 0, 11> matte_opa

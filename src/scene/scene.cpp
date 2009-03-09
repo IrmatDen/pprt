@@ -188,17 +188,6 @@ Color Scene::trace(const Ray &eye, bool &hitSomething)
 
 Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 {
-	/*const Geometry *nearestObj(0);
-	const Geometry **obj = (const Geometry**)rt_objects;
-
-	Real t = 20000;
-	while (*obj)
-	{
-		if ((*obj)->hit(ray, t))
-			nearestObj = *obj;
-		++obj;
-	}*/
-
 	Real t = 20000;
 	const Geometry *nearestObj = bvhRoot->findClosest(ray, t);
 
@@ -254,47 +243,47 @@ bool Scene::collide(const Ray &r, Real t, Color &visQty) const
 
 	visQty.r = visQty.g = visQty.b = 1;
 
-	while (*obj)
+	static const size_t	maxAccumulatedObjects(10);
+	Geometry *			accum[maxAccumulatedObjects];
+	Real				dist[maxAccumulatedObjects];
+
+	const size_t objGathered = bvhRoot->gatherAlong(ray, t, accum, dist, maxAccumulatedObjects);
+	for (size_t i = 0; i < objGathered; i++)
 	{
-		if ((*obj)->hit(r, t))
+		p = ray.origin + ray.direction() * dist[i];
+		accum[i]->normalAt(p, n);
+
+		CompiledShader shader(accum[i]->getShader(), true);
+		shader.setCurrentDepth(ray.traceDepth);
+		shader.setVarValueByIndex(CompiledShader::P, p);
+		shader.setVarValueByIndex(CompiledShader::N, n);
+		shader.setVarValueByIndex(CompiledShader::Ng, n);
+		shader.setVarValueByIndex(CompiledShader::I, ray.direction());
+		shader.exec();
+
+		shader.getOutput(Ci, Oi);
+
+		if (isOpaque(Oi))
 		{
-			p = ray.origin + ray.direction() * t;
-			(*obj)->normalAt(p, n);
+			visQty.r = visQty.g = visQty.b = 0;
+			return true;
+		}
+		else
+		{
+			visQty.r = visQty.r > Oi.r ? Oi.r : visQty.r;
+			visQty.g = visQty.g > Oi.g ? Oi.g : visQty.g;
+			visQty.b = visQty.b > Oi.b ? Oi.b : visQty.b;
 
-			CompiledShader shader((*obj)->getShader(), true);
-			shader.setCurrentDepth(ray.traceDepth);
-			shader.setVarValueByIndex(CompiledShader::P, p);
-			shader.setVarValueByIndex(CompiledShader::N, n);
-			shader.setVarValueByIndex(CompiledShader::Ng, n);
-			shader.setVarValueByIndex(CompiledShader::I, ray.direction());
-			shader.exec();
+			visQty.r = visQty.r <= 0.01f ? 0 : visQty.r;
+			visQty.g = visQty.g <= 0.01f ? 0 : visQty.g;
+			visQty.b = visQty.b <= 0.01f ? 0 : visQty.b;
 
-			shader.getOutput(Ci, Oi);
-
-			if (isOpaque(Oi))
+			if (visQty.r <= 0.01f && visQty.g <= 0.01f && visQty.b <= 0.01f)
 			{
 				visQty.r = visQty.g = visQty.b = 0;
 				return true;
 			}
-			else
-			{
-				visQty.r = visQty.r > Oi.r ? Oi.r : visQty.r;
-				visQty.g = visQty.g > Oi.g ? Oi.g : visQty.g;
-				visQty.b = visQty.b > Oi.b ? Oi.b : visQty.b;
-
-				visQty.r = visQty.r <= 0.01f ? 0 : visQty.r;
-				visQty.g = visQty.g <= 0.01f ? 0 : visQty.g;
-				visQty.b = visQty.b <= 0.01f ? 0 : visQty.b;
-
-				if (visQty.r <= 0.01f && visQty.g <= 0.01f && visQty.b <= 0.01f)
-				{
-					visQty.r = visQty.g = visQty.b = 0;
-					return true;
-				}
-			}
 		}
-
-		++obj;
 	}
 
 	return false;

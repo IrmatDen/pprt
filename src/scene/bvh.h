@@ -55,6 +55,7 @@ private:
 
 	enum SplitAxis
 	{
+		SA_None = -1,
 		SA_X,
 		SA_Y,
 		SA_Z

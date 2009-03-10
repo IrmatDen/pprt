@@ -49,11 +49,22 @@ void BVH::buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects)
 
 	Scene::Geometries leftObjects;
 	Scene::Geometries rightObjects;
-
 	currentNode.left = new BVHNode();
 	currentNode.right = new BVHNode();
 
-	splitObjects(sa, currentNode.aabb, objects, leftObjects, rightObjects, currentNode.left->aabb, currentNode.right->aabb);
+	if (sa != SA_None)
+		splitObjects(sa, currentNode.aabb, objects, leftObjects, rightObjects, currentNode.left->aabb, currentNode.right->aabb);
+	else
+	{
+		bool pair = true;
+		for(Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it, pair = !pair)
+		{
+			if (pair)
+				leftObjects.push_back(*it);
+			else
+				rightObjects.push_back(*it);
+		}
+	}
 
 	buildSubTree(*currentNode.left, leftObjects);
 	buildSubTree(*currentNode.right, rightObjects);
@@ -64,7 +75,7 @@ BVH::SplitAxis BVH::bestNodeCut(const AABB &aabb, const Scene::Geometries &objec
 	Scene::Geometries leftGeo, rightGeo;
 	AABB leftAABB, rightAABB;
 	Real cost, bestCost = numeric_limits<Real>::infinity();
-	SplitAxis bestCut = (SplitAxis)-1;
+	SplitAxis bestCut = SA_None;
 
 	// X test
 	splitObjects(SA_X, aabb, objects, leftGeo, rightGeo, leftAABB, rightAABB);

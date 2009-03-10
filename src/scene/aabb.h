@@ -7,6 +7,8 @@
 class AABB
 {
 public:
+	AABB();
+
 	bool	hit(const Ray &ray, const Real &t) const;
 
 	Real	distanceTo(const AABB &other) const;

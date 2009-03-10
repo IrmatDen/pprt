@@ -59,8 +59,13 @@ private:
 
 	void		buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects);
 
+	void		splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &objects,
+							 Scene::Geometries &leftObjects, Scene::Geometries &rightObjects,
+							 AABB &leftAABB, AABB &rightAABB
+							) const;
+
 	// Search for best axis to cut a given aabb
-	SplitAxis	bestNodeCut(const AABB &aabb) const;
+	SplitAxis	bestNodeCut(const AABB &aabb, const Scene::Geometries &objects) const;
 
 	const Geometry*	innerTraverse(BVHNode *node, const Ray &ray, Real &t) const;
 	void			innerGather(BVHNode *node, const Ray &ray, Real &t, Geometry **accum, Real *distances, size_t &startIdx, size_t maxObj) const;

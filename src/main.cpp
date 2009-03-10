@@ -25,6 +25,7 @@ int main(int argc, char **argv)
 	//string scnFile = "ScnSamples/specular_shaded_sphere.crtscn";
 	//string scnFile = "ScnSamples/trace_shaded_sphere.crtscn";
 	string scnFile = "ScnSamples/opa_shaded_sphere.crtscn";
+	//string scnFile = "ScnSamples/reflexive_opa_spheres.crtscn";
 	//string scnFile = "ScnSamples/inner_reflexion.crtscn";
 
 	Scene scn;

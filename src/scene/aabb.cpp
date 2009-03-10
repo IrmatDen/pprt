@@ -1,5 +1,8 @@
+#include <limits>
+
 #include "aabb.h"
 
+using namespace std;
 
 static inline Real min(Real v0, Real v1)
 {
@@ -9,6 +12,17 @@ static inline Real min(Real v0, Real v1)
 static inline Real max(Real v0, Real v1)
 {
 	return v0 > v1 ? v0 : v1;
+}
+
+AABB::AABB()
+{
+	_min.x = numeric_limits<Real>::infinity();
+	_min.y = numeric_limits<Real>::infinity();
+	_min.z = numeric_limits<Real>::infinity();
+	
+	_max.x = -numeric_limits<Real>::infinity();
+	_max.y = -numeric_limits<Real>::infinity();
+	_max.z = -numeric_limits<Real>::infinity();
 }
 
 bool AABB::hit(const Ray &ray, const Real &t) const

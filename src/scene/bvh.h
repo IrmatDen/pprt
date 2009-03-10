@@ -19,6 +19,8 @@ public:
 private:
 	struct BVHNode
 	{
+		static const int MaxObjPerLeaf = 6;
+
 		BVHNode() : isLeaf(false), left(0), right(0)	{}
 		~BVHNode()
 		{
@@ -26,6 +28,10 @@ private:
 			{
 				delete left;
 				delete right;
+			}
+			else
+			{
+				delete [] objects;
 			}
 		}
 
@@ -41,8 +47,8 @@ private:
 			};
 			struct
 			{
-				Geometry *	geoLeft;
-				Geometry *	geoRight;
+				int			objCount;
+				Geometry **	objects;
 			};
 		};
 	};

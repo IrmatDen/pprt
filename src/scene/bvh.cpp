@@ -34,22 +34,14 @@ void BVH::setAABBFor(AABB &aabb, const Scene::Geometries &objects) const
 
 void BVH::buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects)
 {
-	if (objects.size() == 0)
+	if (objects.size() <= BVHNode::MaxObjPerLeaf)
 	{
 		currentNode.isLeaf		= true;
-		return;
-	}
-	if (objects.size() == 1)
-	{
-		currentNode.isLeaf		= true;
-		currentNode.geoLeft		= objects[0].get();
-		return;
-	}
-	if (objects.size() == 2)
-	{
-		currentNode.geoLeft		= objects[0].get();
-		currentNode.geoRight	= objects[1].get();
-		currentNode.isLeaf		= true;
+		currentNode.objCount	= objects.size();
+		currentNode.objects		= new Geometry*[currentNode.objCount];
+		int idx = 0;
+		for (Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it, ++idx)
+			currentNode.objects[idx] = it->get();
 		return;
 	}
 
@@ -186,13 +178,10 @@ const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, Real &t) const
 	}
 
 	const Geometry *closest(0);
-	if (node->geoLeft)
+	for (int i = 0; i < node->objCount; i++)
 	{
-		if (node->geoLeft->hit(ray, t))
-			closest = node->geoLeft;
-
-		if (node->geoRight && node->geoRight->hit(ray, t))
-			closest = node->geoRight;
+		if (node->objects[i]->hit(ray, t))
+			closest = node->objects[i];
 	}
 	
 	return closest;
@@ -217,23 +206,13 @@ void BVH::innerGather(BVHNode *node, const Ray &ray, Real &t, Geometry **accum, 
 		return;
 	}
 
-	if (node->geoLeft)
+	for (int i = 0; i < node->objCount; i++)
 	{
-		Real to = t;
-		if (node->geoLeft->hit(ray, to))
+		Real dist = t;
+		if (node->objects[i]->hit(ray, dist))
 		{
-			accum[startIdx] = node->geoLeft;
-			distances[startIdx++] = to;
-		}
-
-		if (node->geoRight && startIdx < maxObj)
-		{
-			to = t;
-			if (node->geoRight->hit(ray, t))
-			{
-				accum[startIdx] = node->geoRight;
-				distances[startIdx++] = to;
-			}
+			accum[startIdx] = node->objects[i];
+			distances[startIdx++] = dist;
 		}
 	}
 }

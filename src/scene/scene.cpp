@@ -62,7 +62,7 @@ public:
 					}
 				}
 
-				const float exposure = -0.66f;
+				/*const float exposure = -0.66f;
 				col.r = 1 - expf(col.r * exposure);
 				col.g = 1 - expf(col.g * exposure);
 				col.b = 1 - expf(col.b * exposure);
@@ -70,9 +70,9 @@ public:
 				const float invGamma = 0.45f;
 				col.r = powf(col.r, invGamma);
 				col.g = powf(col.g, invGamma);
-				col.b = powf(col.b, invGamma);
+				col.b = powf(col.b, invGamma);*/
 
-				//col.clamp();
+				col.clamp();
 
 				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
 				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
@@ -225,7 +225,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	return Ci + (1 - Oi) * traceNoDepthMod(ray, dummy);
 }
 
-bool Scene::collide(const Ray &r, Real t, Color &visQty) const
+bool Scene::collide(const Ray &r, Real t, Color &visQty, Color &influencedColor) const
 {
 	const Geometry **obj = (const Geometry**)rt_objects;
 
@@ -262,6 +262,7 @@ bool Scene::collide(const Ray &r, Real t, Color &visQty) const
 		shader.exec();
 
 		shader.getOutput(Ci, Oi);
+		influencedColor += Ci;
 
 		if (isOpaque(Oi))
 		{
@@ -286,6 +287,8 @@ bool Scene::collide(const Ray &r, Real t, Color &visQty) const
 		}
 	}
 
+	influencedColor.clamp();
+
 	return false;
 }
 
@@ -294,7 +297,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	Vec3 normDir = r.direction().normalized();
 	const Light **light = (const Light**)rt_lights;
 
-	Color visibility;
+	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
 	const Vec3 p = r.origin + r.direction() * Epsilon;
@@ -317,11 +320,11 @@ void Scene::diffuse(const Ray &r, Color &out) const
 		}
 
 		ray.setDirection(L2P);
-		bool lightOccluded = collide(ray, t, visibility);
+		bool lightOccluded = collide(ray, t, visibility, influencedColor);
 
 		if (!lightOccluded)
 		{
-			out += (*light)->color * (float)L2PdotN * visibility;
+			out += (*light)->color * (float)L2PdotN * visibility + influencedColor;
 		}
 
 		++light;
@@ -335,7 +338,7 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 
 	const Light **light = (const Light**)rt_lights;
 
-	Color visibility;
+	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
 	const Vec3 p = r.origin + r.direction() * Epsilon;
@@ -350,13 +353,13 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 
 		Real t = L2P.length();
 		ray.setDirection(L2P.normalize());
-		bool lightOccluded = collide(ray, t, visibility);
+		bool lightOccluded = collide(ray, t, visibility, influencedColor);
 
 		if (!lightOccluded)
 		{
 			const Vec3 H = (L2P + normVDir).normalize();
 			const Real NdH = normDir.dot(H);
-			out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness)) * visibility;
+			out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness)) * visibility + influencedColor;
 		}
 
 		++light;

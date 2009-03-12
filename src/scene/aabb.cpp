@@ -4,45 +4,92 @@
 
 using namespace std;
 
-static inline Real min(Real v0, Real v1)
-{
-	return v0 < v1 ? v0 : v1;
-}
+// turn those verbose intrinsics into something readable.
+#define set1ps(v)			_mm_set1_ps((v))
+#define loadps(mem)			_mm_load_ps((const float * const)(mem))
+#define storess(ss,mem)		_mm_store_ss((float * const)(mem),(ss))
+#define minss				_mm_min_ss
+#define maxss				_mm_max_ss
+#define minps				_mm_min_ps
+#define maxps				_mm_max_ps
+#define mulps				_mm_mul_ps
+#define subps				_mm_sub_ps
+#define orps(v1,v2)			_mm_or_ps((v1),(v2))
+#define cmplt(v1,v2)		_mm_cmplt_ps((v1),(v2))
+#define cmpgt(v1,v2)		_mm_cmpgt_ps((v1),(v2))
+#define all_zero()			_mm_setzero_ps()
+#define movemask(ps)		_mm_movemask_ps((ps))
+#define mask_all(ps)		(movemask(ps) == 15)
 
-static inline Real max(Real v0, Real v1)
-{
-	return v0 > v1 ? v0 : v1;
-}
+
+static const float flt_plus_inf = numeric_limits<float>::infinity();
+static const float _MM_ALIGN16
+	ps_cst_plus_inf[4]	= {  flt_plus_inf,  flt_plus_inf,  flt_plus_inf,  flt_plus_inf },
+	ps_cst_minus_inf[4]	= { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
+
+static const __m128
+	plus_inf	= loadps(ps_cst_plus_inf),
+	minus_inf	= loadps(ps_cst_minus_inf);
 
 AABB::AABB()
 {
-	_min.x = numeric_limits<Real>::infinity();
-	_min.y = numeric_limits<Real>::infinity();
-	_min.z = numeric_limits<Real>::infinity();
+	_min[0] = numeric_limits<float>::infinity();
+	_min[1] = numeric_limits<float>::infinity();
+	_min[2] = numeric_limits<float>::infinity();
+	_min[3] = 0;
 	
-	_max.x = -numeric_limits<Real>::infinity();
-	_max.y = -numeric_limits<Real>::infinity();
-	_max.z = -numeric_limits<Real>::infinity();
+	_max[0] = -numeric_limits<float>::infinity();
+	_max[1] = -numeric_limits<float>::infinity();
+	_max[2] = -numeric_limits<float>::infinity();
+	_max[3] = 0;
 }
 
 bool AABB::hit(const Ray &ray, const Real &t) const
 {
-	Real l1 = (_min.x - ray.origin.x) * ray.invDir.x;
-	Real l2 = (_max.x - ray.origin.x) * ray.invDir.x;
-	Real t0 = min(l1, l2);
-	Real t1 = max(l1, l2);
+	float _MM_ALIGN16 fPos[4]	= {(float)ray.origin.x, (float)ray.origin.y, (float)ray.origin.z, 0};
+	float _MM_ALIGN16 fInvDir[4]= {(float)ray.invDir.x, (float)ray.invDir.y, (float)ray.invDir.z, 0};
 
-	l1 = (_min.y - ray.origin.y) * ray.invDir.y;
-	l2 = (_max.y - ray.origin.y) * ray.invDir.y;
-	t0 = max(min(l1, l2), t0);
-	t1 = min(max(l1, l2), t1);
+	const __m128
+		idx = set1ps(fInvDir[0]),
+		ox	= set1ps(fPos[0]),
+		xl1 = mulps(idx, subps(set1ps(_min[0]), ox)),
+		xl2 = mulps(idx, subps(set1ps(_max[0]), ox)),
+		xl1a = minps(xl1, plus_inf),  xl2a = minps(xl2, plus_inf),
+		xl1b = maxps(xl1, minus_inf), xl2b = maxps(xl2, minus_inf);
 
-	l1 = (_min.z - ray.origin.z) * ray.invDir.z;
-	l2 = (_max.z - ray.origin.z) * ray.invDir.z;
-	t0 = max(min(l1, l2), t0);
-	t1 = min(max(l1, l2), t1);
+	__m128
+		lmax = maxps(xl1a,xl2a),
+		lmin = minps(xl1b,xl2b);
 
-	return (t1 >= t0) & (t1 >= 0);
+	const __m128
+		idy = set1ps(fInvDir[1]),
+		oy	= set1ps(fPos[1]),
+		yl1 = mulps(idy, subps(set1ps(_min[1]), oy)),
+		yl2 = mulps(idy, subps(set1ps(_max[1]), oy)),
+		yl1a = minps(yl1, plus_inf),  yl2a = minps(yl2, plus_inf),
+		yl1b = maxps(yl1, minus_inf), yl2b = maxps(yl2, minus_inf);
+
+	lmax = minps(maxps(yl1a,yl2a), lmax);
+	lmin = maxps(minps(yl1b,yl2b), lmin);
+
+	const __m128
+		idz = set1ps(fInvDir[2]),
+		oz	= set1ps(fPos[2]),
+		zl1 = mulps(idz, subps(set1ps(_min[2]), oz)),
+		zl2 = mulps(idz, subps(set1ps(_max[2]), oz)),
+		zl1a = minps(zl1, plus_inf),  zl2a = minps(zl2, plus_inf),
+		zl1b = maxps(zl1, minus_inf), zl2b = maxps(zl2, minus_inf);
+
+	lmax = minps(maxps(zl1a,zl2a), lmax);
+	lmin = maxps(minps(zl1b,zl2b), lmin);
+
+	const __m128 lt = cmplt(lmax, all_zero());
+	const __m128 gt = cmpgt(lmin, lmax);
+	const __m128 or = orps(lt, gt);
+	const int mask = movemask(or);
+	const bool hit = mask == 15 || mask == 0;
+
+	return hit;
 }
 
 Real AABB::distanceTo(const AABB &other) const
@@ -67,11 +114,13 @@ void AABB::mergeFrom(const AABB &v0, const AABB &v1)
 
 void AABB::mergeWith(const AABB &other)
 {
-	_min.x = min(_min.x, other._min.x);
+	/*_min4 = _mm_min_ps(_min4, other._min4);
+	_max4 = _mm_min_ps(_max4, other._max4);*/
+	/*_min.x = min(_min.x, other._min.x);
 	_min.y = min(_min.y, other._min.y);
 	_min.z = min(_min.z, other._min.z);
 	
 	_max.x = max(_max.x, other._max.x);
 	_max.y = max(_max.y, other._max.y);
-	_max.z = max(_max.z, other._max.z);
+	_max.z = max(_max.z, other._max.z);*/
 }

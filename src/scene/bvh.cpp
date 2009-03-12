@@ -115,12 +115,7 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 	rightAABB = AABB();
 
 	Real cutCoord;
-	if (sa == SA_X)
-		cutCoord = aabb._min.x + (aabb._max.x - aabb._min.x) / 2;
-	else if (sa == SA_Y)
-		cutCoord = aabb._min.y + (aabb._max.y - aabb._min.y) / 2;
-	else // cut axis == Z
-		cutCoord = aabb._min.z + (aabb._max.z - aabb._min.z) / 2;
+	cutCoord = aabb._min[sa] + (aabb._max[sa] - aabb._min[sa]) / 2;
 
 	for (Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it)
 	{

@@ -19,7 +19,7 @@ public:
 	size_t			gatherAlong(const Ray &ray, Real &t, Geometry **accum, Real *distances, size_t maxObj) const;
 
 private:
-	struct BVHNode
+	struct _MM_ALIGN16 BVHNode
 	{
 		static const int MaxObjPerLeaf = 6;
 

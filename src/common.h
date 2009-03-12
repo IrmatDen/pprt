@@ -2,6 +2,11 @@
 #define CRT_COMMON_H
 
 #include <malloc.h>
+#include <xmmintrin.h>
+
+#ifndef _MM_ALIGN16
+#define _MM_ALIGN16		_declspec(align(16))
+#endif
 
 namespace memory
 {

@@ -101,7 +101,7 @@ CompiledShader CompiledShader::cloneWithCodePtr(ByteCode *bcode, size_t codeLen)
 	return ret;
 }
 
-void CompiledShader::addVar(VariableStorageType varST, VariableType varT, const std::string &name, VarValue value)
+void CompiledShader::addVar(VariableStorageType varST, VariableType varT, const std::string &name, const VarValue &value)
 {
 	Variable v;
 	v.storageType	= varST;
@@ -112,7 +112,7 @@ void CompiledShader::addVar(VariableStorageType varST, VariableType varT, const 
 	varTable.push_back(v);
 }
 
-void CompiledShader::setVarValue(const std::string &name, VarValue value)
+void CompiledShader::setVarValue(const std::string &name, const VarValue &value)
 {
 	for(VariableTable::iterator it = varTable.begin(); it != varTable.end(); ++it)
 	{
@@ -123,7 +123,7 @@ void CompiledShader::setVarValue(const std::string &name, VarValue value)
 	}
 }
 
-void CompiledShader::setVarValueByIndex(size_t index, VarValue value)
+void CompiledShader::setVarValueByIndex(size_t index, const VarValue &value)
 {
 	assert(index < varTable.size());
 

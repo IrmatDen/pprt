@@ -3,12 +3,14 @@
 
 #include <cmath>
 
+#include "../common.h"
+
 typedef double Real;
 
 #define Epsilon 0.0000001
 #define OneMinusEpsilon (1 - Epsilon)
 
-class Vec3
+class _MM_ALIGN16 Vec3
 {
 	// Construction
 public:

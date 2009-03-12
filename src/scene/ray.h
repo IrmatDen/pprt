@@ -3,7 +3,7 @@
 
 #include "vector3.h"
 
-class Ray
+class _MM_ALIGN16 Ray
 {
 public:
 	Ray():traceDepth(0) {}

@@ -12,10 +12,10 @@ enum ParamType
 	PT_Real
 };
 
-struct ShaderParam
+struct _MM_ALIGN16 ShaderParam
 {
 	ShaderParam()	{}
-	ShaderParam(const std::string &n, ParamType t, VarValue v) : name(n), type(t), value(v)	{}
+	ShaderParam(const std::string &n, ParamType t, const VarValue &v) : name(n), type(t), value(v)	{}
 
 	std::string		name;
 	ParamType		type;

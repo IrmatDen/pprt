@@ -3,7 +3,7 @@
 
 #include "geometry.h"
 
-class Sphere : public Geometry
+class _MM_ALIGN16 Sphere : public Geometry
 {
 public:
 	Sphere(Real radius = 1) : r(radius)							{}
@@ -15,13 +15,13 @@ public:
 private:
 	void	buildAABB()
 	{
-		aabb._min.x = pos.x - r;
-		aabb._min.y = pos.y - r;
-		aabb._min.z = pos.z - r;
+		aabb._min[0] = pos.x - r;
+		aabb._min[1] = pos.y - r;
+		aabb._min[2] = pos.z - r;
 		
-		aabb._max.x = pos.x + r;
-		aabb._max.y = pos.y + r;
-		aabb._max.z = pos.z + r;
+		aabb._max[0] = pos.x + r;
+		aabb._max[1] = pos.y + r;
+		aabb._max[2] = pos.z + r;
 	}
 
 private:

@@ -12,7 +12,7 @@
 
 class Scene;
 
-class CompiledShader
+class _MM_ALIGN16 CompiledShader
 {
 	friend void initOpCodeMappings();
 
@@ -70,10 +70,10 @@ public:
 	const std::string&	name() const						{ return shaderName; }
 
 	void addVar(const Variable &v)							{ varTable.push_back(v); }
-	void addVar(VariableStorageType varST, VariableType varT, const std::string &name, VarValue value);
+	void addVar(VariableStorageType varST, VariableType varT, const std::string &name, const VarValue &value);
 
-	void setVarValue(const std::string &name, VarValue value);
-	void setVarValueByIndex(size_t index, VarValue value);
+	void setVarValue(const std::string &name, const VarValue &value);
+	void setVarValueByIndex(size_t index, const VarValue &value);
 	
 	void getOutput(Color &color, Color &opacity);
 

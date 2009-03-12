@@ -12,7 +12,7 @@
 
 class CompiledShader;
 
-class Geometry
+class _MM_ALIGN16 Geometry
 {
 public:
 	virtual ~Geometry();

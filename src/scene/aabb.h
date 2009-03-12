@@ -1,10 +1,12 @@
 #ifndef CRT_AABB_H
 #define CRT_AABB_H
 
+#include <xmmintrin.h>
+
 #include "vector3.h"
 #include "ray.h"
 
-class AABB
+class _MM_ALIGN16 AABB
 {
 public:
 	AABB();
@@ -18,8 +20,16 @@ public:
 	void	mergeWith(const AABB &other);
 
 public:
-	Vec3	_min;
-	Vec3	_max;
+	union
+	{
+		float	_min[4];
+		__m128	_min4;
+	};
+	union
+	{
+		float	_max[4];
+		__m128	_max4;
+	};
 };
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "vector3.h"
 
-class Color
+class _MM_ALIGN16 Color
 {
 public:
 	Color()								: r(0), g(0), b(0)								{}

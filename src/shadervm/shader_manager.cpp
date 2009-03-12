@@ -13,6 +13,8 @@
 #include "../shader_compiler/useless_nodes_removal_visitor.h"
 #include "../shader_compiler/mnemonic_gen_visitor.h"
 
+#include "../common.h"
+
 using namespace std;
 
 ShaderManager::ShaderManager()
@@ -81,7 +83,7 @@ void ShaderManager::addShader(const CompiledShader &shader)
 	shaders[shader.name()].setScene(scene);
 
 	CompiledShader::Instructions code = shader.getCode();
-	CompiledShader::ByteCode *bcode = new CompiledShader::ByteCode[code.size()];
+	CompiledShader::ByteCode *bcode = memory::construct<CompiledShader::ByteCode>(code.size());
 	shadersCodes[shader.name()] = bcode;
 	for(CompiledShader::Instructions::iterator it = code.begin(); it != code.end(); ++it, ++bcode)
 		*bcode = *it;

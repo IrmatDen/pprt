@@ -1,15 +1,18 @@
 #include "geometry.h"
 #include "../shadervm/compiled_shader.h"
 
+#include "../common.h"
+
 Geometry::~Geometry()
 {
+	memory::destroy(shader);
 }
 
 void Geometry::setShader(const CompiledShader &cs)
 {
-	delete shader;
+	memory::destroy(shader);
 
-	shader = new CompiledShader(cs);
+	shader = memory::construct<CompiledShader>(cs);
 }
 
 void Geometry::setShaderParams(ShaderParams p)

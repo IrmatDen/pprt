@@ -14,7 +14,10 @@
 
 #include "scene.h"
 #include "bvh.h"
+
 #include "../crtscn_parser/scnparser.h"
+
+#include "../common.h"
 
 class TraceScanLine
 {
@@ -89,8 +92,15 @@ private:
 
 Scene::~Scene()
 {
-	delete [] rt_objects;
-	delete [] rt_lights;
+	for(Geometries::iterator it = objects.begin(); it != objects.end(); it++)
+		memory::destroy(*it);
+
+	for(Lights::iterator it = lights.begin(); it != lights.end(); it++)
+		memory::destroy(*it);
+
+	//delete [] rt_objects;
+	
+	memory::destroy(rt_lights);
 }
 
 bool Scene::loadScnFile(const std::string &filename)
@@ -108,19 +118,19 @@ Camera& Scene::camera()
 
 void Scene::prepare()
 {
-	rt_objects = new Geometry*[objects.size() + 1];
+	/*rt_objects = new Geometry*[objects.size() + 1];
 	int loop = 0;
 	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it, ++loop)
 		rt_objects[loop] = (*it).get();
-	rt_objects[loop] = 0;
+	rt_objects[loop] = 0;*/
 
-	rt_lights = new Light*[lights.size() + 1];
-	loop = 0;
+	rt_lights = memory::construct<Light*>(lights.size() + 1);
+	int loop = 0;
 	for(Lights::iterator it = lights.begin(); it != lights.end(); ++it, ++loop)
-		rt_lights[loop] = (*it).get();
+		rt_lights[loop] = *it;
 	rt_lights[loop] = 0;
 	
-	bvhRoot = new BVH();
+	bvhRoot = memory::construct<BVH>();
 	bvhRoot->build(objects);
 }
 

@@ -5,6 +5,8 @@
 #include "ray.h"
 #include "scene.h"
 
+#include "../common.h"
+
 class BVH
 {
 public:
@@ -26,12 +28,12 @@ private:
 		{
 			if (!isLeaf)	// objects are deleted by the scene
 			{
-				delete left;
-				delete right;
+				memory::destroy(left);
+				memory::destroy(right);
 			}
 			else
 			{
-				delete [] objects;
+				memory::destroy(objects);
 			}
 		}
 

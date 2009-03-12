@@ -9,6 +9,8 @@
 #include "../shadervm/compiled_shader.h"
 #include "../shadervm/symtab.h"
 
+#include "../common.h"
+
 using namespace std;
 using namespace boost;
 
@@ -24,7 +26,7 @@ MnemonicGenVisitor::MnemonicGenVisitor(ShaderManager &shaderManager)
 
 MnemonicGenVisitor::~MnemonicGenVisitor()
 {
-	delete shader;
+	memory::destroy(shader);
 }
 
 void MnemonicGenVisitor::visit(TermNode &node)
@@ -38,11 +40,11 @@ void MnemonicGenVisitor::visit(FileRootNode &node)
 
 void MnemonicGenVisitor::visit(ShaderRootNode &node)
 {
-	delete shader;
+	memory::destroy(shader);
 	shader = 0;
 
 	if (node.getChildren()->at(0)->getImage() == L"surface")
-		shader = new CompiledShader(CompiledShader::ST_Surface);
+		shader = memory::construct<CompiledShader>(CompiledShader::ST_Surface);
 	else
 		return; // Other shaders not yet supported
 

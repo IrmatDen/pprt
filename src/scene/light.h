@@ -13,6 +13,4 @@ public:
 	Color		color;
 };
 
-typedef boost::shared_ptr<Light> LightPtr;
-
 #endif

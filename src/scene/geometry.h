@@ -50,6 +50,4 @@ protected:
 	ShaderParams			shaderParams;
 };
 
-typedef boost::shared_ptr<Geometry> GeometryPtr;
-
 #endif

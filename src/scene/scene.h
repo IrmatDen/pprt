@@ -20,7 +20,8 @@ class Scene
 	friend class TraceScanLine;
 
 public:
-	typedef std::vector<GeometryPtr> Geometries;
+	typedef std::vector<Geometry*>	Geometries;
+	typedef std::vector<Light*>		Lights;
 
 public:
 	ShaderManager shaderManager;
@@ -50,8 +51,8 @@ public:
 
 	void		setBackground(const Color &bg)				{ background = bg; }
 
-	void		addGeometry(GeometryPtr obj)				{ objects.push_back(obj); }
-	void		addLight(LightPtr l)						{ lights.push_back(l); }
+	void		addGeometry(Geometry* obj)					{ objects.push_back(obj); }
+	void		addLight(Light* l)							{ lights.push_back(l); }
 
 	void		prepare();
 
@@ -65,9 +66,6 @@ public:
 	Color		traceNoDepthMod(Ray &eye, bool &hitSomething);
 	void		diffuse(const Ray &r, Color &out) const;
 	void		specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const;
-
-private:
-	typedef std::vector<LightPtr> Lights;
 
 private:
 	std::string				outName;

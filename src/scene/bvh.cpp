@@ -8,12 +8,12 @@ using namespace std;
 
 BVH::~BVH()
 {
-	delete root;
+	memory::destroy(root);
 }
 
 void BVH::build(const Scene::Geometries &objects)
 {
-	root = new BVHNode();
+	root = memory::construct<BVHNode>();
 	setAABBFor(root->aabb, objects);
 
 	buildSubTree(*root, objects);
@@ -38,10 +38,10 @@ void BVH::buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects)
 	{
 		currentNode.isLeaf		= true;
 		currentNode.objCount	= objects.size();
-		currentNode.objects		= new Geometry*[currentNode.objCount];
+		currentNode.objects		= memory::construct<Geometry*>((size_t)currentNode.objCount);
 		int idx = 0;
 		for (Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it, ++idx)
-			currentNode.objects[idx] = it->get();
+			currentNode.objects[idx] = *it;
 		return;
 	}
 
@@ -49,8 +49,8 @@ void BVH::buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects)
 
 	Scene::Geometries leftObjects;
 	Scene::Geometries rightObjects;
-	currentNode.left = new BVHNode();
-	currentNode.right = new BVHNode();
+	currentNode.left = memory::construct<BVHNode>();
+	currentNode.right = memory::construct<BVHNode>();
 
 	if (sa != SA_None)
 		splitObjects(sa, currentNode.aabb, objects, leftObjects, rightObjects, currentNode.left->aabb, currentNode.right->aabb);
@@ -124,7 +124,7 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 
 	for (Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it)
 	{
-		GeometryPtr g = *it;
+		Geometry *g = *it;
 
 		switch(sa)
 		{

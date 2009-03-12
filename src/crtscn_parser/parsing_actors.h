@@ -9,6 +9,8 @@
 
 #include <boost/filesystem.hpp>
 
+#include "../common.h"
+
 struct shaderPath_a
 {
 	shaderPath_a(Scene &scn) : scene(scn) {}
@@ -94,7 +96,7 @@ struct newPointLight_a
 	
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		LightPtr l(new Light);
+		Light *l(memory::construct<Light>());
 		l->pos		= pos;
 		l->color	= color;
 		scene.addLight(l);
@@ -123,7 +125,7 @@ struct newSphere_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		GeometryPtr g(new Sphere(radius, pos));
+		Geometry *g(memory::construct<Sphere>(radius, pos));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
@@ -157,7 +159,7 @@ struct newPlane_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		GeometryPtr g(new Plane(normal.normalize(), (float)offset, !twoSided));
+		Geometry *g(memory::construct<Plane>(normal.normalize(), (float)offset, !twoSided));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
@@ -194,7 +196,7 @@ struct newDisk_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		GeometryPtr g(new Disk((float)radius, pos, normal.normalize()));
+		Geometry *g(memory::construct<Disk>((float)radius, pos, normal.normalize()));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));

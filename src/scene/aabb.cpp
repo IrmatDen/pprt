@@ -83,11 +83,7 @@ bool AABB::hit(const Ray &ray, const Real &t) const
 	lmax = minps(maxps(zl1a,zl2a), lmax);
 	lmin = maxps(minps(zl1b,zl2b), lmin);
 
-	const __m128 lt = cmplt(lmax, all_zero());
-	const __m128 gt = cmpgt(lmin, lmax);
-	const __m128 or = orps(lt, gt);
-	const int mask = movemask(or);
-	const bool hit = mask == 15 || mask == 0;
+	const bool hit = !mask_all(orps(cmplt(lmax, all_zero()), cmpgt(lmin, lmax)));
 
 	return hit;
 }
@@ -102,7 +98,7 @@ Real AABB::distanceTo(const AABB &other) const
 
 Real AABB::surfaceArea() const
 {
-	const Vec3 c = _max - _min;
+	const Vec3 c(_max[0] - _min[0], _max[1] - _min[1], _max[2] - _min[2]);
 	return 2 * (c.x * c.y + c.x * c.z + c.y * c.z);
 }
 
@@ -114,13 +110,6 @@ void AABB::mergeFrom(const AABB &v0, const AABB &v1)
 
 void AABB::mergeWith(const AABB &other)
 {
-	/*_min4 = _mm_min_ps(_min4, other._min4);
-	_max4 = _mm_min_ps(_max4, other._max4);*/
-	/*_min.x = min(_min.x, other._min.x);
-	_min.y = min(_min.y, other._min.y);
-	_min.z = min(_min.z, other._min.z);
-	
-	_max.x = max(_max.x, other._max.x);
-	_max.y = max(_max.y, other._max.y);
-	_max.z = max(_max.z, other._max.z);*/
+	_min4 = _mm_min_ps(_min4, other._min4);
+	_max4 = _mm_max_ps(_max4, other._max4);
 }

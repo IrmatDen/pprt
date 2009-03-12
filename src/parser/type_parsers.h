@@ -46,8 +46,8 @@ namespace tools
 	}
 
 	//! Extract a float from a scanner
-	template<typename ScannerT, typename RealT>
-	int	scanFloat(ScannerT const &scan, RealT &out, float bounding = false,
+	template<typename ScannerT, typename floatT>
+	int	scanFloat(ScannerT const &scan, floatT &out, float bounding = false,
 				  float minBound = 0, float maxBound = 0)
 	{
 		if (scan.at_end())

@@ -3,6 +3,9 @@
 
 #include "vector3.h"
 
+static const float _MM_ALIGN16 ps_all_one[4] = {1,1,1,1};
+static const __m128 all_one = _mm_load_ps(ps_all_one);
+
 class _MM_ALIGN16 Color
 {
 public:
@@ -16,9 +19,11 @@ public:
 public:
 	inline Color&		clamp()
 	{
-		r = r > 1 ? 1 : r;
+		/*r = r > 1 ? 1 : r;
 		g = g > 1 ? 1 : g;
-		b = b > 1 ? 1 : b;
+		b = b > 1 ? 1 : b;*/
+		rgb = _mm_min_ps(rgb, all_one);
+		rgb = _mm_max_ps(rgb, _mm_setzero_ps());
 		return *this;
 	}
 
@@ -35,7 +40,14 @@ public:
 	inline Color&		operator/=(float s)										{ r/=s; g/=s; b/=s; return *this; }
 	
 public:
-	float r, g, b;
+	union
+	{
+		struct
+		{
+			float r, g, b, pad;
+		};
+		__m128 rgb;
+	};
 };
 
 inline Color operator *(float s, const Color &v)

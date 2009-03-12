@@ -6,10 +6,10 @@
 class _MM_ALIGN16 Sphere : public Geometry
 {
 public:
-	Sphere(Real radius = 1) : r(radius)							{}
-	Sphere(Real radius, const Vec3 &p) : r(radius), Geometry(p) { buildAABB(); }
+	Sphere(float radius = 1) : r(radius)							{}
+	Sphere(float radius, const Vec3 &p) : r(radius), Geometry(p) { buildAABB(); }
 
-	virtual bool			hit(const Ray &ray, Real &t) const;
+	virtual bool			hit(const Ray &ray, float &t) const;
 	virtual void			normalAt(const Vec3 &p, Vec3 &n) const;
 
 private:
@@ -25,7 +25,7 @@ private:
 	}
 
 private:
-	Real	r;
+	float	r;
 };
 
 #endif

@@ -11,10 +11,10 @@ class _MM_ALIGN16 AABB
 public:
 	AABB();
 
-	bool	hit(const Ray &ray, const Real &t) const;
+	bool	hit(const Ray &ray, const float &t) const;
 
-	Real	distanceTo(const AABB &other) const;
-	Real	surfaceArea() const;
+	float	distanceTo(const AABB &other) const;
+	float	surfaceArea() const;
 
 	void	mergeFrom(const AABB &v0, const AABB &v1);
 	void	mergeWith(const AABB &other);

@@ -47,13 +47,13 @@ public:
 				Color col(0, 0, 0);
 				bool hitSomething;
 
-				for (Real fragx = (Real)x; fragx < x + 1.0f; fragx += 0.5f)
+				for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
 				{
-					for (Real fragy = (Real)y; fragy < y + 1.0f; fragy += 0.5f)
+					for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
 					{
 						// Bring x & y in [-1,1] range, and generate primary's ray dir.
-						Real fx =		fragx * 1.0f / scene.resX * 2 - 1;
-						Real fy = 1 -	fragy * 1.0f / scene.resY * 2;
+						float fx =		fragx * 1.0f / scene.resX * 2 - 1;
+						float fy = 1 -	fragy * 1.0f / scene.resY * 2;
 
 						scene.cam.project(fx, fy, ray);
 
@@ -198,7 +198,7 @@ Color Scene::trace(const Ray &eye, bool &hitSomething)
 
 Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 {
-	Real t = 20000;
+	float t = 20000;
 	const Geometry *nearestObj = bvhRoot->findClosest(ray, t);
 
 	if (!nearestObj)
@@ -235,7 +235,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	return Ci + (1 - Oi) * traceNoDepthMod(ray, dummy);
 }
 
-bool Scene::collide(const Ray &r, Real t, Color &visQty, Color &influencedColor) const
+bool Scene::collide(const Ray &r, float t, Color &visQty, Color &influencedColor) const
 {
 	const Geometry **obj = (const Geometry**)rt_objects;
 
@@ -255,7 +255,7 @@ bool Scene::collide(const Ray &r, Real t, Color &visQty, Color &influencedColor)
 
 	static const size_t	maxAccumulatedObjects(10);
 	Geometry *			accum[maxAccumulatedObjects];
-	Real				dist[maxAccumulatedObjects];
+	float				dist[maxAccumulatedObjects];
 
 	const size_t objGathered = bvhRoot->gatherAlong(ray, t, accum, dist, maxAccumulatedObjects);
 	for (size_t i = 0; i < objGathered; i++)
@@ -272,7 +272,6 @@ bool Scene::collide(const Ray &r, Real t, Color &visQty, Color &influencedColor)
 		shader.exec();
 
 		shader.getOutput(Ci, Oi);
-		influencedColor += Ci;
 
 		if (isOpaque(Oi))
 		{
@@ -289,8 +288,11 @@ bool Scene::collide(const Ray &r, Real t, Color &visQty, Color &influencedColor)
 			visQty.g = visQty.g <= 0.01f ? 0 : visQty.g;
 			visQty.b = visQty.b <= 0.01f ? 0 : visQty.b;
 
+			influencedColor += Ci;
+
 			if (visQty.r <= 0.01f && visQty.g <= 0.01f && visQty.b <= 0.01f)
 			{
+				influencedColor = 0;
 				visQty.r = visQty.g = visQty.b = 0;
 				return true;
 			}
@@ -319,9 +321,9 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	{
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
-		const Real t = L2P.length();
+		const float t = L2P.length();
 		L2P.normalize();
-		const Real L2PdotN = L2P.dot(normDir);
+		const float L2PdotN = L2P.dot(normDir);
 		
 		if (L2PdotN < 0)
 		{
@@ -334,14 +336,17 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 		if (!lightOccluded)
 		{
-			out += (*light)->color * (float)L2PdotN * visibility + influencedColor;
+			if (visibility.r > 0.999f && visibility.g > 0.999f  && visibility.b > 0.999f)
+				out += (*light)->color * (float)L2PdotN;
+			else
+				out += (*light)->color * (float)L2PdotN * visibility * influencedColor;
 		}
 
 		++light;
 	}
 }
 
-void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const
+void Scene::specular(const Ray &r, const Vec3 &viewDir, float roughness, Color &out) const
 {
 	const Vec3 normDir = r.direction().normalized();
 	const Vec3 normVDir = -viewDir.normalized();
@@ -361,15 +366,18 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &o
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
 
-		Real t = L2P.length();
+		float t = L2P.length();
 		ray.setDirection(L2P.normalize());
 		bool lightOccluded = collide(ray, t, visibility, influencedColor);
 
 		if (!lightOccluded)
 		{
 			const Vec3 H = (L2P + normVDir).normalize();
-			const Real NdH = normDir.dot(H);
-			out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness)) * visibility + influencedColor;
+			const float NdH = normDir.dot(H);
+			if (visibility.r > 0.999f && visibility.g > 0.999f  && visibility.b > 0.999f)
+				out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness));
+			else
+				out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness)) * visibility * influencedColor;
 		}
 
 		++light;

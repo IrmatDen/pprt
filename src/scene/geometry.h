@@ -17,7 +17,7 @@ class _MM_ALIGN16 Geometry
 public:
 	virtual ~Geometry();
 
-	virtual bool			hit(const Ray &ray, Real &t) const = 0;
+	virtual bool			hit(const Ray &ray, float &t) const = 0;
 	virtual void			normalAt(const Vec3 &p, Vec3 &n) const = 0;
 
 	const AABB&				getAABB() const							{ return aabb; }

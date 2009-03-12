@@ -44,7 +44,7 @@ AABB::AABB()
 	_max[3] = 0;
 }
 
-bool AABB::hit(const Ray &ray, const Real &t) const
+bool AABB::hit(const Ray &ray, const float &t) const
 {
 	float _MM_ALIGN16 fPos[4]	= {(float)ray.origin.x, (float)ray.origin.y, (float)ray.origin.z, 0};
 	float _MM_ALIGN16 fInvDir[4]= {(float)ray.invDir.x, (float)ray.invDir.y, (float)ray.invDir.z, 0};
@@ -88,15 +88,15 @@ bool AABB::hit(const Ray &ray, const Real &t) const
 	return hit;
 }
 
-Real AABB::distanceTo(const AABB &other) const
+float AABB::distanceTo(const AABB &other) const
 {
-	Vec3 thisCenter		= (_max - _min) / 2;
-	Vec3 otherCenter	= (other._max - other._min) / 2;
+	Vec3 thisCenter( (_max[0] - _min[0]) / 2, (_max[1] - _min[1]) / 2, (_max[2] - _min[2]) / 2 );
+	Vec3 otherCenter( (other._max[0] - other._min[0]) / 2, (other._max[1] - other._min[1]) / 2, (other._max[2] - other._min[2]) / 2 );
 	Vec3 direction = thisCenter - otherCenter;
 	return direction.length();
 }
 
-Real AABB::surfaceArea() const
+float AABB::surfaceArea() const
 {
 	const Vec3 c(_max[0] - _min[0], _max[1] - _min[1], _max[2] - _min[2]);
 	return 2 * (c.x * c.y + c.x * c.z + c.y * c.z);

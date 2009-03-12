@@ -51,9 +51,9 @@ struct shaderParams_a
 		paramName="";
 	}
 	
-	void operator()(Real d) const
+	void operator()(double d) const
 	{
-		params.push_back(ShaderParam(paramName, PT_Real, d));
+		params.push_back(ShaderParam(paramName, PT_Float, (float)d));
 		paramName="";
 	}
 
@@ -65,21 +65,6 @@ ShaderParams	shaderParams_a::params;
 
 struct currentColorOpa_a
 {
-	void operator()(const iterator_t&, const iterator_t&) const
-	{
-		int n = 42;
-		n++;
-		color += (float)n;
-	}
-
-	template <typename ValueT>
-	void operator()(const ValueT &v) const
-	{
-		int n = 42;
-		n++;
-		color += (float)n;
-	}
-
 	static Color		color;
 	static Color		opacity;
 };
@@ -125,7 +110,7 @@ struct newSphere_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Geometry *g(memory::construct<Sphere>(radius, pos));
+		Geometry *g(memory::construct<Sphere>((float)radius, pos));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
@@ -141,11 +126,11 @@ struct newSphere_a
 	}
 
 	Scene			&	scene;
-	static Real			radius;
+	static double		radius;
 	static Vec3			pos;
 	static std::string	matName;
 };
-Real		newSphere_a::radius;
+double		newSphere_a::radius;
 Vec3		newSphere_a::pos;
 std::string	newSphere_a::matName;
 
@@ -177,12 +162,12 @@ struct newPlane_a
 
 	Scene			&	scene;
 	static Vec3			normal;
-	static Real			offset;
+	static double		offset;
 	static bool			twoSided;
 	static std::string	matName;
 };
 Vec3		newPlane_a::normal;
-Real		newPlane_a::offset;
+double		newPlane_a::offset;
 bool		newPlane_a::twoSided;
 std::string	newPlane_a::matName;
 
@@ -213,12 +198,12 @@ struct newDisk_a
 	}
 
 	Scene			&	scene;
-	static Real			radius;
+	static double		radius;
 	static Vec3			pos;
 	static Vec3			normal;
 	static std::string	matName;
 };
-Real		newDisk_a::radius;
+double		newDisk_a::radius;
 Vec3		newDisk_a::pos;
 Vec3		newDisk_a::normal;
 std::string	newDisk_a::matName;

@@ -31,7 +31,7 @@ void CompiledShader::specular()
 	Vec3 &n = boost::get<Vec3>(esp->second);
 	Vec3 &i = boost::get<Vec3>(varTable[I].content);
 	--esp;
-	Real roughness	= boost::get<Real>(esp->second);
+	float roughness	= boost::get<float>(esp->second);
 
 	Color out;
 	Ray r(p, n);

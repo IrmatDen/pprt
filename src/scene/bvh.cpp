@@ -74,7 +74,7 @@ BVH::SplitAxis BVH::bestNodeCut(const AABB &aabb, const Scene::Geometries &objec
 {
 	Scene::Geometries leftGeo, rightGeo;
 	AABB leftAABB, rightAABB;
-	Real cost, bestCost = numeric_limits<Real>::infinity();
+	float cost, bestCost = numeric_limits<float>::infinity();
 	SplitAxis bestCut = SA_None;
 
 	// X test
@@ -114,7 +114,7 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 	swap(rightObjects, Scene::Geometries());
 	rightAABB = AABB();
 
-	Real cutCoord;
+	float cutCoord;
 	cutCoord = aabb._min[sa] + (aabb._max[sa] - aabb._min[sa]) / 2;
 
 	for (Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it)
@@ -165,12 +165,12 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 	}
 }
 
-const Geometry* BVH::findClosest(const Ray &ray, Real &t) const
+const Geometry* BVH::findClosest(const Ray &ray, float &t) const
 {
 	return innerTraverse(root, ray, t);
 }
 
-const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, Real &t) const
+const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &t) const
 {
 	if (!node->aabb.hit(ray, t))
 		return 0;
@@ -193,14 +193,14 @@ const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, Real &t) const
 	return closest;
 }
 
-size_t BVH::gatherAlong(const Ray &ray, Real &t, Geometry **accum, Real *distances, size_t maxObj) const
+size_t BVH::gatherAlong(const Ray &ray, float &t, Geometry **accum, float *distances, size_t maxObj) const
 {
 	size_t start = 0;
 	innerGather(root, ray, t, accum, distances, start, maxObj);
 	return start;
 }
 
-void BVH::innerGather(BVHNode *node, const Ray &ray, Real &t, Geometry **accum, Real *distances, size_t &startIdx, size_t maxObj) const
+void BVH::innerGather(BVHNode *node, const Ray &ray, float &t, Geometry **accum, float *distances, size_t &startIdx, size_t maxObj) const
 {
 	if (!node->aabb.hit(ray, t) || startIdx == maxObj)
 		return;
@@ -214,7 +214,7 @@ void BVH::innerGather(BVHNode *node, const Ray &ray, Real &t, Geometry **accum, 
 
 	for (int i = 0; i < node->objCount; i++)
 	{
-		Real dist = t;
+		float dist = t;
 		if (node->objects[i]->hit(ray, dist))
 		{
 			accum[startIdx] = node->objects[i];

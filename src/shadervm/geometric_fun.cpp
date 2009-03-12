@@ -14,7 +14,7 @@ void CompiledShader::faceForward()
 
 	Vec3 &ng = boost::get<Vec3>(varTable[Ng].content);
 
-	Real din = ((-i).dot(ng) < 0 ? -1 : 1);
+	float din = ((-i).dot(ng) < 0 ? -1.f : 1.f);
 
 	Vec3 fw(n * din);
 	

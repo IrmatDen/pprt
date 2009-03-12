@@ -51,7 +51,7 @@ public:
 
 	typedef void (CompiledShader::*ShaderFunction)();
 
-	typedef boost::variant<Real, Color, Vec3, int, ShaderFunction>	OpCodeArg;
+	typedef boost::variant<float, Color, Vec3, int, ShaderFunction>	OpCodeArg;
 	typedef std::pair<OpCode, OpCodeArg>							ByteCode;
 	typedef std::vector<ByteCode>									Instructions;
 

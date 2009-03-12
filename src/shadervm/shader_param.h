@@ -9,7 +9,7 @@
 enum ParamType
 {
 	PT_Color,
-	PT_Real
+	PT_Float
 };
 
 struct _MM_ALIGN16 ShaderParam

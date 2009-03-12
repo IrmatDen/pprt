@@ -161,7 +161,7 @@ void CompiledShader::parseInstr(const std::string &instr)
 		// Check if it's a number, in which case, it is pushed.
 		try
 		{
-			bc.second = lexical_cast<Real>(tokens[1]);
+			bc.second = lexical_cast<float>(tokens[1]);
 		}
 		catch (bad_lexical_cast &)
 		{
@@ -257,8 +257,8 @@ void CompiledShader::exec()
 		switch(eip->first)
 		{
 		case Pushd:
-			esp->first = VT_Real;
-			esp->second = boost::get<Real>(eip->second);
+			esp->first = VT_float;
+			esp->second = boost::get<float>(eip->second);
 			++esp;
 			break;
 
@@ -284,16 +284,16 @@ void CompiledShader::exec()
 				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
-				case VT_Real:
+				case VT_float:
 					{
-						Real &op1r = boost::get<Real>(op1.second);
+						float &op1r = boost::get<float>(op1.second);
 
 						switch(op2.first)
 						{
-						case VT_Real:
+						case VT_float:
 							{
-								Real &op2d = boost::get<Real>(op2.second);
-								esp->first = VT_Real;
+								float &op2d = boost::get<float>(op2.second);
+								esp->first = VT_float;
 								esp->second = op1r * op2d;
 								break;
 							}
@@ -324,9 +324,9 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_Real:
+						case VT_float:
 							{
-								float	op2f = (float)boost::get<Real>(op2.second);
+								float	op2f = (float)boost::get<float>(op2.second);
 								esp->second = op1c * op2f;
 								break;
 							}
@@ -356,9 +356,9 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_Real:
+						case VT_float:
 							{
-								Real &op2d = boost::get<Real>(op2.second);
+								float &op2d = boost::get<float>(op2.second);
 								esp->first = VT_Vector;
 								esp->second = op1v * op2d;
 								break;
@@ -394,16 +394,16 @@ void CompiledShader::exec()
 				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
-				case VT_Real:
+				case VT_float:
 					{
-						Real &op1r = boost::get<Real>(op1.second);
+						float &op1r = boost::get<float>(op1.second);
 
 						switch(op2.first)
 						{
-						case VT_Real:
+						case VT_float:
 							{
-								Real &op2d = boost::get<Real>(op2.second);
-								esp->first = VT_Real;
+								float &op2d = boost::get<float>(op2.second);
+								esp->first = VT_float;
 								esp->second = op1r + op2d;
 								break;
 							}
@@ -434,9 +434,9 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_Real:
+						case VT_float:
 							{
-								float	op2f = (float)boost::get<Real>(op2.second);
+								float	op2f = (float)boost::get<float>(op2.second);
 								esp->second = op1c + (float)op2f;
 								break;
 							}
@@ -466,9 +466,9 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_Real:
+						case VT_float:
 							{
-								Real	op2f = boost::get<Real>(op2.second);
+								float	op2f = boost::get<float>(op2.second);
 								esp->first = VT_Vector;
 								esp->second = op1v + op2f;
 								break;
@@ -513,8 +513,8 @@ void CompiledShader::exec()
 					case VT_Color:
 						switch(pse.first)
 						{
-						case VT_Real:
-							var.content = Color((float)boost::get<Real>(pse.second));
+						case VT_float:
+							var.content = Color((float)boost::get<float>(pse.second));
 							break;
 
 						case VT_Vector:
@@ -526,8 +526,8 @@ void CompiledShader::exec()
 					case VT_Vector:
 						switch(pse.first)
 						{
-						case VT_Real:
-							var.content = Vec3(boost::get<Real>(pse.second));
+						case VT_float:
+							var.content = Vec3(boost::get<float>(pse.second));
 							break;
 
 						case VT_Color:

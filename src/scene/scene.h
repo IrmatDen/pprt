@@ -59,13 +59,13 @@ public:
 	void		render();
 	Color		trace(const Ray &ray, bool &hitSomething);
 
-	bool		collide(const Ray &r, Real t, Color &visQty, Color &influencedColor) const;
+	bool		collide(const Ray &r, float t, Color &visQty, Color &influencedColor) const;
 
 public:
 	// Shading & lighting functions
 	Color		traceNoDepthMod(Ray &eye, bool &hitSomething);
 	void		diffuse(const Ray &r, Color &out) const;
-	void		specular(const Ray &r, const Vec3 &viewDir, Real roughness, Color &out) const;
+	void		specular(const Ray &r, const Vec3 &viewDir, float roughness, Color &out) const;
 
 private:
 	std::string				outName;

@@ -1,14 +1,14 @@
 #include "camera.h"
 
-#define PIOVER180 0.017453292519943295769236907684886
+#define PIOVER180 0.017453292519943f
 
 void Camera::init(int width, int height)
 {
 	fov = 18.3;
 
-	double fovx = fov * PIOVER180;
-	double hFov = tan(fovx);
-	double vFov = tan(((double)height / width) * 47 * PIOVER180);
+	float fovx = fov * PIOVER180;
+	float hFov = tan(fovx);
+	float vFov = tan(((float)height / width) * 47 * PIOVER180);
 	
 	up.normalize();
 	
@@ -22,7 +22,7 @@ void Camera::init(int width, int height)
 	v *= vFov;
 }
 
-void Camera::project(Real x, Real y, Ray &r) const
+void Camera::project(float x, float y, Ray &r) const
 {
 	r.origin = pos;
 

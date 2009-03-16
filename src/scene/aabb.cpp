@@ -1,35 +1,9 @@
 #include <limits>
 
 #include "aabb.h"
+#include "../sse.h"
 
 using namespace std;
-
-// turn those verbose intrinsics into something readable.
-#define set1ps(v)			_mm_set1_ps((v))
-#define loadps(mem)			_mm_load_ps((const float * const)(mem))
-#define storess(ss,mem)		_mm_store_ss((float * const)(mem),(ss))
-#define minss				_mm_min_ss
-#define maxss				_mm_max_ss
-#define minps				_mm_min_ps
-#define maxps				_mm_max_ps
-#define mulps				_mm_mul_ps
-#define subps				_mm_sub_ps
-#define orps(v1,v2)			_mm_or_ps((v1),(v2))
-#define cmplt(v1,v2)		_mm_cmplt_ps((v1),(v2))
-#define cmpgt(v1,v2)		_mm_cmpgt_ps((v1),(v2))
-#define all_zero()			_mm_setzero_ps()
-#define movemask(ps)		_mm_movemask_ps((ps))
-#define mask_all(ps)		(movemask(ps) == 15)
-
-
-static const float flt_plus_inf = numeric_limits<float>::infinity();
-static const float _MM_ALIGN16
-	ps_cst_plus_inf[4]	= {  flt_plus_inf,  flt_plus_inf,  flt_plus_inf,  flt_plus_inf },
-	ps_cst_minus_inf[4]	= { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
-
-static const __m128
-	plus_inf	= loadps(ps_cst_plus_inf),
-	minus_inf	= loadps(ps_cst_minus_inf);
 
 AABB::AABB()
 {
@@ -46,39 +20,36 @@ AABB::AABB()
 
 bool AABB::hit(const Ray &ray, const float &t) const
 {
-	float _MM_ALIGN16 fPos[4]	= {(float)ray.origin.x, (float)ray.origin.y, (float)ray.origin.z, 0};
-	float _MM_ALIGN16 fInvDir[4]= {(float)ray.invDir.x, (float)ray.invDir.y, (float)ray.invDir.z, 0};
-
 	const __m128
-		idx = set1ps(fInvDir[0]),
-		ox	= set1ps(fPos[0]),
+		idx = set1ps(ray.invDir.x),
+		ox	= set1ps(ray.origin.x),
 		xl1 = mulps(idx, subps(set1ps(_min[0]), ox)),
 		xl2 = mulps(idx, subps(set1ps(_max[0]), ox)),
-		xl1a = minps(xl1, plus_inf),  xl2a = minps(xl2, plus_inf),
-		xl1b = maxps(xl1, minus_inf), xl2b = maxps(xl2, minus_inf);
+		xl1a = minps(xl1, sse::plus_inf),  xl2a = minps(xl2, sse::plus_inf),
+		xl1b = maxps(xl1, sse::minus_inf), xl2b = maxps(xl2, sse::minus_inf);
 
 	__m128
 		lmax = maxps(xl1a,xl2a),
 		lmin = minps(xl1b,xl2b);
 
 	const __m128
-		idy = set1ps(fInvDir[1]),
-		oy	= set1ps(fPos[1]),
+		idy = set1ps(ray.invDir.y),
+		oy	= set1ps(ray.origin.y),
 		yl1 = mulps(idy, subps(set1ps(_min[1]), oy)),
 		yl2 = mulps(idy, subps(set1ps(_max[1]), oy)),
-		yl1a = minps(yl1, plus_inf),  yl2a = minps(yl2, plus_inf),
-		yl1b = maxps(yl1, minus_inf), yl2b = maxps(yl2, minus_inf);
+		yl1a = minps(yl1, sse::plus_inf),  yl2a = minps(yl2, sse::plus_inf),
+		yl1b = maxps(yl1, sse::minus_inf), yl2b = maxps(yl2, sse::minus_inf);
 
 	lmax = minps(maxps(yl1a,yl2a), lmax);
 	lmin = maxps(minps(yl1b,yl2b), lmin);
 
 	const __m128
-		idz = set1ps(fInvDir[2]),
-		oz	= set1ps(fPos[2]),
+		idz = set1ps(ray.invDir.z),
+		oz	= set1ps(ray.origin.z),
 		zl1 = mulps(idz, subps(set1ps(_min[2]), oz)),
 		zl2 = mulps(idz, subps(set1ps(_max[2]), oz)),
-		zl1a = minps(zl1, plus_inf),  zl2a = minps(zl2, plus_inf),
-		zl1b = maxps(zl1, minus_inf), zl2b = maxps(zl2, minus_inf);
+		zl1a = minps(zl1, sse::plus_inf),  zl2a = minps(zl2, sse::plus_inf),
+		zl1b = maxps(zl1, sse::minus_inf), zl2b = maxps(zl2, sse::minus_inf);
 
 	lmax = minps(maxps(zl1a,zl2a), lmax);
 	lmin = maxps(minps(zl1b,zl2b), lmin);

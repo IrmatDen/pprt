@@ -287,6 +287,10 @@
 				RelativePath=".\src\common.h"
 				>
 			</File>
+			<File
+				RelativePath=".\src\sse.h"
+				>
+			</File>
 			<Filter
 				Name="Scene"
 				>

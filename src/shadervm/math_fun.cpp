@@ -11,15 +11,13 @@ void CompiledShader::smoothstep()
 	--esp;
 	float val = boost::get<float>(esp->second);
 
+
 	if (val < min)
 		esp->second = 0.f;
 	else if (val > max)
 		esp->second = 1.f;
 	else
-	{
-		val = val * val * (3 - 2 * val);
-		esp->second = val * min + (max * (1 - val));
-	}
+		esp->second = (val - min) / (max - min);
 		
 	esp->first = VT_float;
 	++esp;

@@ -485,6 +485,21 @@ void MnemonicGenVisitor::visit(ProcArgsNode &node)
 		ASTNode *c = *it;
 		if (c->getChildren()->size() == 0)
 		{
+			/*// initializer is a terminal, check if it's a constant, if so, use it to initialize the var
+			try
+			{
+				float value = lexical_cast<float>(wstringToString(initializer->getImage()));
+				if (type == L"color")
+					v.content = Color((float)value);
+				else if (type == L"real")
+					v.content = value;
+
+				initializationHandled = true;
+			}
+			catch (bad_lexical_cast &)
+			{
+				// if it's not a float, then it probably is a var, and so initialization is deferred at runtime.
+			}*/
 			string instr("push ");
 			instr += wstringToString(c->getImage());
 			shader->parseInstr(instr);

@@ -41,6 +41,9 @@ void initOpCodeMappings()
 	CompiledShader::fnMappings["faceforward"]	= CompiledShader::ShaderFunction(&CompiledShader::faceForward);
 	CompiledShader::fnMappings["normalize"]		= CompiledShader::ShaderFunction(&CompiledShader::normalize);
 	CompiledShader::fnMappings["reflect"]		= CompiledShader::ShaderFunction(&CompiledShader::reflect);
+	
+		// Color
+	CompiledShader::fnMappings["mix"]		= CompiledShader::ShaderFunction(&CompiledShader::mix);
 		
 		// Shading & lighting
 	CompiledShader::fnMappings["diffuse"]	= CompiledShader::ShaderFunction(&CompiledShader::diffuse);
@@ -63,6 +66,8 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 	addVar(VST_Varying, VT_Vector,	"P",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"N",	Vec3());
 	addVar(VST_Varying, VT_Vector,	"Ng",	Vec3());
+	addVar(VST_Varying, VT_Vector,	"s",	0.f);
+	addVar(VST_Varying, VT_Vector,	"t",	0.f);
 	addVar(VST_Varying, VT_Vector,	"I",	Vec3());
 
 	// output

@@ -217,14 +217,16 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 		return Color(1, 0, 1);
 
 	Vec3 p = ray.origin + ray.direction() * t;
-	Vec3 n;
-	nearestObj->normalAt(p, n);
+	IntersectionInfo info;
+	nearestObj->fillIntersectionInfo(p, info);
 
 	CompiledShader shader(nearestObj->getShader(), true);
 	shader.setCurrentDepth(ray.traceDepth);
 	shader.setVarValueByIndex(CompiledShader::P, p);
-	shader.setVarValueByIndex(CompiledShader::N, n);
-	shader.setVarValueByIndex(CompiledShader::Ng, n);
+	shader.setVarValueByIndex(CompiledShader::N, info.normal);
+	shader.setVarValueByIndex(CompiledShader::Ng, info.normal);
+	shader.setVarValueByIndex(CompiledShader::s, info.s);
+	shader.setVarValueByIndex(CompiledShader::t, info.t);
 	shader.setVarValueByIndex(CompiledShader::I, ray.direction());
 	shader.exec();
 
@@ -252,7 +254,7 @@ bool Scene::collide(const Ray &r, float t, Color &visQty, Color &influencedColor
 	ray.traceDepth++;
 
 	Color Ci, Oi;
-	Vec3 n, p;
+	Vec3 p;
 
 	visQty.r = visQty.g = visQty.b = 1;
 
@@ -264,13 +266,16 @@ bool Scene::collide(const Ray &r, float t, Color &visQty, Color &influencedColor
 	for (size_t i = 0; i < objGathered; i++)
 	{
 		p = ray.origin + ray.direction() * dist[i];
-		accum[i]->normalAt(p, n);
+		IntersectionInfo info;
+		accum[i]->fillIntersectionInfo(p, info);
 
 		CompiledShader shader(accum[i]->getShader(), true);
 		shader.setCurrentDepth(ray.traceDepth);
 		shader.setVarValueByIndex(CompiledShader::P, p);
-		shader.setVarValueByIndex(CompiledShader::N, n);
-		shader.setVarValueByIndex(CompiledShader::Ng, n);
+		shader.setVarValueByIndex(CompiledShader::N, info.normal);
+		shader.setVarValueByIndex(CompiledShader::Ng, info.normal);
+		shader.setVarValueByIndex(CompiledShader::s, info.s);
+		shader.setVarValueByIndex(CompiledShader::t, info.t);
 		shader.setVarValueByIndex(CompiledShader::I, ray.direction());
 		shader.exec();
 

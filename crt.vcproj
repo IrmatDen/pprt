@@ -233,6 +233,10 @@
 				Name="ShaderVM"
 				>
 				<File
+					RelativePath=".\src\shadervm\color_fun.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\compiled_shader.cpp"
 					>
 				</File>

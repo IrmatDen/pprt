@@ -11,7 +11,7 @@ public:
 	{}
 
 	virtual bool			hit(const Ray &ray, float &t) const;
-	virtual void			normalAt(const Vec3 &p, Vec3 &n) const	{ n = this->n; }
+	virtual void			fillIntersectionInfo(const Vec3 &p, IntersectionInfo &ii) const	{ ii.normal = this->n; }
 
 protected:
 	Vec3		n;

@@ -31,6 +31,8 @@ public:
 		P,
 		N,
 		Ng,
+		s,
+		t,
 		I,
 
 		// output vars
@@ -108,6 +110,9 @@ private:
 		void	faceForward();
 		void	normalize();
 		void	reflect();
+
+		// Color functions
+		void	mix();
 
 		// Shading and lighting functions
 		void	diffuse();

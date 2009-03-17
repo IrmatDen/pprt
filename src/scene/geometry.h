@@ -12,13 +12,19 @@
 
 class CompiledShader;
 
+struct IntersectionInfo
+{
+	Vec3	normal;
+	float	s, t;
+};
+
 class _MM_ALIGN16 Geometry
 {
 public:
 	virtual ~Geometry();
 
 	virtual bool			hit(const Ray &ray, float &t) const = 0;
-	virtual void			normalAt(const Vec3 &p, Vec3 &n) const = 0;
+	virtual void			fillIntersectionInfo(const Vec3 &p, IntersectionInfo &ii) const = 0;
 
 	const AABB&				getAABB() const							{ return aabb; }
 

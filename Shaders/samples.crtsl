@@ -39,7 +39,7 @@ surface matte_opa(real Ka = 1;
 	Ci = Os * Cs * (Kd * diffuse(N));
 }
 
-surface smoothstep_sample(real rim_width = 0.8;)
+surface smoothstep_sample(real rim_width = 0.2;)
 {
 	vec3 nf = faceforward(N, I);
 	vec3 i = normalize(-I);
@@ -48,4 +48,12 @@ surface smoothstep_sample(real rim_width = 0.8;)
 	Oi = smoothstep(1 - rim_width, 1, dot);
 	
 	Ci = Oi * Cs;
+}
+
+surface mix_sample()
+{
+	color top = color(0.878, 0.996, 0.474);
+	color low = color(0.580, 0.690, 0.988);
+	Oi = Os;
+	Ci = Oi * Cs * diffuse(N) * mix(top, low, t);
 }

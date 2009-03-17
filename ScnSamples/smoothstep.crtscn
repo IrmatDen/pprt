@@ -4,5 +4,5 @@ Output smoothstep_sphere.png 1024 768 +z
 Background 0 0 0
 CamLookAt <-3, 1.5, -3> <0, 0, 5>
 
-Sphere 1 < 0,  0, 5> smoothstep_sample "rim_width" 0.05
+Sphere 1 < 0,  0, 5> smoothstep_sample #"rim_width" 0.5
 

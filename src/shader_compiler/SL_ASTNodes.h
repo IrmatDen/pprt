@@ -110,13 +110,31 @@ public:
 	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
 };
 
+class DotExprNode : public SLNode
+{
+public:
+	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
+};
+
 class MultExprNode : public SLNode
 {
 public:
 	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
 };
 
+class SubExprNode : public SLNode
+{
+public:
+	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
+};
+
 class AddExprNode : public SLNode
+{
+public:
+	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
+};
+
+class NegateExprNode : public SLNode
 {
 public:
 	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }

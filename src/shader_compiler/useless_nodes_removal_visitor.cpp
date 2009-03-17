@@ -113,7 +113,7 @@ void UselessNodesRemovalVisitor::visit(VarInitNode &node)
 	visitChildrenOf(node);
 
 	vector<ASTNode*> &children = *node.getChildren();
-	if(children.size() == 1)
+	if(children.size() == 1 && children[0]->getSymbol() != L"identifier")
 	{
 		uselessNodes.push(&node);
 		children[0]->setParent(node.getParent());
@@ -197,6 +197,21 @@ void UselessNodesRemovalVisitor::visit(AddExprNode &node)
 	}
 }
 
+void UselessNodesRemovalVisitor::visit(SubExprNode &node)
+{
+	visitChildrenOf(node);
+
+	// Remove this node in case it's only a passthrough
+	vector<ASTNode*> &children = *node.getChildren();
+	if(children.size() == 1)
+	{
+		uselessNodes.push(&node);
+		children[0]->setParent(node.getParent());
+		updateParentChildren(node, *(SLNode*)children[0]);
+		children.erase(children.begin());
+	}
+}
+
 void UselessNodesRemovalVisitor::visit(MultExprNode &node)
 {
 	visitChildrenOf(node);
@@ -210,6 +225,26 @@ void UselessNodesRemovalVisitor::visit(MultExprNode &node)
 		updateParentChildren(node, *(SLNode*)children[0]);
 		children.erase(children.begin());
 	}
+}
+
+void UselessNodesRemovalVisitor::visit(DotExprNode &node)
+{
+	visitChildrenOf(node);
+
+	// Remove this node in case it's only a passthrough
+	vector<ASTNode*> &children = *node.getChildren();
+	if(children.size() == 1)
+	{
+		uselessNodes.push(&node);
+		children[0]->setParent(node.getParent());
+		updateParentChildren(node, *(SLNode*)children[0]);
+		children.erase(children.begin());
+	}
+}
+
+void UselessNodesRemovalVisitor::visit(NegateExprNode &node)
+{
+	visitChildrenOf(node);
 }
 
 void UselessNodesRemovalVisitor::visit(TypeCtorNode &node)

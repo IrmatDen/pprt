@@ -7,41 +7,46 @@ enum SymbolConstants
    SYMBOL_ERROR                =  1, // (Error)
    SYMBOL_WHITESPACE           =  2, // (Whitespace)
    SYMBOL_COMMENTLINE          =  3, // (Comment Line)
-   SYMBOL_LPARAN               =  4, // '('
-   SYMBOL_RPARAN               =  5, // ')'
-   SYMBOL_TIMES                =  6, // '*'
-   SYMBOL_COMMA                =  7, // ','
-   SYMBOL_SEMI                 =  8, // ';'
-   SYMBOL_LBRACE               =  9, // '{'
-   SYMBOL_RBRACE               = 10, // '}'
-   SYMBOL_PLUS                 = 11, // '+'
-   SYMBOL_EQ                   = 12, // '='
-   SYMBOL_IDENTIFIER           = 13, // identifier
-   SYMBOL_NUMBER               = 14, // number
-   SYMBOL_RETURN               = 15, // return
-   SYMBOL_SHADER_TYPE          = 16, // 'shader_type'
-   SYMBOL_STRINGCONSTANT       = 17, // stringconstant
-   SYMBOL_TYPE                 = 18, // type
-   SYMBOL_ADD_EXPR             = 19, // <add_expr>
-   SYMBOL_ASSIGNEXPRESSION     = 20, // <assignexpression>
-   SYMBOL_BLOCK                = 21, // <block>
-   SYMBOL_DEF_EXPRESSION       = 22, // <def_expression>
-   SYMBOL_DEF_EXPRESSIONS      = 23, // <def_expressions>
-   SYMBOL_DEF_INIT             = 24, // <def_init>
-   SYMBOL_DEFINITIONS          = 25, // <definitions>
-   SYMBOL_EXPRESSION           = 26, // <expression>
-   SYMBOL_FORMALS              = 27, // <formals>
-   SYMBOL_MULT_EXPR            = 28, // <mult_expr>
-   SYMBOL_PRIMARY              = 29, // <primary>
-   SYMBOL_PROC_ARGUMENTS       = 30, // <proc_arguments>
-   SYMBOL_PROCEDURECALL        = 31, // <procedurecall>
-   SYMBOL_RETURNSTMT           = 32, // <returnstmt>
-   SYMBOL_SHADER_DEFINITION    = 33, // <shader_definition>
-   SYMBOL_STATEMENT            = 34, // <statement>
-   SYMBOL_STATEMENTS           = 35, // <statements>
-   SYMBOL_TYPE_CTOR            = 36, // <type_ctor>
-   SYMBOL_VARIABLE_DEFINITIONS = 37, // <variable_definitions>
-   SYMBOL_VARIABLES            = 38  // <variables>
+   SYMBOL_MINUS                =  4, // '-'
+   SYMBOL_LPARAN               =  5, // '('
+   SYMBOL_RPARAN               =  6, // ')'
+   SYMBOL_TIMES                =  7, // '*'
+   SYMBOL_COMMA                =  8, // ','
+   SYMBOL_DOT                  =  9, // '.'
+   SYMBOL_SEMI                 = 10, // ';'
+   SYMBOL_LBRACE               = 11, // '{'
+   SYMBOL_RBRACE               = 12, // '}'
+   SYMBOL_PLUS                 = 13, // '+'
+   SYMBOL_EQ                   = 14, // '='
+   SYMBOL_IDENTIFIER           = 15, // identifier
+   SYMBOL_NUMBER               = 16, // number
+   SYMBOL_RETURN               = 17, // return
+   SYMBOL_SHADER_TYPE          = 18, // 'shader_type'
+   SYMBOL_STRINGCONSTANT       = 19, // stringconstant
+   SYMBOL_TYPE                 = 20, // type
+   SYMBOL_ADD_EXPR             = 21, // <add_expr>
+   SYMBOL_ASSIGNEXPRESSION     = 22, // <assignexpression>
+   SYMBOL_BLOCK                = 23, // <block>
+   SYMBOL_DEF_EXPRESSION       = 24, // <def_expression>
+   SYMBOL_DEF_EXPRESSIONS      = 25, // <def_expressions>
+   SYMBOL_DEF_INIT             = 26, // <def_init>
+   SYMBOL_DEFINITIONS          = 27, // <definitions>
+   SYMBOL_DOT_EXPR             = 28, // <dot_expr>
+   SYMBOL_EXPRESSION           = 29, // <expression>
+   SYMBOL_FORMALS              = 30, // <formals>
+   SYMBOL_MULT_EXPR            = 31, // <mult_expr>
+   SYMBOL_NEGATE               = 32, // <negate>
+   SYMBOL_PRIMARY              = 33, // <primary>
+   SYMBOL_PROC_ARGUMENTS       = 34, // <proc_arguments>
+   SYMBOL_PROCEDURECALL        = 35, // <procedurecall>
+   SYMBOL_RETURNSTMT           = 36, // <returnstmt>
+   SYMBOL_SHADER_DEFINITION    = 37, // <shader_definition>
+   SYMBOL_STATEMENT            = 38, // <statement>
+   SYMBOL_STATEMENTS           = 39, // <statements>
+   SYMBOL_SUB_EXPR             = 40, // <sub_expr>
+   SYMBOL_TYPE_CTOR            = 41, // <type_ctor>
+   SYMBOL_VARIABLE_DEFINITIONS = 42, // <variable_definitions>
+   SYMBOL_VARIABLES            = 43  // <variables>
 };
 
 enum RuleConstants
@@ -74,16 +79,22 @@ enum RuleConstants
    RULE_PROCEDURECALL_IDENTIFIER_LPARAN_RPARAN                 = 25, // <procedurecall> ::= identifier '(' <proc_arguments> ')'
    RULE_PROC_ARGUMENTS_COMMA                                   = 26, // <proc_arguments> ::= <expression> ',' <proc_arguments>
    RULE_PROC_ARGUMENTS                                         = 27, // <proc_arguments> ::= <expression>
-   RULE_ADD_EXPR_PLUS                                          = 28, // <add_expr> ::= <add_expr> '+' <mult_expr>
-   RULE_ADD_EXPR                                               = 29, // <add_expr> ::= <mult_expr>
-   RULE_MULT_EXPR_TIMES                                        = 30, // <mult_expr> ::= <mult_expr> '*' <primary>
-   RULE_MULT_EXPR                                              = 31, // <mult_expr> ::= <primary>
-   RULE_PRIMARY_NUMBER                                         = 32, // <primary> ::= number
-   RULE_PRIMARY_IDENTIFIER                                     = 33, // <primary> ::= identifier
-   RULE_PRIMARY_STRINGCONSTANT                                 = 34, // <primary> ::= stringconstant
-   RULE_PRIMARY                                                = 35, // <primary> ::= <type_ctor>
-   RULE_PRIMARY2                                               = 36, // <primary> ::= <procedurecall>
-   RULE_PRIMARY_LPARAN_RPARAN                                  = 37  // <primary> ::= '(' <expression> ')'
+   RULE_ADD_EXPR_PLUS                                          = 28, // <add_expr> ::= <add_expr> '+' <sub_expr>
+   RULE_ADD_EXPR                                               = 29, // <add_expr> ::= <sub_expr>
+   RULE_SUB_EXPR_MINUS                                         = 30, // <sub_expr> ::= <sub_expr> '-' <mult_expr>
+   RULE_SUB_EXPR                                               = 31, // <sub_expr> ::= <mult_expr>
+   RULE_MULT_EXPR_TIMES                                        = 32, // <mult_expr> ::= <mult_expr> '*' <dot_expr>
+   RULE_MULT_EXPR                                              = 33, // <mult_expr> ::= <dot_expr>
+   RULE_DOT_EXPR_DOT                                           = 34, // <dot_expr> ::= <dot_expr> '.' <primary>
+   RULE_DOT_EXPR                                               = 35, // <dot_expr> ::= <negate>
+   RULE_DOT_EXPR2                                              = 36, // <dot_expr> ::= <primary>
+   RULE_NEGATE_MINUS                                           = 37, // <negate> ::= '-' <primary>
+   RULE_PRIMARY_NUMBER                                         = 38, // <primary> ::= number
+   RULE_PRIMARY_IDENTIFIER                                     = 39, // <primary> ::= identifier
+   RULE_PRIMARY_STRINGCONSTANT                                 = 40, // <primary> ::= stringconstant
+   RULE_PRIMARY                                                = 41, // <primary> ::= <type_ctor>
+   RULE_PRIMARY2                                               = 42, // <primary> ::= <procedurecall>
+   RULE_PRIMARY_LPARAN_RPARAN                                  = 43  // <primary> ::= '(' <expression> ')'
 };
 
 #endif

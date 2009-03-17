@@ -241,6 +241,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\shadervm\math_fun.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\src\shadervm\shader_manager.cpp"
 					>
 				</File>

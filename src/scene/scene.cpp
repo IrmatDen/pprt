@@ -142,10 +142,12 @@ void Scene::render()
 
 	cam.init(resX, resY);
 
+#ifndef _DEBUG
 	tbb::task_scheduler_init tbbInit;
 	tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), TraceScanLine(*this, img), tbb::auto_partitioner());
 	//tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());
-	/*Ray r;
+#else
+	Ray r;
 	r.origin = cam.pos;
 	for (int y = 0; y < resY; y++)
 	{
@@ -179,7 +181,8 @@ void Scene::render()
 			imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
 			imgData[FI_RGBA_ALPHA]	= 255;
 		}
-	}*/
+	}
+#endif
 
 	img.save(outName.c_str());
 }

@@ -44,6 +44,9 @@ public:
 		Pushv,	//! Push a var id
 		Mult,	//! Multiply the 2 first values in stack
 		Add,	//! Add the 2 first values in stack
+		Sub,	//! Substract the 2 first values in stack
+		Dot,	//! Dot product between the 2 top values of the stack (must be vector)
+		Negate,	//! Negate the passed argument
 		Call,	//! Call a function
 		Pop,	//! Pop into a var id
 		Ret		//! End execution (only used in functions)
@@ -96,9 +99,14 @@ private:
 	// Functions
 		// Type constructors
 		void colorCtor();
+		void vec3Ctor();
+
+		// Mathematical functions
+		void	smoothstep();
 
 		// Geometric functions
 		void	faceForward();
+		void	normalize();
 		void	reflect();
 
 		// Shading and lighting functions

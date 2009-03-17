@@ -22,6 +22,9 @@ void initOpCodeMappings()
 	CompiledShader::opCodeMappings["push"]	= CompiledShader::Pushd;
 	CompiledShader::opCodeMappings["mult"]	= CompiledShader::Mult;
 	CompiledShader::opCodeMappings["add"]	= CompiledShader::Add;
+	CompiledShader::opCodeMappings["sub"]	= CompiledShader::Sub;
+	CompiledShader::opCodeMappings["dot"]	= CompiledShader::Dot;
+	CompiledShader::opCodeMappings["negate"]= CompiledShader::Negate;
 	CompiledShader::opCodeMappings["call"]	= CompiledShader::Call;
 	CompiledShader::opCodeMappings["pop"]	= CompiledShader::Pop;
 	CompiledShader::opCodeMappings["ret"]	= CompiledShader::Ret;
@@ -29,9 +32,14 @@ void initOpCodeMappings()
 	// Function name - fn pointers mapping
 		// Type ctors
 	CompiledShader::fnMappings["color"]		= CompiledShader::ShaderFunction(&CompiledShader::colorCtor);
+	CompiledShader::fnMappings["vec3"]		= CompiledShader::ShaderFunction(&CompiledShader::vec3Ctor);
+	
+		// Mathematical
+	CompiledShader::fnMappings["smoothstep"]	= CompiledShader::ShaderFunction(&CompiledShader::smoothstep);
 		
 		// Geometric
 	CompiledShader::fnMappings["faceforward"]	= CompiledShader::ShaderFunction(&CompiledShader::faceForward);
+	CompiledShader::fnMappings["normalize"]		= CompiledShader::ShaderFunction(&CompiledShader::normalize);
 	CompiledShader::fnMappings["reflect"]		= CompiledShader::ShaderFunction(&CompiledShader::reflect);
 		
 		// Shading & lighting
@@ -278,6 +286,42 @@ void CompiledShader::exec()
 				break;
 			}
 
+		case Dot:
+			{
+				--esp;	ProgramStackElement &op1 = *esp;
+				--esp;	ProgramStackElement &op2 = *esp;
+
+				Vec3	&op1v = boost::get<Vec3>(op1.second);
+				Vec3	&op2v = boost::get<Vec3>(op2.second);
+				esp->first = VT_float;
+				esp->second = op1v.dot(op2v);
+				++esp;
+				break;
+			}
+
+		case Negate:
+			{
+				--esp;	ProgramStackElement &op = *esp;
+				switch(op.first)
+				{
+				case VT_float:
+					{
+						float v = boost::get<float>(op.second);
+						esp->second = -v;
+						break;
+					}
+
+				case VT_Vector:
+					{
+						const Vec3 &v = boost::get<Vec3>(op.second);
+						esp->second = Vec3(-v.x, -v.y, -v.z, v.w);
+						break;
+					}
+				}
+				++esp;
+				break;
+			}
+
 		case Mult:
 			{
 				--esp;	ProgramStackElement &op1 = *esp;
@@ -479,7 +523,6 @@ void CompiledShader::exec()
 								Color	&op2c = boost::get<Color>(op2.second);
 								esp->first = VT_Color;
 								esp->second = op2c + Color(op1v);
-								++esp;
 								break;
 							}
 							
@@ -488,7 +531,115 @@ void CompiledShader::exec()
 								Vec3	&op2v = boost::get<Vec3>(op2.second);
 								esp->first = VT_Vector;
 								esp->second = op1v + op2v;
-								++esp;
+								break;
+							}
+						}
+						++esp;
+						break;
+					}
+				}
+			}
+			break;
+
+		case Sub:
+			{
+				--esp;	ProgramStackElement &op1 = *esp;
+				--esp;	ProgramStackElement &op2 = *esp;
+				switch(op1.first)
+				{
+				case VT_float:
+					{
+						float &op1r = boost::get<float>(op1.second);
+
+						switch(op2.first)
+						{
+						case VT_float:
+							{
+								float &op2d = boost::get<float>(op2.second);
+								esp->first = VT_float;
+								esp->second = op1r - op2d;
+								break;
+							}
+							
+						case VT_Color:
+							{
+								Color	&op2c = boost::get<Color>(op2.second);
+								esp->first = VT_Color;
+								esp->second = op2c - op1r;
+								break;
+							}
+							
+						case VT_Vector:
+							{
+								Vec3	&op2v = boost::get<Vec3>(op2.second);
+								esp->first = VT_Vector;
+								esp->second = op2v - op1r;
+								break;
+							}
+						}
+						++esp;
+						break;
+					}
+
+				case VT_Color:
+					{
+						Color	&op1c = boost::get<Color>(op1.second);
+
+						switch(op2.first)
+						{
+						case VT_float:
+							{
+								float	op2f = (float)boost::get<float>(op2.second);
+								esp->second = op1c - (float)op2f;
+								break;
+							}
+							
+						case VT_Color:
+							{
+								Color	&op2c = boost::get<Color>(op2.second);
+								esp->second = op2c - op1c;
+								break;
+							}
+							
+						case VT_Vector:
+							{
+								Color	op2c(boost::get<Vec3>(op2.second));
+								esp->second = op2c - op1c;
+								break;
+							}
+						}
+						esp->first = VT_Color;
+						++esp;
+						break;
+					}
+
+				case VT_Vector:
+					{
+						Vec3	&op1v = boost::get<Vec3>(op1.second);
+
+						switch(op2.first)
+						{
+						case VT_float:
+							{
+								float	op2f = boost::get<float>(op2.second);
+								esp->first = VT_Vector;
+								esp->second = op1v - op2f;
+								break;
+							}
+							
+						case VT_Color:
+							{
+								Color	&op2c = boost::get<Color>(op2.second);
+								esp->first = VT_Color;
+								esp->second = op2c - Color(op1v);
+								break;
+							}
+							
+						case VT_Vector:
+							{
+								Vec3	&op2v = boost::get<Vec3>(op2.second);
+								esp->first = VT_Vector;
+								esp->second = op1v - op2v;
 								break;
 							}
 						}

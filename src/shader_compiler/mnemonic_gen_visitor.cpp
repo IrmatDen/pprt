@@ -224,7 +224,24 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 
 void MnemonicGenVisitor::visit(VarInitNode &node)
 {
-	visitChildrenOf(node);
+	vector<ASTNode*> &children = *node.getChildren();
+
+	if (children.size() > 1)
+		visitChildrenOf(node);
+	else
+	{
+		ASTNode &op = *node.getChildren()->at(0);
+		if (op.getChildren()->size() == 0)
+		{
+			string instr("push ");
+			instr += wstringToString(op.getImage());
+			shader->parseInstr(instr);
+		}
+		else
+		{
+			((SLNode*)&op)->accept(*this);
+		}
+	}
 }
 
 void MnemonicGenVisitor::visit(StmtListNode &node)
@@ -297,6 +314,57 @@ void MnemonicGenVisitor::visit(MultExprNode &node)
 	shader->parseInstr(instr);
 }
 
+void MnemonicGenVisitor::visit(DotExprNode &node)
+{
+	// Push the second operand
+	ASTNode &op2 = *node.getChildren()->at(1);
+	if (op2.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op2.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op2)->accept(*this);
+	}
+	
+	// Push the first operand
+	ASTNode &op1 = *node.getChildren()->at(0);
+	if (op1.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op1.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op1)->accept(*this);
+	}
+
+	string instr("dot");
+	shader->parseInstr(instr);
+}
+
+void MnemonicGenVisitor::visit(NegateExprNode &node)
+{
+	// Push the only operand
+	ASTNode &op = *node.getChildren()->at(0);
+	if (op.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op)->accept(*this);
+	}
+
+	string instr("negate");
+	shader->parseInstr(instr);
+}
+
 void MnemonicGenVisitor::visit(AddExprNode &node)
 {
 	// Push the second operand
@@ -326,6 +394,38 @@ void MnemonicGenVisitor::visit(AddExprNode &node)
 	}
 
 	string instr("add");
+	shader->parseInstr(instr);
+}
+
+void MnemonicGenVisitor::visit(SubExprNode &node)
+{
+	// Push the second operand
+	ASTNode &op2 = *node.getChildren()->at(1);
+	if (op2.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op2.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op2)->accept(*this);
+	}
+	
+	// Push the first operand
+	ASTNode &op1 = *node.getChildren()->at(0);
+	if (op1.getChildren()->size() == 0)
+	{
+		string instr("push ");
+		instr += wstringToString(op1.getImage());
+		shader->parseInstr(instr);
+	}
+	else
+	{
+		((SLNode*)&op1)->accept(*this);
+	}
+
+	string instr("sub");
 	shader->parseInstr(instr);
 }
 

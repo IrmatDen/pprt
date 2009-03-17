@@ -190,11 +190,24 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		
 		addExpr->addChild (getASTNode(rdcChildren[0], addExpr));		// first operand
 
-		// Check if we're only a passthrough to a real value
+		// Check if we're not only a passthrough to a real value
 		if (rdcChildren.size() == 3)
 			addExpr->addChild (getASTNode(rdcChildren[2], addExpr));		// second operand
 
 		return addExpr;
+	}
+	
+	if (sym == SYMBOL_SUB_EXPR)
+	{
+		CREATE_NODE(SubExprNode, subExpr);
+		
+		subExpr->addChild (getASTNode(rdcChildren[0], subExpr));		// first operand
+
+		// Check if we're not only a passthrough to a real value
+		if (rdcChildren.size() == 3)
+			subExpr->addChild (getASTNode(rdcChildren[2], subExpr));		// second operand
+
+		return subExpr;
 	}
 	
 	if (sym == SYMBOL_MULT_EXPR)
@@ -203,11 +216,33 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		
 		multExpr->addChild (getASTNode(rdcChildren[0], multExpr));		// first operand
 
-		// Check if we're only a passthrough to a real value
+		// Check if we're not only a passthrough to a real value
 		if (rdcChildren.size() == 3)
 			multExpr->addChild (getASTNode(rdcChildren[2], multExpr));		// second operand
 
 		return multExpr;
+	}
+	
+	if (sym == SYMBOL_DOT_EXPR)
+	{
+		CREATE_NODE(DotExprNode, dotExpr);
+		
+		dotExpr->addChild (getASTNode(rdcChildren[0], dotExpr));		// first operand
+
+		// Check if we're not only a passthrough to a real value
+		if (rdcChildren.size() == 3)
+			dotExpr->addChild (getASTNode(rdcChildren[2], dotExpr));		// second operand
+
+		return dotExpr;
+	}
+	
+	if (sym == SYMBOL_NEGATE)
+	{
+		CREATE_NODE(NegateExprNode, negExpr);
+		
+		negExpr->addChild (getASTNode(rdcChildren[1], negExpr));		// first & only operand
+
+		return negExpr;
 	}
 	
 	if (sym == SYMBOL_TYPE_CTOR)

@@ -19,3 +19,18 @@ void CompiledShader::colorCtor()
 	esp->second = col;
 	++esp;
 }
+
+void CompiledShader::vec3Ctor()
+{
+	Vec3 out;
+	--esp;
+	out.x = boost::get<float>(esp->second);
+	--esp;
+	out.y = boost::get<float>(esp->second);
+	--esp;
+	out.z = boost::get<float>(esp->second);
+
+	esp->first = VT_Vector;
+	esp->second = out;
+	++esp;
+}

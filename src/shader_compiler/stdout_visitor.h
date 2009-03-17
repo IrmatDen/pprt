@@ -25,7 +25,10 @@ public:
 	virtual void visit(PrimNode &node);
 	virtual void visit(AsgnExprNode &node);
 	virtual void visit(AddExprNode &node);
+	virtual void visit(SubExprNode &node);
 	virtual void visit(MultExprNode &node);
+	virtual void visit(DotExprNode &node);
+	virtual void visit(NegateExprNode &node);
 	virtual void visit(TypeCtorNode &node);
 	virtual void visit(ProcCallNode &node);
 	virtual void visit(ProcArgsNode &node);

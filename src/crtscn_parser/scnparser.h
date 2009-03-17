@@ -106,7 +106,7 @@ namespace ScnParser
 								)[newDisk_a(self.scene)];
 
 					shaderParams =	(
-										'"' >> (+alnum_p)[assign_a(shaderParams_a::paramName)] >> '"' >> +blank_p >>
+										'"' >> (+(alnum_p | '_'))[assign_a(shaderParams_a::paramName)] >> '"' >> +blank_p >>
 										(color_p[shaderParams_a()] | real_p[shaderParams_a()])
 									) % blank_p;
 				

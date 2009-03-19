@@ -380,14 +380,8 @@ void CompiledShader::exec()
 								break;
 							}
 							
-						case VT_Color:
-							{
-								Color	&op2c = op2.second;
-								esp->second = op2c * op1c;
-								break;
-							}
-							
 						case VT_Vector:
+						case VT_Color:
 							{
 								Color	&op2c = op2.second;
 								esp->second = op2c * op1c;
@@ -401,13 +395,12 @@ void CompiledShader::exec()
 
 				case VT_Vector:
 					{
-						Vec3 &op1v = op1.second;
-
 						switch(op2.first)
 						{
 						case VT_Float:
 							{
-								float &op2d = op2.second;
+								Vec3 &op1v = op1.second;
+								float op2d = op2.second;
 								esp->first = VT_Vector;
 								esp->second = op1v * op2d;
 								break;
@@ -491,14 +484,8 @@ void CompiledShader::exec()
 								break;
 							}
 							
-						case VT_Color:
-							{
-								Color	&op2c = op2.second;
-								esp->second = op2c + op1c;
-								break;
-							}
-							
 						case VT_Vector:
+						case VT_Color:
 							{
 								Color	&op2c = op2.second;
 								esp->second = op2c + op1c;
@@ -601,14 +588,8 @@ void CompiledShader::exec()
 								break;
 							}
 							
-						case VT_Color:
-							{
-								Color	&op2c = op2.second;
-								esp->second = op2c - op1c;
-								break;
-							}
-							
 						case VT_Vector:
+						case VT_Color:
 							{
 								Color	&op2c = op2.second;
 								esp->second = op2c - op1c;
@@ -636,9 +617,10 @@ void CompiledShader::exec()
 							
 						case VT_Color:
 							{
+								Color	&op1c = op1.second;
 								Color	&op2c = op2.second;
 								esp->first = VT_Color;
-								esp->second = op2c - Color(op1v);
+								esp->second = op2c - op1c;
 								break;
 							}
 							

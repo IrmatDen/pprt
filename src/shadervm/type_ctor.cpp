@@ -9,11 +9,11 @@ void CompiledShader::colorCtor()
 {
 	Color col;
 	--esp;
-	col.r = (float)boost::get<float>(esp->second);
+	col.r = esp->second;
 	--esp;
-	col.g = (float)boost::get<float>(esp->second);
+	col.g = esp->second;
 	--esp;
-	col.b = (float)boost::get<float>(esp->second);
+	col.b = esp->second;
 
 	esp->first = VT_Color;
 	esp->second = col;
@@ -24,11 +24,11 @@ void CompiledShader::vec3Ctor()
 {
 	Vec3 out;
 	--esp;
-	out.x = boost::get<float>(esp->second);
+	out.x = esp->second;
 	--esp;
-	out.y = boost::get<float>(esp->second);
+	out.y = esp->second;
 	--esp;
-	out.z = boost::get<float>(esp->second);
+	out.z = esp->second;
 
 	esp->first = VT_Vector;
 	esp->second = out;

@@ -390,6 +390,10 @@
 					RelativePath=".\src\shadervm\symtab.h"
 					>
 				</File>
+				<File
+					RelativePath=".\src\shadervm\varvalue.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="shader_compiler"

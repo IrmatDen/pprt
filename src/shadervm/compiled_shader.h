@@ -91,7 +91,6 @@ private:
 	typedef std::vector<Variable>					VariableTable;
 
 	typedef std::pair<VariableType, VarValue>		ProgramStackElement;
-	typedef std::vector<ProgramStackElement>		ProgramStack;
 
 private:
 	// Parsing helpers

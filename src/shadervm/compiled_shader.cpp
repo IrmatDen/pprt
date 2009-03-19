@@ -270,7 +270,7 @@ void CompiledShader::exec()
 		switch(eip->first)
 		{
 		case Pushd:
-			esp->first = VT_float;
+			esp->first = VT_Float;
 			esp->second = boost::get<float>(eip->second);
 			++esp;
 			break;
@@ -298,7 +298,7 @@ void CompiledShader::exec()
 
 				Vec3	&op1v = boost::get<Vec3>(op1.second);
 				Vec3	&op2v = boost::get<Vec3>(op2.second);
-				esp->first = VT_float;
+				esp->first = VT_Float;
 				esp->second = op1v.dot(op2v);
 				++esp;
 				break;
@@ -309,7 +309,7 @@ void CompiledShader::exec()
 				--esp;	ProgramStackElement &op = *esp;
 				switch(op.first)
 				{
-				case VT_float:
+				case VT_Float:
 					{
 						float v = boost::get<float>(op.second);
 						esp->second = -v;
@@ -333,16 +333,16 @@ void CompiledShader::exec()
 				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
-				case VT_float:
+				case VT_Float:
 					{
 						float &op1r = boost::get<float>(op1.second);
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float &op2d = boost::get<float>(op2.second);
-								esp->first = VT_float;
+								esp->first = VT_Float;
 								esp->second = op1r * op2d;
 								break;
 							}
@@ -373,7 +373,7 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float	op2f = (float)boost::get<float>(op2.second);
 								esp->second = op1c * op2f;
@@ -405,7 +405,7 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float &op2d = boost::get<float>(op2.second);
 								esp->first = VT_Vector;
@@ -443,16 +443,16 @@ void CompiledShader::exec()
 				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
-				case VT_float:
+				case VT_Float:
 					{
 						float &op1r = boost::get<float>(op1.second);
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float &op2d = boost::get<float>(op2.second);
-								esp->first = VT_float;
+								esp->first = VT_Float;
 								esp->second = op1r + op2d;
 								break;
 							}
@@ -483,7 +483,7 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float	op2f = (float)boost::get<float>(op2.second);
 								esp->second = op1c + (float)op2f;
@@ -515,7 +515,7 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float	op2f = boost::get<float>(op2.second);
 								esp->first = VT_Vector;
@@ -552,16 +552,16 @@ void CompiledShader::exec()
 				--esp;	ProgramStackElement &op2 = *esp;
 				switch(op1.first)
 				{
-				case VT_float:
+				case VT_Float:
 					{
 						float &op1r = boost::get<float>(op1.second);
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float &op2d = boost::get<float>(op2.second);
-								esp->first = VT_float;
+								esp->first = VT_Float;
 								esp->second = op1r - op2d;
 								break;
 							}
@@ -592,7 +592,7 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float	op2f = (float)boost::get<float>(op2.second);
 								esp->second = op1c - (float)op2f;
@@ -624,7 +624,7 @@ void CompiledShader::exec()
 
 						switch(op2.first)
 						{
-						case VT_float:
+						case VT_Float:
 							{
 								float	op2f = boost::get<float>(op2.second);
 								esp->first = VT_Vector;
@@ -669,7 +669,7 @@ void CompiledShader::exec()
 					case VT_Color:
 						switch(pse.first)
 						{
-						case VT_float:
+						case VT_Float:
 							var.content = Color((float)boost::get<float>(pse.second));
 							break;
 
@@ -682,7 +682,7 @@ void CompiledShader::exec()
 					case VT_Vector:
 						switch(pse.first)
 						{
-						case VT_float:
+						case VT_Float:
 							var.content = Vec3(boost::get<float>(pse.second));
 							break;
 

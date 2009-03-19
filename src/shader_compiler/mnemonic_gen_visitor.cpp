@@ -95,7 +95,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 	}
 	else if(type == L"real")
 	{
-		v.type = VT_float;
+		v.type = VT_Float;
 		v.content = 0.f;
 	}
 	else if(type == L"vec3")

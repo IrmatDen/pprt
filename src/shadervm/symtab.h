@@ -16,19 +16,12 @@ enum VariableStorageType
 
 enum VariableType
 {
-	VT_float,
+	VT_Float,
 	VT_Color,
 	VT_Vector
 };
 
 typedef boost::variant<float, Color, Vec3> VarValue;
-
-/*union _MM_ALIGN16 VarValue
-{
-	float	f;
-	__m128	c;
-	__m128	v;
-};*/
 
 struct Variable
 {

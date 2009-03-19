@@ -19,6 +19,6 @@ void CompiledShader::smoothstep()
 	else
 		esp->second = (val - min) / (max - min);
 		
-	esp->first = VT_float;
+	esp->first = VT_Float;
 	++esp;
 }

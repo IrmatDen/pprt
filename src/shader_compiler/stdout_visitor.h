@@ -32,6 +32,7 @@ public:
 	virtual void visit(TypeCtorNode &node);
 	virtual void visit(ProcCallNode &node);
 	virtual void visit(ProcArgsNode &node);
+	virtual void visit(ProcArgsListNode &node);
 
 private:
 	int currentIndent;

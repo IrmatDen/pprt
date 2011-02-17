@@ -330,7 +330,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 		// Check if the current light is occluded
 		Vec3 L2P = (*light)->pos - p;
 		const float t = L2P.length();
-		L2P.normalize();
+		L2P /= t;
 		const float L2PdotN = L2P.dot(normDir);
 		
 		if (L2PdotN < 0)
@@ -375,7 +375,8 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, float roughness, Color &
 		Vec3 L2P = (*light)->pos - p;
 
 		float t = L2P.length();
-		ray.setDirection(L2P.normalize());
+		L2P /= t;
+		ray.setDirection(L2P);
 		bool lightOccluded = collide(ray, t, visibility, influencedColor);
 
 		if (!lightOccluded)

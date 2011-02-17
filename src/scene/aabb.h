@@ -20,16 +20,8 @@ public:
 	void	mergeWith(const AABB &other);
 
 public:
-	union
-	{
-		float	_min[4];
-		__m128	_min4;
-	};
-	union
-	{
-		float	_max[4];
-		__m128	_max4;
-	};
+	Vec3	_min;
+	Vec3	_max;
 };
 
 #endif

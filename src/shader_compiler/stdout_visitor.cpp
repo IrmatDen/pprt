@@ -1,5 +1,6 @@
 #include <iostream>
 #include <algorithm>
+#include <iterator>
 
 #include <ASTCreator.h>
 
@@ -57,3 +58,4 @@ GEN_STDOUTVISITOR_METHOD(false, SubExprNode)
 GEN_STDOUTVISITOR_METHOD(false, TypeCtorNode)
 GEN_STDOUTVISITOR_METHOD(false, ProcCallNode)
 GEN_STDOUTVISITOR_METHOD(false, ProcArgsNode)
+GEN_STDOUTVISITOR_METHOD(false, ProcArgsListNode)

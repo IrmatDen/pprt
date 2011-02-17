@@ -3,5 +3,6 @@ syntax: glob
 *.user
 *.suo
 *.ncb
+*.asm
 Debug\*
 Release\*

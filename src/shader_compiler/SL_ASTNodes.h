@@ -158,4 +158,10 @@ public:
 	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
 };
 
+class ProcArgsListNode : public SLNode
+{
+public:
+	virtual void accept(SL_ASTVisitor &visitor)	{ visitor.visit(*this); }
+};
+
 #endif

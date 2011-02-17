@@ -191,7 +191,7 @@ struct color_parser
 			return -1;
 		len += matched;
 
-		float res[3];
+		float _MM_ALIGN16 res[3];
 		for (int i = 0; i < 3; i++)
 		{
 			matched = tools::scanFloat(scan, res[i], 0, 1);
@@ -237,7 +237,7 @@ struct vec3_parser
 			return -1;
 		len += matched;
 
-		float res[3];
+		float _MM_ALIGN16 res[3];
 		for (int i = 0; i < 3; i++)
 		{
 			int matched = tools::scanFloat(scan, res[i]);

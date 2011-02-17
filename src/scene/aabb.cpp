@@ -10,12 +10,10 @@ AABB::AABB()
 	_min[0] = numeric_limits<float>::infinity();
 	_min[1] = numeric_limits<float>::infinity();
 	_min[2] = numeric_limits<float>::infinity();
-	_min[3] = 0;
 	
 	_max[0] = -numeric_limits<float>::infinity();
 	_max[1] = -numeric_limits<float>::infinity();
 	_max[2] = -numeric_limits<float>::infinity();
-	_max[3] = 0;
 }
 
 bool AABB::hit(const Ray &ray, const float &t) const
@@ -81,6 +79,6 @@ void AABB::mergeFrom(const AABB &v0, const AABB &v1)
 
 void AABB::mergeWith(const AABB &other)
 {
-	_min4 = _mm_min_ps(_min4, other._min4);
-	_max4 = _mm_max_ps(_max4, other._max4);
+	_min.asMin(other._min);
+	_max.asMax(other._max);
 }

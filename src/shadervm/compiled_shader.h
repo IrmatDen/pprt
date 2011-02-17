@@ -58,7 +58,7 @@ public:
 
 	typedef boost::variant<float, Color, Vec3, int, ShaderFunction>	OpCodeArg;
 	typedef std::pair<OpCode, OpCodeArg>							ByteCode;
-	typedef std::vector<ByteCode>									Instructions;
+	typedef std::vector<ByteCode, memory::AllocAlign16<ByteCode> >	Instructions;
 
 public:
 	CompiledShader(ShaderType shaderType = ST_Invalid);
@@ -74,6 +74,8 @@ public:
 	void				setName(const std::string &n)		{ shaderName = n; }
 	const std::string&	name() const						{ return shaderName; }
 
+	ShaderType			shaderType() const					{ return type; }
+
 	void addVar(const Variable &v)							{ varTable.push_back(v); }
 	void addVar(VariableStorageType varST, VariableType varT, const std::string &name, const VarValue &value);
 
@@ -88,9 +90,8 @@ public:
 	void exec();
 
 private:
-	typedef std::vector<Variable>					VariableTable;
-
-	typedef std::pair<VariableType, VarValue>		ProgramStackElement;
+	typedef std::vector<Variable, memory::AllocAlign16<ByteCode> >	VariableTable;
+	typedef std::pair<VariableType, VarValue>						ProgramStackElement;
 
 private:
 	// Parsing helpers

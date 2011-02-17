@@ -28,3 +28,8 @@ void Geometry::setShaderParams(ShaderParams p)
 	shader->setVarValueByIndex(CompiledShader::Cs, color);
 	shader->setVarValueByIndex(CompiledShader::Os, opacity);
 }
+
+bool Geometry::hasShader() const
+{
+	return shader != 0 && shader->shaderType() != CompiledShader::ST_Invalid;
+}

@@ -68,9 +68,12 @@ type			= real |string | vec3 | color
 
 <type_ctor>			::= type '(' <proc_arguments> ')'
 
-<procedurecall>		::= identifier '(' <proc_arguments> ')'
+<procedurecall>		::= identifier '(' <proc_arguments>')'
 
-<proc_arguments>		::= <expression> ',' <proc_arguments>
+<proc_arguments>		::= <proc_arguments_list>
+				 |  
+
+<proc_arguments_list>	::= <expression> ',' <proc_arguments_list>
 				 |  <expression>
 
 <add_expr>			::= <add_expr> '+' <sub_expr>

@@ -260,6 +260,11 @@ void UselessNodesRemovalVisitor::visit(ProcCallNode &node)
 void UselessNodesRemovalVisitor::visit(ProcArgsNode &node)
 {
 	visitChildrenOf(node);
+}
+
+void UselessNodesRemovalVisitor::visit(ProcArgsListNode &node)
+{
+	visitChildrenOf(node);
 
 	std::vector<ASTNode*> &children = *node.getChildren();
 	if (children.size() == 2 && children[1]->getImage() == L"proc_arguments")

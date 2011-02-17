@@ -5,11 +5,11 @@
 void CompiledShader::smoothstep()
 {
 	--esp;
-	float min = esp->second;
+	float min = boost::get<float>(esp->second);
 	--esp;
-	float max = esp->second;
+	float max = boost::get<float>(esp->second);
 	--esp;
-	float val = esp->second;
+	float val = boost::get<float>(esp->second);
 
 
 	if (val < min)

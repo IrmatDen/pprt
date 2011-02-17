@@ -8,9 +8,9 @@ void CompiledShader::diffuse()
 {
 	// 1 parameter expected: Normal
 
-	Vec3 &p = varTable[P].content;
+	Vec3 &p = boost::get<Vec3>(varTable[P].content);
 	--esp;
-	Vec3 &n = esp->second;
+	Vec3 &n = boost::get<Vec3>(esp->second);
 
 	Color out;
 	Ray r(p, n);
@@ -26,12 +26,12 @@ void CompiledShader::specular()
 {
 	// 2 parameters expected: Normal & roughness
 
-	Vec3 &p = varTable[P].content;
+	Vec3 &p = boost::get<Vec3>(varTable[P].content);
 	--esp;
-	Vec3 &n = esp->second;
-	Vec3 &i = varTable[I].content;
+	Vec3 &n = boost::get<Vec3>(esp->second);
+	Vec3 &i = boost::get<Vec3>(varTable[I].content);
 	--esp;
-	float roughness	= esp->second;
+	float roughness	= boost::get<float>(esp->second);
 
 	Color out;
 	Ray r(p, n);
@@ -49,9 +49,9 @@ void CompiledShader::trace()
 
 	// 2 parameters expected: origin & direction
 	--esp;
-	r.origin = esp->second;
+	r.origin = boost::get<Vec3>(esp->second);
 	--esp;
-	r.setDirection(esp->second);
+	r.setDirection(boost::get<Vec3>(esp->second));
 	
 	r.origin += r.direction() * Epsilon;
 	

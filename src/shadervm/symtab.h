@@ -8,8 +8,6 @@
 #include "../scene/vector3.h"
 #include "../scene/color.h"
 
-#include "varvalue.h"
-
 enum VariableStorageType
 {
 	VST_Uniform,
@@ -22,6 +20,8 @@ enum VariableType
 	VT_Color,
 	VT_Vector
 };
+
+typedef boost::variant<float, Color, Vec3> VarValue;
 
 struct Variable
 {

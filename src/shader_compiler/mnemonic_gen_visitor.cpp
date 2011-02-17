@@ -479,6 +479,11 @@ void MnemonicGenVisitor::visit(ProcCallNode &node)
 
 void MnemonicGenVisitor::visit(ProcArgsNode &node)
 {
+	visitChildrenOf(node);
+}
+
+void MnemonicGenVisitor::visit(ProcArgsListNode &node)
+{
 	vector<ASTNode*> &children = *node.getChildren();
 	for(vector<ASTNode*>::reverse_iterator it = children.rbegin(); it != children.rend(); ++it)
 	{

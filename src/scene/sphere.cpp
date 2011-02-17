@@ -32,8 +32,8 @@ bool Sphere::hit(const Ray &ray, float &t) const
 
 void Sphere::fillIntersectionInfo(const Vec3 &p, IntersectionInfo &ii) const
 {
-	ii.normal = p - pos;
-	ii.normal.normalize();
+	ii.normal = (p - pos)* invr;
+	//ii.normal.normalize();
 
 	float invPi = 1.f / 3.141592654f;
 	ii.s = ::asinf(ii.normal.x) * invPi + 0.5f;

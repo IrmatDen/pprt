@@ -35,7 +35,7 @@ public:
 	const Color&			getOpacity() const						{ return opacity; }
 
 	void					setShader(const CompiledShader &cs);
-	bool					hasShader() const						{ return shader != 0; }
+	bool					hasShader() const;
 	CompiledShader&			getShader() const						{ return *shader; }
 
 	void					setShaderParams(ShaderParams p);

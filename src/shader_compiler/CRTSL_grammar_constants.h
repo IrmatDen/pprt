@@ -38,15 +38,16 @@ enum SymbolConstants
    SYMBOL_NEGATE               = 32, // <negate>
    SYMBOL_PRIMARY              = 33, // <primary>
    SYMBOL_PROC_ARGUMENTS       = 34, // <proc_arguments>
-   SYMBOL_PROCEDURECALL        = 35, // <procedurecall>
-   SYMBOL_RETURNSTMT           = 36, // <returnstmt>
-   SYMBOL_SHADER_DEFINITION    = 37, // <shader_definition>
-   SYMBOL_STATEMENT            = 38, // <statement>
-   SYMBOL_STATEMENTS           = 39, // <statements>
-   SYMBOL_SUB_EXPR             = 40, // <sub_expr>
-   SYMBOL_TYPE_CTOR            = 41, // <type_ctor>
-   SYMBOL_VARIABLE_DEFINITIONS = 42, // <variable_definitions>
-   SYMBOL_VARIABLES            = 43  // <variables>
+   SYMBOL_PROC_ARGUMENTS_LIST  = 35, // <proc_arguments_list>
+   SYMBOL_PROCEDURECALL        = 36, // <procedurecall>
+   SYMBOL_RETURNSTMT           = 37, // <returnstmt>
+   SYMBOL_SHADER_DEFINITION    = 38, // <shader_definition>
+   SYMBOL_STATEMENT            = 39, // <statement>
+   SYMBOL_STATEMENTS           = 40, // <statements>
+   SYMBOL_SUB_EXPR             = 41, // <sub_expr>
+   SYMBOL_TYPE_CTOR            = 42, // <type_ctor>
+   SYMBOL_VARIABLE_DEFINITIONS = 43, // <variable_definitions>
+   SYMBOL_VARIABLES            = 44  // <variables>
 };
 
 enum RuleConstants
@@ -77,24 +78,26 @@ enum RuleConstants
    RULE_ASSIGNEXPRESSION_IDENTIFIER_EQ                         = 23, // <assignexpression> ::= identifier '=' <add_expr>
    RULE_TYPE_CTOR_TYPE_LPARAN_RPARAN                           = 24, // <type_ctor> ::= type '(' <proc_arguments> ')'
    RULE_PROCEDURECALL_IDENTIFIER_LPARAN_RPARAN                 = 25, // <procedurecall> ::= identifier '(' <proc_arguments> ')'
-   RULE_PROC_ARGUMENTS_COMMA                                   = 26, // <proc_arguments> ::= <expression> ',' <proc_arguments>
-   RULE_PROC_ARGUMENTS                                         = 27, // <proc_arguments> ::= <expression>
-   RULE_ADD_EXPR_PLUS                                          = 28, // <add_expr> ::= <add_expr> '+' <sub_expr>
-   RULE_ADD_EXPR                                               = 29, // <add_expr> ::= <sub_expr>
-   RULE_SUB_EXPR_MINUS                                         = 30, // <sub_expr> ::= <sub_expr> '-' <mult_expr>
-   RULE_SUB_EXPR                                               = 31, // <sub_expr> ::= <mult_expr>
-   RULE_MULT_EXPR_TIMES                                        = 32, // <mult_expr> ::= <mult_expr> '*' <dot_expr>
-   RULE_MULT_EXPR                                              = 33, // <mult_expr> ::= <dot_expr>
-   RULE_DOT_EXPR_DOT                                           = 34, // <dot_expr> ::= <dot_expr> '.' <primary>
-   RULE_DOT_EXPR                                               = 35, // <dot_expr> ::= <negate>
-   RULE_DOT_EXPR2                                              = 36, // <dot_expr> ::= <primary>
-   RULE_NEGATE_MINUS                                           = 37, // <negate> ::= '-' <primary>
-   RULE_PRIMARY_NUMBER                                         = 38, // <primary> ::= number
-   RULE_PRIMARY_IDENTIFIER                                     = 39, // <primary> ::= identifier
-   RULE_PRIMARY_STRINGCONSTANT                                 = 40, // <primary> ::= stringconstant
-   RULE_PRIMARY                                                = 41, // <primary> ::= <type_ctor>
-   RULE_PRIMARY2                                               = 42, // <primary> ::= <procedurecall>
-   RULE_PRIMARY_LPARAN_RPARAN                                  = 43  // <primary> ::= '(' <expression> ')'
+   RULE_PROC_ARGUMENTS                                         = 26, // <proc_arguments> ::= <proc_arguments_list>
+   RULE_PROC_ARGUMENTS2                                        = 27, // <proc_arguments> ::= 
+   RULE_PROC_ARGUMENTS_LIST_COMMA                              = 28, // <proc_arguments_list> ::= <expression> ',' <proc_arguments_list>
+   RULE_PROC_ARGUMENTS_LIST                                    = 29, // <proc_arguments_list> ::= <expression>
+   RULE_ADD_EXPR_PLUS                                          = 30, // <add_expr> ::= <add_expr> '+' <sub_expr>
+   RULE_ADD_EXPR                                               = 31, // <add_expr> ::= <sub_expr>
+   RULE_SUB_EXPR_MINUS                                         = 32, // <sub_expr> ::= <sub_expr> '-' <mult_expr>
+   RULE_SUB_EXPR                                               = 33, // <sub_expr> ::= <mult_expr>
+   RULE_MULT_EXPR_TIMES                                        = 34, // <mult_expr> ::= <mult_expr> '*' <dot_expr>
+   RULE_MULT_EXPR                                              = 35, // <mult_expr> ::= <dot_expr>
+   RULE_DOT_EXPR_DOT                                           = 36, // <dot_expr> ::= <dot_expr> '.' <primary>
+   RULE_DOT_EXPR                                               = 37, // <dot_expr> ::= <negate>
+   RULE_DOT_EXPR2                                              = 38, // <dot_expr> ::= <primary>
+   RULE_NEGATE_MINUS                                           = 39, // <negate> ::= '-' <primary>
+   RULE_PRIMARY_NUMBER                                         = 40, // <primary> ::= number
+   RULE_PRIMARY_IDENTIFIER                                     = 41, // <primary> ::= identifier
+   RULE_PRIMARY_STRINGCONSTANT                                 = 42, // <primary> ::= stringconstant
+   RULE_PRIMARY                                                = 43, // <primary> ::= <type_ctor>
+   RULE_PRIMARY2                                               = 44, // <primary> ::= <procedurecall>
+   RULE_PRIMARY_LPARAN_RPARAN                                  = 45  // <primary> ::= '(' <expression> ')'
 };
 
 #endif

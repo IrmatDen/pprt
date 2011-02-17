@@ -3,7 +3,7 @@
 
 #include "../common.h"
 
-class VarValue
+class _MM_ALIGN16 VarValue
 {
 public:
 	VarValue()
@@ -24,19 +24,19 @@ public:
 	}
 
 	template<typename T>
-	T& cast()
+	inline T& cast()
 	{
 		return *reinterpret_cast<T*>(storage);
 	}
 
 	template<typename T>
-	operator T&()
+	inline operator T&()
 	{
 		return cast<T>();
 	}
 
 private:
-	float _MM_ALIGN16 storage[16]; //!< Enough storage for a 4x4 matrix.
+	float storage[16]; //!< Enough storage for a 4x4 matrix.
 };
 
 #endif

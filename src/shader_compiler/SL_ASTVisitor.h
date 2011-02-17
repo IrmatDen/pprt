@@ -26,6 +26,7 @@ class NegateExprNode;
 class TypeCtorNode;
 class ProcCallNode;
 class ProcArgsNode;
+class ProcArgsListNode;
 
 class SL_ASTVisitor
 {
@@ -54,6 +55,7 @@ public:
 	virtual void visit(TypeCtorNode &node) 			= 0;
 	virtual void visit(ProcCallNode &node) 			= 0;
 	virtual void visit(ProcArgsNode &node) 			= 0;
+	virtual void visit(ProcArgsListNode &node) 		= 0;
 
 protected:
 	void visitChildrenOf(SLNode &node);

@@ -6,8 +6,8 @@
 class _MM_ALIGN16 Sphere : public Geometry
 {
 public:
-	Sphere(float radius = 1) : r(radius)							{}
-	Sphere(float radius, const Vec3 &p) : r(radius), Geometry(p) { buildAABB(); }
+	Sphere(float radius = 1) : r(radius),invr(1/r)							{}
+	Sphere(float radius, const Vec3 &p) : Geometry(p), r(radius),invr(1/r)  { buildAABB(); }
 
 	virtual bool			hit(const Ray &ray, float &t) const;
 	virtual void			fillIntersectionInfo(const Vec3 &p, IntersectionInfo &ii) const;
@@ -26,6 +26,7 @@ private:
 
 private:
 	float	r;
+    float   invr;
 };
 
 #endif

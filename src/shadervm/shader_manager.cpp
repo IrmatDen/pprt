@@ -32,7 +32,7 @@ void ShaderManager::loadFile(const std::string &fileName)
 {
 	ifstream fileIn(fileName.c_str());
 	fileIn.seekg(0, ios::end);
-	int size = fileIn.tellg();
+	unsigned int size = (unsigned int)fileIn.tellg();
 	fileIn.seekg(0, ios::beg);
 	char *buffer = new char[size+1];
 	memset(buffer, 0, size+1);

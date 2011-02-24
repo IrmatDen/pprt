@@ -14,10 +14,10 @@ int main(int argc, char **argv)
 	//string scnFile = "ScnSamples/specular_shaded_sphere.crtscn";
 	//string scnFile = "ScnSamples/trace_shaded_sphere.crtscn";
 	//string scnFile = "ScnSamples/opa_shaded_sphere.crtscn";
-	string scnFile = "ScnSamples/reflexive_opa_spheres.crtscn";
+	//string scnFile = "ScnSamples/reflexive_opa_spheres.crtscn";
 	//string scnFile = "ScnSamples/inner_reflexion.crtscn";
 	//string scnFile = "ScnSamples/smoothstep.crtscn";
-	//string scnFile = "ScnSamples/mix.crtscn";
+	string scnFile = "ScnSamples/mix.crtscn";
 
 	Scene scn;
 	bool scnLoaded = scn.loadScnFile(scnFile);

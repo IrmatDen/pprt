@@ -33,6 +33,9 @@
     <Filter Include="Source Files\shader_compiler">
       <UniqueIdentifier>{93a0116d-fe16-404f-9acf-38f4637f7518}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{56b4e3dd-f684-42b9-9357-261a15ff8b47}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -187,5 +190,13 @@
     <ClInclude Include="src\sse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\standards.crtsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\samples.crtsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

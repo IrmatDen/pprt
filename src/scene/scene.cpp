@@ -142,7 +142,7 @@ void Scene::render()
 
 	cam.init(resX, resY);
 
-#ifndef _DEBUG
+#ifndef NOTHREADING
 	tbb::task_scheduler_init tbbInit;
 	tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), TraceScanLine(*this, img), tbb::auto_partitioner());
 	//tbb::parallel_for(tbb::blocked_range<int>(0, resY), TraceScanLine(*this, img), tbb::auto_partitioner());

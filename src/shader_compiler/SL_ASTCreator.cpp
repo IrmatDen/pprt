@@ -265,19 +265,13 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 		return procedurecall;
 	}
 	
+	if (sym == SYMBOL_PROC_ARGUMENTS_LIST)
+		return getASTNode(rdcChildren[0], parent);
+	
 	if (sym == SYMBOL_PROC_ARGUMENTS)
 	{
-		CREATE_NODE(ProcArgsNode, procedurecall);
-		
-		procedurecall->addChild (getASTNode(rdcChildren[0], procedurecall));		// argument(s) list
-
-		return procedurecall;
-	}
-	
-	if (sym == SYMBOL_PROC_ARGUMENTS_LIST)
-	{
 		CREATE_NODE(ProcArgsListNode, proc_arguments);
-		
+
 		deque <Symbol*> args = ((NonTerminal*) rdcChildren[0])->children;
 		
 		switch(args.size())

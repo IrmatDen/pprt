@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
+				EnableIntrinsicFunctions="false"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;BOOST_EXCEPTION_DISABLE"
@@ -126,11 +126,14 @@
 				StructMemberAlignment="5"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="false"
-				EnableEnhancedInstructionSet="2"
+				EnableEnhancedInstructionSet="0"
 				FloatingPointModel="2"
 				FloatingPointExceptions="false"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="0"
+				ExpandAttributedSource="true"
+				AssemblerOutput="4"
+				AssemblerListingLocation="Asm_$(IntDir)\"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4530"
@@ -239,6 +242,25 @@
 				<File
 					RelativePath=".\src\shadervm\compiled_shader.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ExpandAttributedSource="true"
+							AssemblerOutput="2"
+							AssemblerListingLocation="test.asm"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ExpandAttributedSource="true"
+							AssemblerOutput="2"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\src\shadervm\geometric_fun.cpp"

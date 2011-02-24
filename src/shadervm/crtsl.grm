@@ -13,87 +13,87 @@
 
 ! ------------------------------------------------- Terminals
 
-Comment Line		= '#'
-identifier    	= {ID Head}{ID Tail}*
-stringconstant	= '"' {String Chars}* '"'
-number 		= {Number}+('.'{Number}+)?
-shader_type		= light | surface | volume | displacement | transformation | imager
-type			= real |string | vec3 | color
+Comment Line        = '#'
+identifier      = {ID Head}{ID Tail}*
+stringconstant  = '"' {String Chars}* '"'
+number      = {Number}+('.'{Number}+)?
+shader_type     = light | surface | volume | displacement | transformation | imager
+type            = real |string | vec3 | color
 
 ! ------------------------------------------------- Rules
 
 ! ------------------------------------- Declarations
 
-<definitions>			::= <shader_definition> <definitions>
-				 |  
+<definitions>           ::= <shader_definition> <definitions>
+                 |  
 
-<shader_definition>		::= shader_type identifier '(' <formals> ')' <block>
+<shader_definition>     ::= shader_type identifier '(' <formals> ')' <block>
 
-<formals>			::= <variable_definitions> <formals>
-				 |  
+<formals>           ::= <variable_definitions> <formals>
+                 |  
 
-<variables>			::= <variable_definitions> <variables>
-				 |  
+<variables>         ::= <variable_definitions> <variables>
+                 |  
 
-<variable_definitions>	::= type <def_expressions> ';'
+<variable_definitions>  ::= type <def_expressions> ';'
 
-<def_expressions>		::= <def_expression>
-				 |  <def_expression> ',' <def_expressions>
+<def_expressions>       ::= <def_expression>
+                 |  <def_expression> ',' <def_expressions>
 
-<def_expression>		::= identifier <def_init>
+<def_expression>        ::= identifier <def_init>
 
-<def_init>			::= '=' <add_expr>
-				 |  
+<def_init>          ::= '=' <add_expr>
+                 |  
 
 ! ------------------------------------- Statements
 
-<block>			::= '{' <variables> <statements> '}'
+<block>         ::= '{' <variables> <statements> '}'
 
-<statements>			::= <statements> <statement>
-				 |  
+<statements>            ::= <statements> <statement>
+                 |  
 
-<statement>			::= <assignexpression> ';'
-				 |  <procedurecall> ';'
-				 |  <returnstmt> ';'
-				 |  <block>
+<statement>         ::= <assignexpression> ';'
+                 |  <procedurecall> ';'
+                 |  <returnstmt> ';'
+                 |  <block>
 
-<returnstmt>			::= 'return' <expression>
+<returnstmt>            ::= 'return' <expression>
 
 ! ------------------------------------- Expressions
 
-<expression>			::= <assignexpression>
-				 |  <add_expr>
+<expression>            ::= <assignexpression>
+                 |  <add_expr>
 
-<assignexpression>		::= identifier '=' <add_expr>
+<assignexpression>      ::= identifier '=' <add_expr>
 
-<type_ctor>			::= type '(' <proc_arguments> ')'
+<type_ctor>         ::= type '(' <proc_arguments> ')'
 
-<procedurecall>		::= identifier '(' <proc_arguments>')'
+<procedurecall>     ::= identifier '(' <proc_arguments>')'
 
-<proc_arguments>		::= <proc_arguments_list>
-				 |  
+<proc_arguments>        ::= <proc_arguments_list>
+                 |  
 
-<proc_arguments_list>	::= <expression> ',' <proc_arguments_list>
-				 |  <expression>
+<proc_arguments_list>   ::= <expression> ',' <proc_arguments_list>
+                 |  <expression>
 
-<add_expr>			::= <add_expr> '+' <sub_expr>
-				 |  <sub_expr>
+<add_expr>          ::= <add_expr> '+' <sub_expr>
+                 |  <sub_expr>
 
-<sub_expr>			::= <sub_expr> '-' <mult_expr>
-				 |  <mult_expr>
+<sub_expr>          ::= <sub_expr> '-' <mult_expr>
+                 |  <mult_expr>
 
-<mult_expr>			::= <mult_expr> '*' <dot_expr>
-				 |  <dot_expr>
+<mult_expr>         ::= <mult_expr> '*' <dot_expr>
+                 |  <dot_expr>
 
-<dot_expr>			::= <dot_expr> '.' <primary>
-				 |  <negate>
-				 |  <primary>
+<dot_expr>          ::= <dot_expr> '.' <primary>
+                 |  <negate>
+                 |  <primary>
 
-<negate>			::= '-' <primary>
+<negate>            ::= '-' <primary>
 
-<primary>			::= number
-				 |  identifier
-				 |  stringconstant
-				 |  <type_ctor>
-				 |  <procedurecall>
-				 |  '(' <expression> ')'
+<primary>           ::= number
+                 |  identifier
+                 |  stringconstant
+                 |  <type_ctor>
+                 |  <procedurecall>
+                 |  '(' <expression> ')'

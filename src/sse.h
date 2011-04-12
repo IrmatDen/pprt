@@ -5,6 +5,10 @@
 #include <xmmintrin.h>
 #include <smmintrin.h>
 
+#include <vectormath/cpp/vectormath_aos.h>
+
+using namespace Vectormath::Aos;
+
 #define set1ps(v)			_mm_set1_ps((v))
 #define loadps(mem)			_mm_load_ps((const float * const)(mem))
 #define storess(ss,mem)		_mm_store_ss((float * const)(mem),(ss))
@@ -35,13 +39,17 @@
 namespace sse
 {
 	static const float flt_plus_inf = std::numeric_limits<float>::infinity();
-	static const float _MM_ALIGN16
-		ps_cst_plus_inf[4]	= {  flt_plus_inf,  flt_plus_inf,  flt_plus_inf,  flt_plus_inf },
-		ps_cst_minus_inf[4]	= { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
 
 	static const __m128
-		plus_inf	= loadps(ps_cst_plus_inf),
-		minus_inf	= loadps(ps_cst_minus_inf);
+		plus_inf	= set1ps(flt_plus_inf),
+		minus_inf	= set1ps(-flt_plus_inf),
+		all_one		= set1ps(1.f);
+
+	inline __m128 loadXYZW(float x, float y, float z, float w)
+	{
+		const float _MM_ALIGN16 a[4] = { x, y, z, w };
+		return loadps(a);
+	}
 }
 
 #endif

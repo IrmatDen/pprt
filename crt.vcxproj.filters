@@ -148,9 +148,6 @@
     <ClInclude Include="src\scene\sphere.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene\vector3.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\shadervm\compiled_shader.h">
       <Filter>Header Files\ShaderVM</Filter>
     </ClInclude>

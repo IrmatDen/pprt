@@ -3,13 +3,13 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "vector3.h"
+#include "../sse.h"
 #include "color.h"
 
 class Light
 {
 public:
-	Vec3		pos;
+	Vector3		pos;
 	Color		color;
 };
 

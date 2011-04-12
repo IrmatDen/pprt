@@ -75,11 +75,14 @@ public:
 				col.g = powf(col.g, invGamma);
 				col.b = powf(col.b, invGamma);*/
 
-				col.clamp();
-
-				imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
-				imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
-				imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
+				clamp(col);
+				
+				const float	r = col.getX() * 255,
+							g = col.getY() * 255,
+							b = col.getZ() * 255;
+				imgData[FI_RGBA_RED]	= BYTE(r);
+				imgData[FI_RGBA_GREEN]	= BYTE(g);
+				imgData[FI_RGBA_BLUE]	= BYTE(b);
 				imgData[FI_RGBA_ALPHA]	= 255;
 			}
 		}
@@ -174,11 +177,14 @@ void Scene::render()
 				}
 			}
 
-			col.clamp();
-
-			imgData[FI_RGBA_RED]	= BYTE(col.r * 255);
-			imgData[FI_RGBA_GREEN]	= BYTE(col.g * 255);
-			imgData[FI_RGBA_BLUE]	= BYTE(col.b * 255);
+			clamp(col);
+			
+			const float	r = col.getX() * 255,
+						g = col.getY() * 255,
+						b = col.getZ() * 255;
+			imgData[FI_RGBA_RED]	= BYTE(r);
+			imgData[FI_RGBA_GREEN]	= BYTE(g);
+			imgData[FI_RGBA_BLUE]	= BYTE(b);
 			imgData[FI_RGBA_ALPHA]	= 255;
 		}
 	}
@@ -201,6 +207,10 @@ Color Scene::trace(const Ray &eye, bool &hitSomething)
 
 Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 {
+	if (ray.traceDepth == 16)
+		return Color(sse::all_one);
+	ray.traceDepth++;
+
 	float t = 20000;
 	const Geometry *nearestObj = bvhRoot->findClosest(ray, t);
 
@@ -216,7 +226,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	if (!nearestObj->hasShader())
 		return Color(1, 0, 1);
 
-	Vec3 p = ray.origin + ray.direction() * t;
+	Vector3 p = ray.origin + ray.direction() * t;
 	IntersectionInfo info;
 	nearestObj->fillIntersectionInfo(p, info);
 
@@ -236,8 +246,8 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	if (isOpaque(Oi))
 		return Ci;
 
-	ray.origin += ray.direction() * (t + Epsilon);
-	return Ci + (1 - Oi) * traceNoDepthMod(ray, dummy);
+	ray.origin += ray.direction() * (t + 0.00000001f);
+	return Ci + mulPerElem((Vector3(1) - Oi), traceNoDepthMod(ray, dummy));
 }
 
 bool Scene::collide(const Ray &r, float t, Color &visQty, Color &influencedColor) const
@@ -254,9 +264,9 @@ bool Scene::collide(const Ray &r, float t, Color &visQty, Color &influencedColor
 	ray.traceDepth++;
 
 	Color Ci, Oi;
-	Vec3 p;
+	Vector3 p;
 
-	visQty.r = visQty.g = visQty.b = 1;
+	visQty = Vector3(1);
 
 	static const size_t	maxAccumulatedObjects(10);
 	Geometry *			accum[maxAccumulatedObjects];
@@ -283,44 +293,42 @@ bool Scene::collide(const Ray &r, float t, Color &visQty, Color &influencedColor
 
 		if (isOpaque(Oi))
 		{
-			visQty.r = visQty.g = visQty.b = 0;
+			visQty = Vector3(all_zero());
 			return true;
 		}
 		else
 		{
-			visQty.r = visQty.r > Oi.r ? Oi.r : visQty.r;
-			visQty.g = visQty.g > Oi.g ? Oi.g : visQty.g;
-			visQty.b = visQty.b > Oi.b ? Oi.b : visQty.b;
+			visQty = minPerElem(visQty, Oi);
 
-			visQty.r = visQty.r <= 0.01f ? 0 : visQty.r;
+			/*visQty.r = visQty.r <= 0.01f ? 0 : visQty.r;
 			visQty.g = visQty.g <= 0.01f ? 0 : visQty.g;
-			visQty.b = visQty.b <= 0.01f ? 0 : visQty.b;
+			visQty.b = visQty.b <= 0.01f ? 0 : visQty.b;*/
 
 			influencedColor += Ci;
 
-			if (visQty.r <= 0.01f && visQty.g <= 0.01f && visQty.b <= 0.01f)
+			if (maxElem(visQty) <= 0.01f)
 			{
-				influencedColor = 0;
-				visQty.r = visQty.g = visQty.b = 0;
+				influencedColor = Vector3(all_zero());
+				visQty = Vector3(all_zero());
 				return true;
 			}
 		}
 	}
 
-	influencedColor.clamp();
+	clamp(influencedColor);
 
 	return false;
 }
 
 void Scene::diffuse(const Ray &r, Color &out) const
 {
-	Vec3 normDir = r.direction().normalized();
+	Vector3 normDir = normalize(r.direction());
 	const Light **light = (const Light**)rt_lights;
 
 	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Vec3 p = r.origin + r.direction() * Epsilon;
+	const Vector3 p = r.origin + r.direction() * 0.000000001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -328,10 +336,10 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	while (*light)
 	{
 		// Check if the current light is occluded
-		Vec3 L2P = (*light)->pos - p;
-		const float t = L2P.length();
+		Vector3 L2P = (*light)->pos - p;
+		const float t = length(L2P);
 		L2P /= t;
-		const float L2PdotN = L2P.dot(normDir);
+		const float L2PdotN = dot(L2P, normDir);
 		
 		if (L2PdotN < 0)
 		{
@@ -344,27 +352,29 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 		if (!lightOccluded)
 		{
-			if (visibility.r > 0.999f && visibility.g > 0.999f  && visibility.b > 0.999f)
-				out += (*light)->color * (float)L2PdotN;
+			if (minElem(visibility) > 0.999f)
+				out += (*light)->color * L2PdotN;
 			else
-				out += (*light)->color * (float)L2PdotN * visibility * influencedColor;
+				out += mulPerElem((*light)->color, mulPerElem(visibility, influencedColor)) * L2PdotN;
 		}
 
 		++light;
 	}
+
+	clamp(out);
 }
 
-void Scene::specular(const Ray &r, const Vec3 &viewDir, float roughness, Color &out) const
+void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const
 {
-	const Vec3 normDir = r.direction().normalized();
-	const Vec3 normVDir = -viewDir.normalized();
+	const Vector3 normDir = normalize(r.direction());
+	const Vector3 normVDir = normalize(-viewDir);
 
 	const Light **light = (const Light**)rt_lights;
 
 	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Vec3 p = r.origin + r.direction() * Epsilon;
+	const Vector3 p = r.origin + r.direction() * 0.00000001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -372,24 +382,25 @@ void Scene::specular(const Ray &r, const Vec3 &viewDir, float roughness, Color &
 	while (*light)
 	{
 		// Check if the current light is occluded
-		Vec3 L2P = (*light)->pos - p;
+		Vector3 L2P = (*light)->pos - p;
 
-		float t = L2P.length();
+		float t = length(L2P);
 		L2P /= t;
 		ray.setDirection(L2P);
 		bool lightOccluded = collide(ray, t, visibility, influencedColor);
 
 		if (!lightOccluded)
 		{
-			const Vec3 H = (L2P + normVDir).normalize();
-			const float NdH = normDir.dot(H);
-			if (visibility.r > 0.999f && visibility.g > 0.999f  && visibility.b > 0.999f)
+			const Vector3 H = normalize(L2P + normVDir);
+			const float NdH = dot(normDir, H);
+			if (minElem(visibility) > 0.999f)
 				out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness));
 			else
-				out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness)) * visibility * influencedColor;
+				out += mulPerElem((*light)->color, mulPerElem(visibility, influencedColor)) * static_cast<float>(pow(max(0, NdH), 1/roughness));
 		}
 
 		++light;
 	}
-	out.clamp();
+
+	clamp(out);
 }

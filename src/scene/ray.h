@@ -1,25 +1,25 @@
 #ifndef CRT_RAY_H
 #define CRT_RAY_H
 
-#include "vector3.h"
+#include "../sse.h"
 
 class _MM_ALIGN16 Ray
 {
 public:
 	Ray():traceDepth(0) {}
-	Ray(const Vec3 &o, const Vec3 &d) : origin(o), dir(d), invDir(1/dir), traceDepth(0)				{}
-	Ray(const Ray &r) : origin(r.origin), dir(r.dir), invDir(r.invDir), traceDepth(r.traceDepth)	{}
+	Ray(const Vector3 &o, const Vector3 &d)	: origin(o),		dir(d),		invDir(recipPerElem(dir)),	traceDepth(0)				{}
+	Ray(const Ray &r)						: origin(r.origin), dir(r.dir), invDir(r.invDir),			traceDepth(r.traceDepth)	{}
 
-	const Vec3&		direction() const				{ return dir; }
-	void			setDirection(const Vec3 &d)		{ dir = d; invDir = 1 / dir; }
+	const Vector3&	direction() const				{ return dir; }
+	void			setDirection(const Vector3 &d)	{ dir = d; invDir = recipPerElem(dir); }
 
 public:
-	Vec3	origin;
-	Vec3	invDir;
+	Vector3	origin;
+	Vector3	invDir;
 	int		traceDepth;
 
 private:
-	Vec3	dir;
+	Vector3	dir;
 };
 
 #endif

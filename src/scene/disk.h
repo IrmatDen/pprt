@@ -6,13 +6,13 @@
 class Disk : public Geometry
 {
 public:
-	Disk(float radius = 1, const Vec3 &position = Vec3(), const Vec3 &normal = Vec3(0, 1, 0));
+	Disk(float radius = 1, const Vector3 &position = Vector3(), const Vector3 &normal = Vector3::yAxis());
 
 	virtual bool			hit(const Ray &ray, float &t) const;
-	virtual void			fillIntersectionInfo(const Vec3 &p, IntersectionInfo &ii) const	{ ii.normal = this->n; }
+	virtual void			fillIntersectionInfo(const Vector3 &p, IntersectionInfo &ii) const	{ ii.normal = this->n; }
 
 private:
-	Vec3	n;
+	Vector3	n;
 	float	d;
 	float	r;
 	float	rSquared;

@@ -4,7 +4,7 @@
 
 bool Plane::hit(const Ray &ray, float &t) const
 {
-	float dist = (d - ray.origin.dot(n)) / (ray.direction().dot(n));
+	float dist = (d - dot(ray.origin, n)) / (dot(ray.direction(), n));
 
 	if(dist > 0 && dist < t)
 	{

@@ -10,15 +10,15 @@ void Camera::init(int width, int height)
 	float hFov = tan(fovx);
 	float vFov = tan(((float)height / width) * 47 * PIOVER180);
 	
-	up.normalize();
+	up = normalize(up);
 	
 	w = target - pos;
-	w.normalize();
+	w = normalize(w);
 
-	u = up.cross(w);
+	u = cross(up, w);
 	u *= hFov;
 
-	v = w.cross(-u);
+	v = cross(w, -u);
 	v *= vFov;
 }
 
@@ -26,7 +26,7 @@ void Camera::project(float x, float y, Ray &r) const
 {
 	r.origin = pos;
 
-	Vec3 dir = x * u + y * v + w;
-	dir.normalize();
+	Vector3 dir = x * u + y * v + w;
+	dir = normalize(dir);
 	r.setDirection(dir);
 }

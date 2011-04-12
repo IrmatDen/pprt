@@ -124,7 +124,7 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 		switch(sa)
 		{
 		case SA_X:
-			if (g->position().x < cutCoord)
+			if (g->position().getX() < cutCoord)
 			{
 				leftObjects.push_back(g);
 				leftAABB.mergeWith(g->getAABB());
@@ -137,7 +137,7 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 			break;
 			
 		case SA_Y:
-			if (g->position().y < cutCoord)
+			if (g->position().getY() < cutCoord)
 			{
 				leftObjects.push_back(g);
 				leftAABB.mergeWith(g->getAABB());
@@ -150,7 +150,7 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 			break;
 			
 		case SA_Z:
-			if (g->position().z < cutCoord)
+			if (g->position().getZ() < cutCoord)
 			{
 				leftObjects.push_back(g);
 				leftAABB.mergeWith(g->getAABB());

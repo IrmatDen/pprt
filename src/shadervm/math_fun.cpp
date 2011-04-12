@@ -1,7 +1,5 @@
 #include "compiled_shader.h"
 
-#include "../scene/vector3.h"
-
 void CompiledShader::smoothstep()
 {
 	--esp;

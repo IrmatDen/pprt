@@ -30,7 +30,7 @@ public:
 	#pragma warning(disable:4355)
 	Scene(int width=0, int height=0)
 		: resX(width), resY(height), storeZ(false),
-		background(0, 0, 0),
+		background(all_zero()),
 		rt_objects(0), rt_lights(0),
 		bvhRoot(0)
 	{
@@ -65,7 +65,7 @@ public:
 	// Shading & lighting functions
 	Color		traceNoDepthMod(Ray &eye, bool &hitSomething);
 	void		diffuse(const Ray &r, Color &out) const;
-	void		specular(const Ray &r, const Vec3 &viewDir, float roughness, Color &out) const;
+	void		specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const;
 
 private:
 	std::string				outName;

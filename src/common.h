@@ -30,19 +30,19 @@ namespace memory
 	}
 
 	template <typename T, typename Arg1T>
-	static	T*		construct(Arg1T a1)
+	static	T*		construct(const Arg1T &a1)
 	{
 		return new (allocate<T>()) T(a1);
 	}
 
 	template <typename T, typename Arg1T, typename Arg2T>
-	static	T*		construct(Arg1T a1, Arg2T a2)
+	static	T*		construct(const Arg1T &a1, const Arg2T &a2)
 	{
 		return new (allocate<T>()) T(a1, a2);
 	}
 
 	template <typename T, typename Arg1T, typename Arg2T, typename Arg3T>
-	static	T*		construct(Arg1T a1, Arg2T a2, Arg3T a3)
+	static	T*		construct(const Arg1T &a1, const Arg2T &a2, const Arg3T &a3)
 	{
 		return new (allocate<T>()) T(a1, a2, a3);
 	}

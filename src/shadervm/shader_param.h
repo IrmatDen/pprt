@@ -17,9 +17,9 @@ struct ShaderParam
 	ShaderParam()	{}
 	ShaderParam(const std::string &n, ParamType t, const VarValue &v) : name(n), type(t), value(v)	{}
 
+	VarValue 		value;	// Keep first to prevent alignment issues!
 	std::string		name;
 	ParamType		type;
-	VarValue		value;
 };
 
 typedef std::vector<ShaderParam>	ShaderParams;

@@ -1,0 +1,261 @@
+FileVersion=6
+[GENERAL]
+Name=20110225
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+LastProfile=Time-based profile
+LaunchHistory="F:\src\crt_vs2010\Release\crt.exe"
+LaunchHistory=
+WorkDirHistory=f:\src\crt_vs2010\
+WorkDirHistory=
+ProcessFilter=
+EnvironmentalVariables=
+
+[TBP]
+
+Name=20110225
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 1
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 1.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 2
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 2.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 3
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 3.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 4
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 4.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 5
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 5.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 6
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 6.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 7
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 7.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 8
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 8.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 9
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 9.tbp
+Cpus=8
+Interval=1
+
+Name=20110225 10
+Notes=
+Launch="F:\src\crt_vs2010\Release\crt.exe"
+WorkDir=f:\src\crt_vs2010\
+StopOnApp=1
+BreakAfter=0
+Duration=20
+StartPaused=0
+StartImmediately=1
+CSS=0
+CssInterval=10
+StartDelay=0
+CssUnwind=10
+Affinity=255
+SaveRaw=0
+ApplyProcFilter= 0
+ProfileFile=20110225 10.tbp
+Cpus=8
+Interval=1
+
+[End]
+
+[EBP]
+
+[End]
+
+[Thread]
+
+[End]
+
+[IBS]
+
+[End]

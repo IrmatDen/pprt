@@ -87,15 +87,15 @@ struct newPointLight_a
 		scene.addLight(l);
 
 		// Reset fields to allow for defaults
-		pos = Vec3(0);
+		pos = Vector3(0);
 		color = Color(0);
 	}
 
 	Scene			&	scene;
-	static Vec3			pos;
+	static Vector3		pos;
 	static Color		color;
 };
-Vec3	newPointLight_a::pos;
+Vector3	newPointLight_a::pos;
 Color	newPointLight_a::color;
 //-----------------------------------------------------------------------------------------------------------
 
@@ -110,7 +110,8 @@ struct newSphere_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Geometry *g(memory::construct<Sphere>((float)radius, pos));
+		Vector3 p = pos;
+		Geometry *g(memory::construct<Sphere>((float)radius, p));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
@@ -118,7 +119,7 @@ struct newSphere_a
 		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
-		pos = Vec3(0);
+		pos = Vector3(0);
 		radius = 0;
 		matName = "";
 
@@ -127,11 +128,11 @@ struct newSphere_a
 
 	Scene			&	scene;
 	static double		radius;
-	static Vec3			pos;
+	static Vector3		pos;
 	static std::string	matName;
 };
 double		newSphere_a::radius;
-Vec3		newSphere_a::pos;
+Vector3		newSphere_a::pos;
 std::string	newSphere_a::matName;
 
 
@@ -144,7 +145,7 @@ struct newPlane_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Geometry *g(memory::construct<Plane>(normal.normalize(), (float)offset, !twoSided));
+		Geometry *g(memory::construct<Plane>(normalize(normal), (float)offset, !twoSided));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
@@ -152,7 +153,7 @@ struct newPlane_a
 		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
-		normal = Vec3(0);
+		normal = Vector3(0);
 		offset = 0;
 		twoSided = false;
 		matName = "";
@@ -161,12 +162,12 @@ struct newPlane_a
 	}
 
 	Scene			&	scene;
-	static Vec3			normal;
+	static Vector3		normal;
 	static double		offset;
 	static bool			twoSided;
 	static std::string	matName;
 };
-Vec3		newPlane_a::normal;
+Vector3		newPlane_a::normal;
 double		newPlane_a::offset;
 bool		newPlane_a::twoSided;
 std::string	newPlane_a::matName;
@@ -181,7 +182,7 @@ struct newDisk_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Geometry *g(memory::construct<Disk>((float)radius, pos, normal.normalize()));
+		Geometry *g(memory::construct<Disk>((float)radius, pos, normalize(normal)));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
@@ -190,8 +191,8 @@ struct newDisk_a
 
 		// Reset fields to allow for defaults
 		radius = 0;
-		pos = Vec3(0);
-		normal = Vec3(0);
+		pos = Vector3(0);
+		normal = Vector3(0);
 		matName = "";
 
 		shaderParams_a::params = ShaderParams();
@@ -199,13 +200,13 @@ struct newDisk_a
 
 	Scene			&	scene;
 	static double		radius;
-	static Vec3			pos;
-	static Vec3			normal;
+	static Vector3		pos;
+	static Vector3		normal;
 	static std::string	matName;
 };
 double		newDisk_a::radius;
-Vec3		newDisk_a::pos;
-Vec3		newDisk_a::normal;
+Vector3		newDisk_a::pos;
+Vector3		newDisk_a::normal;
 std::string	newDisk_a::matName;
 //-----------------------------------------------------------------------------------------------------------
 

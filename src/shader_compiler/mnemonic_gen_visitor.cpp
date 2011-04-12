@@ -91,7 +91,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 	if (type == L"color")
 	{
 		v.type = VT_Color;
-		v.content = Color();
+		v.content = Color(0.f);
 	}
 	else if(type == L"real")
 	{
@@ -101,7 +101,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 	else if(type == L"vec3")
 	{
 		v.type = VT_Vector;
-		v.content = Vec3();
+		v.content = Vector3(0.f);
 	}
 
 	// Get var name
@@ -176,20 +176,18 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 
 					case 3:
 						{
-							Color c;
-							c.r = (float)lexical_cast<float>(wstringToString(args[0]->getImage()));
-							c.g = (float)lexical_cast<float>(wstringToString(args[1]->getImage()));
-							c.b = (float)lexical_cast<float>(wstringToString(args[2]->getImage()));
+							Color c((float)lexical_cast<float>(wstringToString(args[0]->getImage())),
+									(float)lexical_cast<float>(wstringToString(args[1]->getImage())),
+									(float)lexical_cast<float>(wstringToString(args[2]->getImage())));
 							v.content = c;
 							break;
 						}
 
 					case 4:
 						{
-							Color c;
-							c.r = (float)lexical_cast<float>(wstringToString(args[0]->getImage()));
-							c.g = (float)lexical_cast<float>(wstringToString(args[1]->getImage()));
-							c.b = (float)lexical_cast<float>(wstringToString(args[2]->getImage()));
+							Color c((float)lexical_cast<float>(wstringToString(args[0]->getImage())),
+									(float)lexical_cast<float>(wstringToString(args[1]->getImage())),
+									(float)lexical_cast<float>(wstringToString(args[2]->getImage())));
 							v.content = c;
 							break;
 						}

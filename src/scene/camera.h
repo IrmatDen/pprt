@@ -7,7 +7,7 @@ class Camera
 {
 public:
 	Camera()
-		:target(0, 0, 1), up(0, 1, 0), fov(60)
+		:target(Vector3::zAxis()), up(Vector3::yAxis()), fov(60)
 	{
 	}
 
@@ -15,14 +15,14 @@ public:
 	void		project(float x, float y, Ray &r) const;
 
 public:
-	Vec3	pos;
-	Vec3	target;
-	Vec3	up;
+	Vector3	pos;
+	Vector3	target;
+	Vector3	up;
 	float	fov;
 
 private:
 	// Define the camera frame
-	Vec3 u, v, w;
+	Vector3 u, v, w;
 };
 
 #endif

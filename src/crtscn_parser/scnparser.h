@@ -16,6 +16,15 @@ typedef char						char_t;
 typedef file_iterator<char_t>		iterator_t;
 typedef scanner<iterator_t>			scanner_t;
 typedef rule<scanner_t>				rule_t;
+
+struct NonAlignedVec3
+{
+	NonAlignedVec3() {}
+	NonAlignedVec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
+	float x, y, z;
+
+	operator Vector3() const { return Vector3(x, y, z); }
+};
 	
 #include "parsing_actors.h"
 #include "../parser/type_parsers.h"

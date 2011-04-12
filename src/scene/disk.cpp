@@ -1,23 +1,23 @@
 #include "disk.h"
 
-Disk::Disk(float radius, const Vec3 &position, const Vec3 &normal)
+Disk::Disk(float radius, const Vector3 &position, const Vector3 &normal)
 :n(normal), r(radius), rSquared(r*r)
 {
 	pos = position;
-	d = n.dot(pos);
+	d = dot(n, pos);
 }
 
 bool Disk::hit(const Ray &ray, float &t) const
 {
 	// Code is extracted from Plane::hit(...) to avoid too much vfunc calls.
 
-	float dist = (d - ray.origin.dot(n)) / (ray.direction().dot(n));
+	float dist = (d - dot(ray.origin, n)) / (dot(ray.direction(), n));
 
 	if(dist > 0 && dist < t)
 	{
-		Vec3 p = ray.origin + ray.direction() * dist;
+		Vector3 p = ray.origin + ray.direction() * dist;
 		p -= pos;
-		float pSquaredL = p.squaredLength();
+		float pSquaredL = lengthSqr(p);
 		if (pSquaredL < rSquared)
 		{
 			t = dist;

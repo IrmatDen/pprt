@@ -7,30 +7,28 @@ using namespace boost;
 
 void CompiledShader::colorCtor()
 {
-	Color col;
 	--esp;
-	col.r = (float)boost::get<float>(esp->second);
+	float r = (float)boost::get<float>(esp->second);
 	--esp;
-	col.g = (float)boost::get<float>(esp->second);
+	float g = (float)boost::get<float>(esp->second);
 	--esp;
-	col.b = (float)boost::get<float>(esp->second);
+	float b = (float)boost::get<float>(esp->second);
 
 	esp->first = VT_Color;
-	esp->second = col;
+	esp->second = Color(r, g, b);
 	++esp;
 }
 
 void CompiledShader::vec3Ctor()
 {
-	Vec3 out;
 	--esp;
-	out.x = boost::get<float>(esp->second);
+	float x = boost::get<float>(esp->second);
 	--esp;
-	out.y = boost::get<float>(esp->second);
+	float y = boost::get<float>(esp->second);
 	--esp;
-	out.z = boost::get<float>(esp->second);
+	float z = boost::get<float>(esp->second);
 
 	esp->first = VT_Vector;
-	esp->second = out;
+	esp->second = Vector3(x, y, z);
 	++esp;
 }

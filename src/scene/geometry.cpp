@@ -15,7 +15,7 @@ void Geometry::setShader(const CompiledShader &cs)
 	shader = memory::construct<CompiledShader>(cs);
 }
 
-void Geometry::setShaderParams(ShaderParams p)
+void Geometry::setShaderParams(const ShaderParams &p)
 {
 	assert(shader);
 
@@ -25,8 +25,10 @@ void Geometry::setShaderParams(ShaderParams p)
 		shader->setVarValue(it->name, it->value);
 	}
 
-	shader->setVarValueByIndex(CompiledShader::Cs, color);
-	shader->setVarValueByIndex(CompiledShader::Os, opacity);
+	VarValue _MM_ALIGN16 tmp(color);
+	shader->setVarValueByIndex(CompiledShader::Cs, tmp);
+	tmp = opacity;
+	shader->setVarValueByIndex(CompiledShader::Os, tmp);
 }
 
 bool Geometry::hasShader() const

@@ -9,6 +9,7 @@
 #include "symtab.h"
 
 #include "../scene/color.h"
+#include "../common.h"
 
 class Scene;
 
@@ -56,7 +57,7 @@ public:
 
 	typedef void (CompiledShader::*ShaderFunction)();
 
-	typedef boost::variant<float, Color, Vec3, int, ShaderFunction>	OpCodeArg;
+	typedef boost::variant<float, Color, Vector3, int, ShaderFunction>	OpCodeArg;
 	typedef std::pair<OpCode, OpCodeArg>							ByteCode;
 	typedef std::vector<ByteCode, memory::AllocAlign16<ByteCode> >	Instructions;
 

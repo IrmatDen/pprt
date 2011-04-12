@@ -12,7 +12,7 @@ enum ParamType
 	PT_Float
 };
 
-struct _MM_ALIGN16 ShaderParam
+struct ShaderParam
 {
 	ShaderParam()	{}
 	ShaderParam(const std::string &n, ParamType t, const VarValue &v) : name(n), type(t), value(v)	{}

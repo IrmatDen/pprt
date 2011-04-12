@@ -53,7 +53,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>D:\prog\Libs\tbb21_20080605oss\include;D:\prog\Libs\FreeImage\Dist;F:\libs\boost\boost_1_44;D:\prog\Libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\cpp-gpengine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\libs\tbb30_20101215oss\include;D:\prog\Libs\FreeImage\Dist;F:\libs\boost\boost_1_44;D:\prog\Libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\cpp-gpengine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <DisableSpecificWarnings>4820;4514;4668;4201</DisableSpecificWarnings>
@@ -72,7 +72,7 @@
     <ClCompile>
       <Optimization>Full</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;BOOST_EXCEPTION_DISABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -93,19 +93,21 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4530;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>D:\prog\Libs\tbb21_20080605oss\include;D:\prog\Libs\FreeImage\Dist;F:\libs\boost\boost_1_44;D:\prog\Libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\cpp-gpengine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\libs\tbb30_20101215oss\include;F:\libs\FreeImage\Dist;F:\libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\boost\boost_1_44;F:\libs\cpp-gpengine\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BrowseInformation>false</BrowseInformation>
+      <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
     </ClCompile>
     <Link>
       <AdditionalDependencies>FreeImagePlus.lib;Winmm.lib;tbb.lib;gpenginedllruntime.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EnableUAC>false</EnableUAC>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>false</AssemblyDebug>
       <SubSystem>Console</SubSystem>
       <TerminalServerAware>false</TerminalServerAware>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>F:\libs\boost\boost_1_44\lib;D:\prog\Libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\cpp-gpengine\lib;F:\libs\tbb30_20101215oss\lib\ia32\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\libs\boost\boost_1_44\lib;F:\libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\cpp-gpengine\lib;F:\libs\tbb30_20101215oss\lib\ia32\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>

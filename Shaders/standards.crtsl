@@ -10,7 +10,7 @@ surface matte(
 {
 	vec3 Nf = faceforward(N, I);
 	Oi = Os;
-	Ci = Os * Cs * (Kd * diffuse(Nf));
+	Ci = Os * Cs * (Ka * ambient() + Kd * diffuse(Nf));
 }
 
 surface metal(

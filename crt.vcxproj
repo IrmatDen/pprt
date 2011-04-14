@@ -81,13 +81,13 @@
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
       <FloatingPointModel>Fast</FloatingPointModel>
       <FloatingPointExceptions>false</FloatingPointExceptions>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <ExpandAttributedSource>true</ExpandAttributedSource>
+      <ExpandAttributedSource>false</ExpandAttributedSource>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>Asm_$(IntDir)</AssemblerListingLocation>
       <WarningLevel>Level3</WarningLevel>
@@ -96,6 +96,7 @@
       <AdditionalIncludeDirectories>F:\libs\tbb30_20101215oss\include;F:\libs\FreeImage\Dist;F:\libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\boost\boost_1_44;F:\libs\cpp-gpengine\include;$(SolutionDir)\dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>FreeImagePlus.lib;Winmm.lib;tbb.lib;gpenginedllruntime.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -166,6 +167,7 @@
     <ClInclude Include="src\shadervm\shader_param.h" />
     <ClInclude Include="src\shadervm\symtab.h" />
     <ClInclude Include="src\shadervm\varvalue.h" />
+    <ClInclude Include="src\shadervm\vmstack.h" />
     <ClInclude Include="src\shader_compiler\CRTSL_grammar_constants.h" />
     <ClInclude Include="src\shader_compiler\mnemonic_gen_visitor.h" />
     <ClInclude Include="src\shader_compiler\SL_ASTCreator.h" />

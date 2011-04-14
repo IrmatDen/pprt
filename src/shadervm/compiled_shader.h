@@ -7,6 +7,7 @@
 #include <stack>
 
 #include "symtab.h"
+#include "vmstack.h"
 
 #include "../scene/color.h"
 #include "../common.h"
@@ -43,16 +44,54 @@ public:
 
 	enum OpCode
 	{
-		Pushd,	//! Push a value
-		Pushv,	//! Push a var id
-		Mult,	//! Multiply the 2 first values in stack
-		Add,	//! Add the 2 first values in stack
-		Sub,	//! Substract the 2 first values in stack
-		Dot,	//! Dot product between the 2 top values of the stack (must be vector)
-		Negate,	//! Negate the passed argument
-		Call,	//! Call a function
-		Pop,	//! Pop into a var id
-		Ret		//! End execution (only used in functions)
+		Pushd,		//! Push a value
+		PushVec,	//! Push the var id of a vector3
+		PushCol,	//! Push the var id of a color
+		PushReal,	//! Push the var id of a real value
+		Mult,		//! Generic Multiply the 2 first values in stack (only used in high lvl representation)
+		MultRealReal,
+		MultRealVec,
+		MultRealCol,
+		MultVecReal,
+		MultVecVec,
+		MultVecCol,
+		MultColReal,
+		MultColVec,
+		MultColCol,
+		Add,		//! Add the 2 first values in stack, HL opcode
+		AddRealReal,
+		AddRealVec,
+		AddRealCol,
+		AddVecReal,
+		AddVecVec,
+		AddVecCol,
+		AddColReal,
+		AddColVec,
+		AddColCol,
+		Sub,		//! Substract the 2 first values in stack, HL representation only again
+		SubRealReal,
+		SubRealVec,
+		SubRealCol,
+		SubVecReal,
+		SubVecVec,
+		SubVecCol,
+		SubColReal,
+		SubColVec,
+		SubColCol,
+		Dot,		//! Dot product between the 2 top values of the stack (must be vector)
+		Negate,		//! Negate the passed argument, HL representation
+		NegateReal,
+		NegateVec,
+		Call,		//! Call a function
+		Pop,		//! Generic pop, only used in high lvl representation
+		PopVecVec,	//! Pop a vector in a vector
+		PopVecReal,	//! Pop a scalar in a vector
+		PopVecCol,	//! Pop a color in a vector
+		PopColCol,	//! Pop a color in a color
+		PopColReal,	//! Pop a scalar in a color
+		PopColVec,	//! Pop a vector in a color
+		PopRealReal,//! Pop into a var id
+		Ret			//! End execution (only used in functions)
 	};
 
 	typedef void (CompiledShader::*ShaderFunction)();
@@ -91,13 +130,26 @@ public:
 	void exec();
 
 private:
-	typedef std::vector<Variable, memory::AllocAlign16<ByteCode> >	VariableTable;
-	typedef std::pair<VariableType, VarValue>						ProgramStackElement;
+	typedef std::vector<Variable, memory::AllocAlign16<Variable> >	VariableTable;
+	typedef std::stack<VariableType> TypeStack;
+
+	struct FunctionInfo
+	{
+		FunctionInfo() : func(nullptr), args(0), retValue(VariableType(0))		{}
+		FunctionInfo(ShaderFunction f, int a, VariableType vt)
+			: func(f), args(a), retValue(vt)
+		{
+		}
+
+		ShaderFunction	func;
+		int				args;
+		VariableType	retValue;
+	};
 
 private:
 	// Parsing helpers
 	bool findVarIdx(const std::string &str, int &varIdx);
-	bool findFunRef(const std::string &str, ShaderFunction &fnRef);
+	bool findFunRef(const std::string &str, FunctionInfo **fnRef);
 	
 	// Functions
 		// Type constructors
@@ -116,6 +168,7 @@ private:
 		void	mix();
 
 		// Shading and lighting functions
+		void	ambient();
 		void	diffuse();
 		void	specular();
 		void	trace();
@@ -131,17 +184,17 @@ private:
 	ByteCode				*	codePtrEnd;
 	size_t						codeSize;
 	ByteCode				*	eip;
-	
-	ProgramStackElement			execStack[15];
-	ProgramStackElement		*	esp;
+
+	TypeStack					typeStack;	//<! Used at compilation only. Will be moved to a shader compiler module soon
+	VMStack						execStack;
 
 	Scene					*	scene;
 	int							currentDepth;
 
 private:
 	typedef std::map<std::string, OpCode>			OpCodeMapping;
-	typedef std::map<std::string, ShaderFunction>	FunctionMapping;
-
+	typedef std::map<std::string, FunctionInfo>		FunctionMapping;
+	
 private:
 	static OpCodeMapping	opCodeMappings;
 	static FunctionMapping	fnMappings;

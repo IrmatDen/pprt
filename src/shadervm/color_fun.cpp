@@ -7,14 +7,9 @@ using namespace boost;
 
 void CompiledShader::mix()
 {
-	--esp;
-	const Color &v0 = get<Color>(esp->second);
-	--esp;
-	const Color &v1 = get<Color>(esp->second);
-	--esp;
-	float interp = get<float>(esp->second);
+	const Color &v0 = execStack.pop<Color>();
+	const Color &v1 = execStack.pop<Color>();
+	float &interp = execStack.pop<float>();
 
-	esp->first = VT_Color;
-	esp->second = interp * v0 + (1 - interp) * v1;
-	++esp;
+	execStack.push(Color(interp * v0 + (1 - interp) * v1));
 }

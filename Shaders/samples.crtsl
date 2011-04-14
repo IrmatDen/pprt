@@ -18,7 +18,6 @@ surface diffuse_sample()
 
 surface specular_sample(real roughness=0.1;)
 {
-	#out = surfColor * (diffuse(N) * 0.5 + specular(N, roughness) * 0.5);
 	Oi = Os;
 	Ci = Os * Cs * (diffuse(N) * 0.5 + 0.5 * specular(N, roughness));
 }
@@ -28,7 +27,7 @@ surface reflect_sample(real roughness=0.1;)
 	vec3 Nf = faceforward(N, I);
 	vec3 r = reflect(I, Nf);
 	Oi = Os;
-	Ci = Os * Cs * (diffuse(Nf) + specular(Nf, roughness)) + trace(P, r);
+	Ci = Os * Cs * (ambient() + diffuse(Nf) + specular(Nf, roughness)) + trace(P, r);
 }
 
 surface matte_opa(real Ka = 1;
@@ -47,7 +46,6 @@ surface smoothstep_sample(real rim_width = 0.5;)
 	real diffusecolor = smoothstep(1 - rim_width, 1, dot);
 	
 	Oi = Os;
-	
 	Ci = Oi * Cs * diffusecolor;
 }
 

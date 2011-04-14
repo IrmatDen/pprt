@@ -16,6 +16,8 @@ CompiledShader::OpCodeMapping	CompiledShader::opCodeMappings;
 CompiledShader::FunctionMapping CompiledShader::fnMappings;
 bool							CompiledShader::opCodeMappingsInitialized = false;
 
+#define MK_SHADERFUNC(METHODNAME)	CompiledShader::ShaderFunction(&CompiledShader::METHODNAME)
+
 void initOpCodeMappings()
 {
 	// mnemonic - Opcodes mapping
@@ -31,28 +33,29 @@ void initOpCodeMappings()
 
 	// Function name - fn pointers mapping
 		// Type ctors
-	CompiledShader::fnMappings["color"]		= CompiledShader::ShaderFunction(&CompiledShader::colorCtor);
-	CompiledShader::fnMappings["vec3"]		= CompiledShader::ShaderFunction(&CompiledShader::vec3Ctor);
+	CompiledShader::fnMappings["color"]		= CompiledShader::FunctionInfo(MK_SHADERFUNC(colorCtor), 3, VT_Color);
+	CompiledShader::fnMappings["vec3"]		= CompiledShader::FunctionInfo(MK_SHADERFUNC(vec3Ctor), 3, VT_Vector);
 	
 		// Mathematical
-	CompiledShader::fnMappings["smoothstep"]	= CompiledShader::ShaderFunction(&CompiledShader::smoothstep);
-		
+	CompiledShader::fnMappings["smoothstep"]	= CompiledShader::FunctionInfo(MK_SHADERFUNC(smoothstep), 3, VT_Float);
+
 		// Geometric
-	CompiledShader::fnMappings["faceforward"]	= CompiledShader::ShaderFunction(&CompiledShader::faceForward);
-	CompiledShader::fnMappings["normalize"]		= CompiledShader::ShaderFunction(&CompiledShader::normalize);
-	CompiledShader::fnMappings["reflect"]		= CompiledShader::ShaderFunction(&CompiledShader::reflect);
+	CompiledShader::fnMappings["faceforward"]	= CompiledShader::FunctionInfo(MK_SHADERFUNC(faceForward), 2, VT_Vector);
+	CompiledShader::fnMappings["normalize"]		= CompiledShader::FunctionInfo(MK_SHADERFUNC(normalize), 1, VT_Vector);
+	CompiledShader::fnMappings["reflect"]		= CompiledShader::FunctionInfo(MK_SHADERFUNC(reflect), 2, VT_Vector);
 	
 		// Color
-	CompiledShader::fnMappings["mix"]		= CompiledShader::ShaderFunction(&CompiledShader::mix);
+	CompiledShader::fnMappings["mix"]	= CompiledShader::FunctionInfo(MK_SHADERFUNC(mix), 3, VT_Color);
 		
 		// Shading & lighting
-	CompiledShader::fnMappings["diffuse"]	= CompiledShader::ShaderFunction(&CompiledShader::diffuse);
-	CompiledShader::fnMappings["specular"]	= CompiledShader::ShaderFunction(&CompiledShader::specular);
-	CompiledShader::fnMappings["trace"]		= CompiledShader::ShaderFunction(&CompiledShader::trace);
+	CompiledShader::fnMappings["ambient"]	= CompiledShader::FunctionInfo(MK_SHADERFUNC(ambient), 0, VT_Color);
+	CompiledShader::fnMappings["diffuse"]	= CompiledShader::FunctionInfo(MK_SHADERFUNC(diffuse), 1, VT_Color);
+	CompiledShader::fnMappings["specular"]	= CompiledShader::FunctionInfo(MK_SHADERFUNC(specular), 2, VT_Color);
+	CompiledShader::fnMappings["trace"]		= CompiledShader::FunctionInfo(MK_SHADERFUNC(trace), 2, VT_Color);
 }
 
 CompiledShader::CompiledShader(ShaderType shaderType)
-:type(shaderType), scene(0)
+:type(shaderType), scene(0), execStack(256)
 {
 	if (!opCodeMappingsInitialized)
 	{
@@ -66,8 +69,8 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 	addVar(VST_Varying, VT_Vector,	"P",	Vector3(0.f));
 	addVar(VST_Varying, VT_Vector,	"N",	Vector3(0.f));
 	addVar(VST_Varying, VT_Vector,	"Ng",	Vector3(0.f));
-	addVar(VST_Varying, VT_Vector,	"s",	0.f);
-	addVar(VST_Varying, VT_Vector,	"t",	0.f);
+	addVar(VST_Varying, VT_Float,	"s",	0.f);
+	addVar(VST_Varying, VT_Float,	"t",	0.f);
 	addVar(VST_Varying, VT_Vector,	"I",	Vector3(0.f));
 
 	// output
@@ -84,7 +87,7 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 CompiledShader::CompiledShader(const CompiledShader &other, bool runtime)
 :varTable(other.varTable),
 codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
-scene(other.scene)
+scene(other.scene), execStack(256)
 {
 	if (!runtime)
 	{
@@ -165,13 +168,16 @@ void CompiledShader::parseInstr(const std::string &instr)
 
 	bc.first = opcode->second;
 
-	// Push <something>
-	if (bc.first == Pushd)
+	switch (bc.first)
 	{
+	// Push <something>
+	case Pushd:
+#pragma region Pushing
 		// Check if it's a number, in which case, it is pushed.
 		try
 		{
 			bc.second = lexical_cast<float>(tokens[1]);
+			typeStack.push(VT_Float);
 		}
 		catch (bad_lexical_cast &)
 		{
@@ -180,46 +186,367 @@ void CompiledShader::parseInstr(const std::string &instr)
 			if (findVarIdx(tokens[1], varIdx))
 			{
 				// Change the opcode to match the fact we're pushing a variable index and not a number.
-				bc.first	= Pushv;
-				bc.second	= varIdx;
+				switch (varTable.at(varIdx).type)
+				{
+				case VT_Float:
+					bc.first = PushReal;
+					typeStack.push(VT_Float);
+					break;
+						
+				case VT_Color:
+					bc.first = PushCol;
+					typeStack.push(VT_Color);
+					break;
+						
+				case VT_Vector:
+					bc.first = PushVec;
+					typeStack.push(VT_Vector);
+					break;
+				};
+
+				bc.second = varIdx;
 			}
 			else
 			{
 				//! \todo Throw an exception as variable is unknown
 			}
 		}
-	}
-	// Mult (single operand)
-	else if (bc.first == Mult)
-	{
-		// Second operand of bytecode is useless (ATM that is)
-	}
-	// Pop <something>
-	else if (bc.first == Pop)
-	{
-		// Popping is only possible in a variable, so no need to search something else.
-		int varIdx;
-		if (findVarIdx(tokens[1], varIdx))
+#pragma endregion
+		break;
+
+		// Mult (2 operands on stack)
+	case Mult:
 		{
-			bc.second	= varIdx;
+#pragma region Multiplying
+			// Second operand of bytecode is useless (ATM that is)
+			const VariableType vt1 = typeStack.top();		typeStack.pop();
+			const VariableType vt2 = typeStack.top();		typeStack.pop();
+
+			switch (vt1)
+			{
+			case VT_Float:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = MultRealReal;
+					typeStack.push(VT_Float);
+					break;
+
+				case VT_Vector:
+					bc.first = MultRealVec;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Color:
+					bc.first = MultRealCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+
+			case VT_Vector:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = MultVecReal;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Vector:
+					bc.first = MultVecVec;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Color:
+					bc.first = MultVecCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+
+			case VT_Color:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = MultColReal;
+					typeStack.push(VT_Color);
+					break;
+
+				case VT_Vector:
+					bc.first = MultColVec;
+					typeStack.push(VT_Color);
+					break;
+
+				case VT_Color:
+					bc.first = MultColCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+			}
+#pragma endregion
 		}
-		else
+		break;
+
+		// Add (2 operands on stack)
+	case Add:
 		{
-			//! \todo Throw an exception as variable is unknown
+#pragma region Addition
+			// Second operand of bytecode is useless (ATM that is)
+			const VariableType vt1 = typeStack.top();		typeStack.pop();
+			const VariableType vt2 = typeStack.top();		typeStack.pop();
+
+			switch (vt1)
+			{
+			case VT_Float:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = AddRealReal;
+					typeStack.push(VT_Float);
+					break;
+
+				case VT_Vector:
+					bc.first = AddRealVec;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Color:
+					bc.first = AddRealCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+
+			case VT_Vector:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = AddVecReal;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Vector:
+					bc.first = AddVecVec;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Color:
+					bc.first = AddVecCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+
+			case VT_Color:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = AddColReal;
+					typeStack.push(VT_Color);
+					break;
+
+				case VT_Vector:
+					bc.first = AddColVec;
+					typeStack.push(VT_Color);
+					break;
+
+				case VT_Color:
+					bc.first = AddColCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+			}
+#pragma endregion
 		}
-	}
-	// Call <proc>
-	else if (bc.first == Call)
-	{
-		ShaderFunction f(0);
-		if (findFunRef(tokens[1], f))
+		break;
+
+		// Add (2 operands on stack)
+	case Sub:
 		{
-			bc.second = f;
+#pragma region Substraction
+			// Second operand of bytecode is useless (ATM that is)
+			const VariableType vt1 = typeStack.top();		typeStack.pop();
+			const VariableType vt2 = typeStack.top();		typeStack.pop();
+
+			switch (vt1)
+			{
+			case VT_Float:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = SubRealReal;
+					typeStack.push(VT_Float);
+					break;
+
+				case VT_Vector:
+					bc.first = SubRealVec;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Color:
+					bc.first = SubRealCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+
+			case VT_Vector:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = SubVecReal;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Vector:
+					bc.first = SubVecVec;
+					typeStack.push(VT_Vector);
+					break;
+
+				case VT_Color:
+					bc.first = SubVecCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+
+			case VT_Color:
+				switch (vt2)
+				{
+				case VT_Float:
+					bc.first = SubColReal;
+					typeStack.push(VT_Color);
+					break;
+
+				case VT_Vector:
+					bc.first = SubColVec;
+					typeStack.push(VT_Color);
+					break;
+
+				case VT_Color:
+					bc.first = SubColCol;
+					typeStack.push(VT_Color);
+					break;
+				}
+				break;
+			}
+#pragma endregion
 		}
-		else
+		break;
+
+		// Pop <something>
+	case Pop:
 		{
-			//! \todo Throw an exception as function is unknown
+#pragma region Popping methods
+			// Popping is only possible in a variable, so no need to search something else.
+			int varIdx;
+			if (findVarIdx(tokens[1], varIdx))
+			{
+				bc.second	= varIdx;
+
+				switch (varTable.at(varIdx).type)
+				{
+				case VT_Float:
+					switch (typeStack.top())
+					{
+					case VT_Float:
+						bc.first = PopRealReal;
+						break;
+
+					default:
+						break; //! \todo throw exception
+					};
+					typeStack.pop();
+					break;
+					
+				case VT_Color:
+					switch (typeStack.top())
+					{
+					case VT_Color:
+						bc.first = PopColCol;
+						break;
+
+					case VT_Float:
+						bc.first = PopColReal;
+						break;
+
+					case VT_Vector:
+						bc.first = PopColVec;
+						break;
+					};
+					typeStack.pop();
+					break;
+					
+				case VT_Vector:
+					switch (typeStack.top())
+					{
+					case VT_Vector:
+						bc.first = PopVecVec;
+						break;
+
+					case VT_Float:
+						bc.first = PopVecReal;
+						break;
+
+					case VT_Color:
+						bc.first = PopVecCol;
+						break;
+					};
+					typeStack.pop();
+					break;
+				};
+			}
+			else
+			{
+				//! \todo Throw an exception as variable is unknown
+			}
+#pragma endregion
 		}
+		break;
+
+	case Negate:
+		switch (typeStack.top())
+		{
+		case VT_Float:
+			bc.first = NegateReal;
+			break;
+
+		case VT_Vector:
+			bc.first = NegateVec;
+			break;
+		}
+		break;
+
+	case Dot:
+		typeStack.push(VT_Float);
+		break;
+
+		// Call <proc>
+	case Call:
+		{
+			FunctionInfo *fi(nullptr);
+			if (findFunRef(tokens[1], &fi))
+			{
+				assert(fi != nullptr);
+				assert(fi->func != nullptr);
+				bc.second = fi->func;
+
+				// Update type stack accordingly
+				for (int i = 0; i != fi->args; i++)
+					typeStack.pop();
+				typeStack.push(fi->retValue);
+			}
+			else
+			{
+				//! \todo Throw an exception as function is unknown
+			}
+		}
+		break;
+
+	default:
+		break;
 	}
 
 	code.push_back(bc);
@@ -227,8 +554,7 @@ void CompiledShader::parseInstr(const std::string &instr)
 
 bool CompiledShader::findVarIdx(const std::string &str, int &varIdx)
 {
-	size_t i;
-	for (i = 0; i < varTable.size(); i++)
+	for (size_t i = 0; i < varTable.size(); i++)
 	{
 		if (varTable.at(i).name == str)
 		{
@@ -240,19 +566,19 @@ bool CompiledShader::findVarIdx(const std::string &str, int &varIdx)
 	return false;
 }
 
-bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
+bool CompiledShader::findFunRef(const std::string &str, FunctionInfo **fnRef)
 {
 	// Found instruction opcode
-	FunctionMapping::const_iterator mappedFnRef = fnMappings.find(str);
+	FunctionMapping::iterator mappedFnRef = fnMappings.find(str);
 
 	//! \todo throw exception if fnMappings doesn't contain the current function name.
 	if (mappedFnRef == fnMappings.end())
 	{
-		fnRef = ShaderFunction(0);
+		fnRef = nullptr;
 		return false;
 	}
 
-	fnRef = mappedFnRef->second;
+	*fnRef = &(mappedFnRef->second);
 
 	return true;
 }
@@ -260,26 +586,41 @@ bool CompiledShader::findFunRef(const std::string &str, ShaderFunction &fnRef)
 void CompiledShader::exec()
 {
 	eip = codePtr;
-	esp = execStack;
+	execStack.reset();
 
 	while (eip != codePtrEnd)
 	{
 		switch(eip->first)
 		{
+#pragma region Pushing
 		case Pushd:
-			esp->first = VT_Float;
-			esp->second = boost::get<float>(eip->second);
-			++esp;
+			execStack.push<float>(get<float>(eip->second));
 			break;
 
-		case Pushv:
+		case PushVec:
 			{
 				const Variable &var = varTable[boost::get<int>(eip->second)];
-				esp->first = var.type;
-				esp->second = var.content;
-				++esp;
-				break;
+				assert(var.type == VT_Vector);
+				execStack.push(get<Vector3>(var.content));
 			}
+			break;
+			
+		case PushCol:
+			{
+				const Variable &var = varTable[boost::get<int>(eip->second)];
+				assert(var.type == VT_Color);
+				execStack.push(get<Color>(var.content));
+			}
+			break;
+
+		case PushReal:
+			{
+				const Variable &var = varTable[boost::get<int>(eip->second)];
+				assert(var.type == VT_Float);
+				execStack.push(get<float>(var.content));
+			}
+			break;
+#pragma endregion
 
 		case Call:
 			{
@@ -290,410 +631,298 @@ void CompiledShader::exec()
 
 		case Dot:
 			{
-				--esp;	ProgramStackElement &op1 = *esp;
-				--esp;	ProgramStackElement &op2 = *esp;
-
-				Vector3	&op1v = boost::get<Vector3>(op1.second);
-				Vector3	&op2v = boost::get<Vector3>(op2.second);
-				esp->first = VT_Float;
-				esp->second = VarValue(dot(op1v, op2v));
-				++esp;
+				Vector3	&op1v = execStack.pop<Vector3>();
+				Vector3	&op2v = execStack.pop<Vector3>();
+				execStack.push((float)dot(op1v, op2v));
 				break;
 			}
 
-		case Negate:
+		case NegateReal:
 			{
-				--esp;	ProgramStackElement &op = *esp;
-				switch(op.first)
-				{
-				case VT_Float:
-					{
-						float v = boost::get<float>(op.second);
-						esp->second = VarValue(-v);
-						break;
-					}
-
-				case VT_Vector:
-					{
-						const Vector3 &v = boost::get<Vector3>(op.second);
-						esp->second = VarValue(v * -1.f);
-						break;
-					}
-				}
-				++esp;
-				break;
-			}
-
-		case Mult:
-			{
-				--esp;	ProgramStackElement &op1 = *esp;
-				--esp;	ProgramStackElement &op2 = *esp;
-				switch(op1.first)
-				{
-				case VT_Float:
-					{
-						float &op1r = boost::get<float>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float &op2d = boost::get<float>(op2.second);
-								esp->first = VT_Float;
-								esp->second = VarValue(op1r * op2d);
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->first = VT_Color;
-								esp->second = VarValue(op2c * op1r);
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								Vector3	&op2v = boost::get<Vector3>(op2.second);
-								esp->first = VT_Vector;
-								esp->second = VarValue(op2v * op1r);
-								break;
-							}
-						}
-						++esp;
-						break;
-					}
-
-				case VT_Color:
-					{
-						Color	&op1c = boost::get<Color>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float	op2f = (float)boost::get<float>(op2.second);
-								esp->second = VarValue(op1c * op2f);
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->second = VarValue(mulPerElem(op2c, op1c));
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								Color	op2c(boost::get<Vector3>(op2.second));
-								esp->second = VarValue(mulPerElem(op2c, op1c));
-								break;
-							}
-						}
-						esp->first = VT_Color;
-						++esp;
-						break;
-					}
-
-				case VT_Vector:
-					{
-						Vector3 &op1v = boost::get<Vector3>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float &op2d = boost::get<float>(op2.second);
-								esp->first = VT_Vector;
-								esp->second = VarValue(op1v * op2d);
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->first = VT_Color;
-								esp->second = VarValue(mulPerElem(op2c, Color(boost::get<Vector3>(op1.second))));
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								// vector by vector mult is not supported by the mult operator;
-								// only by dot & cross products
-								esp->first = VT_Vector;
-								esp->second = VarValue(Vector3(all_zero()));
-								break;
-							}
-						}
-						++esp;
-						break;
-					}
-				}
+				float &op = execStack.pop<float>();
+				execStack.push(-op);
 			}
 			break;
 
-		case Add:
+		case NegateVec:
 			{
-				--esp;	ProgramStackElement &op1 = *esp;
-				--esp;	ProgramStackElement &op2 = *esp;
-				switch(op1.first)
-				{
-				case VT_Float:
-					{
-						float &op1r = boost::get<float>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float &op2d = boost::get<float>(op2.second);
-								esp->first = VT_Float;
-								esp->second = VarValue(op1r + op2d);
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->first = VT_Color;
-								esp->second = VarValue(op2c + Vector3(op1r));
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								Vector3	&op2v = boost::get<Vector3>(op2.second);
-								esp->first = VT_Vector;
-								esp->second = VarValue(op2v + Vector3(op1r));
-								break;
-							}
-						}
-						++esp;
-						break;
-					}
-
-				case VT_Color:
-					{
-						Color	&op1c = boost::get<Color>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float	op2f = (float)boost::get<float>(op2.second);
-								esp->second = VarValue(op1c + Vector3(op2f));
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->second = VarValue(op2c + op1c);
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								Color	op2c(boost::get<Vector3>(op2.second));
-								esp->second = VarValue(op2c + op1c);
-								break;
-							}
-						}
-						esp->first = VT_Color;
-						++esp;
-						break;
-					}
-
-				case VT_Vector:
-					{
-						Vector3	&op1v = boost::get<Vector3>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float	op2f = boost::get<float>(op2.second);
-								esp->first = VT_Vector;
-								esp->second = VarValue(op1v + Vector3(op2f));
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->first = VT_Color;
-								esp->second = VarValue(op2c + Color(op1v));
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								Vector3	&op2v = boost::get<Vector3>(op2.second);
-								esp->first = VT_Vector;
-								esp->second = VarValue(op1v + op2v);
-								break;
-							}
-						}
-						++esp;
-						break;
-					}
-				}
+				Vector3 &op = execStack.pop<Vector3>();
+				execStack.push(-op);
+			}
+			break;
+			
+#pragma region Multiplying
+		case MultRealReal:
+			{
+				float &op1 = execStack.pop<float>();
+				float &op2 = execStack.pop<float>();
+				execStack.push(op1 * op2);
 			}
 			break;
 
-		case Sub:
+		case MultRealVec:
 			{
-				--esp;	ProgramStackElement &op1 = *esp;
-				--esp;	ProgramStackElement &op2 = *esp;
-				switch(op1.first)
-				{
-				case VT_Float:
-					{
-						float &op1r = boost::get<float>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float &op2d = boost::get<float>(op2.second);
-								esp->first = VT_Float;
-								esp->second = VarValue(op1r - op2d);
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->first = VT_Color;
-								esp->second = VarValue(op2c - Vector3(op1r));
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								Vector3	&op2v = boost::get<Vector3>(op2.second);
-								esp->first = VT_Vector;
-								esp->second = VarValue(op2v - Vector3(op1r));
-								break;
-							}
-						}
-						++esp;
-						break;
-					}
-
-				case VT_Color:
-					{
-						Color	&op1c = boost::get<Color>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float	op2f = (float)boost::get<float>(op2.second);
-								esp->second = VarValue(op1c - Vector3(op2f));
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->second = VarValue(op2c - op1c);
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								Color	op2c(boost::get<Vector3>(op2.second));
-								esp->second = VarValue(op2c - op1c);
-								break;
-							}
-						}
-						esp->first = VT_Color;
-						++esp;
-						break;
-					}
-
-				case VT_Vector:
-					{
-						Vector3	&op1v = boost::get<Vector3>(op1.second);
-
-						switch(op2.first)
-						{
-						case VT_Float:
-							{
-								float	op2f = boost::get<float>(op2.second);
-								esp->first = VT_Vector;
-								esp->second = VarValue(op1v - Vector3(op2f));
-								break;
-							}
-							
-						case VT_Color:
-							{
-								Color	&op2c = boost::get<Color>(op2.second);
-								esp->first = VT_Color;
-								esp->second = VarValue(op2c - Color(op1v));
-								break;
-							}
-							
-						case VT_Vector:
-							{
-								Vector3	&op2v = boost::get<Vector3>(op2.second);
-								esp->first = VT_Vector;
-								esp->second = VarValue(op1v - op2v);
-								break;
-							}
-						}
-						++esp;
-						break;
-					}
-				}
+				float	&op1 = execStack.pop<float>();
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(op1 * op2);
 			}
 			break;
 
-		case Pop:
+		case MultRealCol:
 			{
-				--esp;
-				ProgramStackElement &pse = *esp;
+				float	&op1 = execStack.pop<float>();
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(op1 * op2);
+			}
+			break;
+
+		case MultVecReal:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				float	&op2 = execStack.pop<float>();
+				execStack.push(op1 * op2);
+			}
+			break;
+
+		case MultVecVec:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(mulPerElem(op1, op2));
+			}
+			break;
+
+		case MultVecCol:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(mulPerElem(op1, op2));
+			}
+			break;
+
+		case MultColReal:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				float	&op2 = execStack.pop<float>();
+				execStack.push(op1 * op2);
+			}
+			break;
+
+		case MultColVec:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(mulPerElem(op1, op2));
+			}
+			break;
+
+		case MultColCol:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(mulPerElem(op1, op2));
+			}
+			break;
+#pragma endregion
+			
+#pragma region Addition
+		case AddRealReal:
+			{
+				float &op1 = execStack.pop<float>();
+				float &op2 = execStack.pop<float>();
+				execStack.push(op1 + op2);
+			}
+			break;
+
+		case AddRealVec:
+			{
+				Vector3	 op1(execStack.pop<float>());
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(op1 + op2);
+			}
+			break;
+
+		case AddRealCol:
+			{
+				Color	 op1(execStack.pop<float>());
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(op1 + op2);
+			}
+			break;
+
+		case AddVecReal:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				Vector3	 op2(execStack.pop<float>());
+				execStack.push(op1 + op2);
+			}
+			break;
+
+		case AddVecVec:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(op1 + op2);
+			}
+			break;
+
+		case AddVecCol:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(op1 + op2);
+			}
+			break;
+
+		case AddColReal:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				Color	 op2(execStack.pop<float>());
+				execStack.push(op1 + op2);
+			}
+			break;
+
+		case AddColVec:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(op1 + op2);
+			}
+			break;
+
+		case AddColCol:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(op1 + op2);
+			}
+			break;
+#pragma endregion
+		
+#pragma region Substraction
+		case SubRealReal:
+			{
+				float &op1 = execStack.pop<float>();
+				float &op2 = execStack.pop<float>();
+				execStack.push(op1 - op2);
+			}
+			break;
+
+		case SubRealVec:
+			{
+				Vector3	 op1(execStack.pop<float>());
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(op1 - op2);
+			}
+			break;
+
+		case SubRealCol:
+			{
+				Color	 op1(execStack.pop<float>());
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(op1 - op2);
+			}
+			break;
+
+		case SubVecReal:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				Vector3	 op2(execStack.pop<float>());
+				execStack.push(op1 - op2);
+			}
+			break;
+
+		case SubVecVec:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(op1 - op2);
+			}
+			break;
+
+		case SubVecCol:
+			{
+				Vector3	&op1 = execStack.pop<Vector3>();
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(op1 - op2);
+			}
+			break;
+
+		case SubColReal:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				Color	 op2(execStack.pop<float>());
+				execStack.push(op1 - op2);
+			}
+			break;
+
+		case SubColVec:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				Vector3	&op2 = execStack.pop<Vector3>();
+				execStack.push(op1 - op2);
+			}
+			break;
+
+		case SubColCol:
+			{
+				Color	&op1 = execStack.pop<Color>();
+				Color	&op2 = execStack.pop<Color>();
+				execStack.push(op1 - op2);
+			}
+			break;
+#pragma endregion
+
+#pragma region Popping
+		case PopVecVec:
+			{
 				Variable &var = varTable[boost::get<int>(eip->second)];
-				if (var.type == pse.first)
-					var.content = pse.second;
-				else
-				{
-					switch (var.type)
-					{
-					case VT_Color:
-						switch(pse.first)
-						{
-						case VT_Float:
-							var.content = Color((float)boost::get<float>(pse.second));
-							break;
-
-						case VT_Vector:
-							var.content = Color(boost::get<Vector3>(pse.second));
-							break;
-						}
-						break;
-						
-					case VT_Vector:
-						switch(pse.first)
-						{
-						case VT_Float:
-							var.content = Vector3(boost::get<float>(pse.second));
-							break;
-
-						case VT_Color:
-							{
-								Color &c = boost::get<Color>(pse.second);
-								var.content = Vector3(c);
-								break;
-							}
-						}
-						break;
-					}
-				}
+				var.content = execStack.pop<Vector3>();
 			}
+			break;
+
+		case PopVecReal:
+			{
+				Variable &var = varTable[boost::get<int>(eip->second)];
+				var.content = Vector3(execStack.pop<float>());
+			}
+			break;
+
+		case PopVecCol:
+			{
+				Variable &var = varTable[boost::get<int>(eip->second)];
+				var.content = Vector3(execStack.pop<Color>());
+			}
+			break;
+
+		case PopColCol:
+			{
+				Variable &var = varTable[boost::get<int>(eip->second)];
+				var.content = execStack.pop<Color>();
+			}
+			break;
+
+		case PopColReal:
+			{
+				Variable &var = varTable[boost::get<int>(eip->second)];
+				var.content = Color(execStack.pop<float>());
+			}
+			break;
+
+		case PopColVec:
+			{
+				Variable &var = varTable[boost::get<int>(eip->second)];
+				var.content = Color(execStack.pop<Vector3>());
+			}
+			break;
+
+		case PopRealReal:
+			{
+				Variable &var = varTable[boost::get<int>(eip->second)];
+				var.content = execStack.pop<float>();
+			}
+			break;
+#pragma endregion
 
 		default:
 			//! \todo throw unsupported operation exception

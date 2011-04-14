@@ -64,6 +64,7 @@ public:
 public:
 	// Shading & lighting functions
 	Color		traceNoDepthMod(Ray &eye, bool &hitSomething);
+	void		ambient(Color &out) const;
 	void		diffuse(const Ray &r, Color &out) const;
 	void		specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const;
 

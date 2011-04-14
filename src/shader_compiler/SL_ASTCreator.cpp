@@ -289,18 +289,20 @@ ASTNode* SL_ASTCreator::getASTNode (const Symbol *reduction, ASTNode *parent)
 	case SYMBOL_PROC_ARGUMENTS:
 	{
 		CREATE_NODE(ProcArgsListNode, proc_arguments);
-
-		deque <Symbol*> args = ((NonTerminal*) rdcChildren[0])->children;
-		
-		switch(args.size())
+		if (!rdcChildren.empty())
 		{
-		case 1:
-			proc_arguments->addChild (getASTNode(args[0], proc_arguments));		// only arg
-			break;
-		case 3:
-			proc_arguments->addChild (getASTNode(args[0], proc_arguments));		// first arg
-			proc_arguments->addChild (getASTNode(args[2], proc_arguments));		// other arg(s)
-			break;
+			deque <Symbol*> args = ((NonTerminal*) rdcChildren[0])->children;
+		
+			switch(args.size())
+			{
+			case 1:
+				proc_arguments->addChild (getASTNode(args[0], proc_arguments));		// only arg
+				break;
+			case 3:
+				proc_arguments->addChild (getASTNode(args[0], proc_arguments));		// first arg
+				proc_arguments->addChild (getASTNode(args[2], proc_arguments));		// other arg(s)
+				break;
+			}
 		}
 
 		return proc_arguments;

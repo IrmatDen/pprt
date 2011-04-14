@@ -187,6 +187,9 @@
     <ClInclude Include="src\sse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\shadervm\vmstack.h">
+      <Filter>Header Files\ShaderVM</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\standards.crtsl">

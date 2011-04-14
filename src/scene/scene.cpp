@@ -246,7 +246,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	if (isOpaque(Oi))
 		return Ci;
 
-	ray.origin += ray.direction() * (t + 0.00000001f);
+	ray.origin += ray.direction() * (t + 0.000001f);
 	return Ci + mulPerElem((Vector3(1) - Oi), traceNoDepthMod(ray, dummy));
 }
 
@@ -315,9 +315,12 @@ bool Scene::collide(const Ray &r, float t, Color &visQty, Color &influencedColor
 		}
 	}
 
-	clamp(influencedColor);
-
 	return false;
+}
+
+void Scene::ambient(Color &out) const
+{
+	out = Color(0.15f);
 }
 
 void Scene::diffuse(const Ray &r, Color &out) const
@@ -328,7 +331,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Vector3 p = r.origin + r.direction() * 0.000000001f;
+	const Vector3 p = r.origin + r.direction() * 0.000001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -360,8 +363,6 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 		++light;
 	}
-
-	clamp(out);
 }
 
 void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const
@@ -374,7 +375,7 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Vector3 p = r.origin + r.direction() * 0.00000001f;
+	const Vector3 p = r.origin + r.direction() * 0.000001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -401,6 +402,4 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 
 		++light;
 	}
-
-	clamp(out);
 }

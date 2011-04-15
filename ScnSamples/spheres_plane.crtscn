@@ -4,11 +4,15 @@ Output spheres_plane.png 800 600 +z
 CamLookAt <0, 1, -15> <0, 0, 0>
 
 PointLight <-4, 20, 0> 0.25 0.25 0.25
-PointLight <4, 0, 3> 0.15 0.15 0.225
-PointLight <0, -1.75, 5> 0.25 0.25 0.25
+PointLight <4, 20, 0> 0.25 0.25 0.25
+PointLight <4, 0, 3> 0.25 0.25 0.25
+PointLight <-4, 0, 3> 0.25 0.25 0.25
+#PointLight <0, -1.75, 5> 0.25 0.25 0.25
 
-Color 0 0 1
-Sphere 1 < 0, -0.5, 5> reflect_sample
+Color 0 1 0
+Opacity 0.25 0.25 0.25
+Sphere 1 < 0, -1.25, 5> constant
 
-Color 1 0 0
-Plane <0, 1, 0> -2.5 reflect_sample
+Color 1 1 1
+Opacity 1 1 1
+Plane <0, 1, 0> -2.5 plastic

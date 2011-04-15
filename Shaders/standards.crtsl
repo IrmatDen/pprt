@@ -18,9 +18,10 @@ surface metal(
 				real Ks = 1;
 				real roughness = 0.1;)
 {
-	vec3 Nf = faceforward(N, I);
+	vec3 Nf = faceforward(normalize(N), I);
+	vec3 V = -normalize(I);
 	Oi = Os;
-	Ci = Os * Cs * (Ks * specular(Nf, roughness));
+	Ci = Os * Cs * (Ka * ambient() + Ks * specular(Nf, V, roughness));
 }
 
 surface plastic(
@@ -30,7 +31,9 @@ surface plastic(
 				real roughness = 0.1;
 				color specularcolor = 1;)
 {
-	vec3 Nf = faceforward(N, I);
+	vec3 Nf = faceforward(normalize(N), I);
+	vec3 V = -normalize(I);
 	Oi = Os;
-	Ci = Os * Cs * (Kd * diffuse(Nf) + specularcolor * Ks * specular(Nf, roughness));
+	Ci = Os * Cs * (Ka * ambient() + Kd * diffuse(Nf) +
+					specularcolor * Ks * specular(Nf, V, roughness));
 }

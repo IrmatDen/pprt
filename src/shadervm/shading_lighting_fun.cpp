@@ -28,11 +28,11 @@ void CompiledShader::diffuse()
 
 void CompiledShader::specular()
 {
-	// 2 parameters expected: Normal & roughness
+	// 3 parameters expected: Normal, Incident vector & roughness
 
 	Vector3 &p = boost::get<Vector3>(varTable[P].content);
 	Vector3 &n = execStack.pop<Vector3>();
-	Vector3 &i = boost::get<Vector3>(varTable[I].content);
+	Vector3 &i = execStack.pop<Vector3>();
 	float roughness	= execStack.pop<float>();
 
 	Color out(0.f);

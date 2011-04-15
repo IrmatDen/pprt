@@ -19,6 +19,8 @@
 
 #include "../common.h"
 
+//#define NOTHREADING
+
 class TraceScanLine
 {
 public:
@@ -28,7 +30,6 @@ public:
 	}
 
 	void operator()(const tbb::blocked_range2d<int> &r) const
-	//void operator()(const tbb::blocked_range<int> &r) const
 	{
 		Scene &scene = scn;
 
@@ -36,15 +37,14 @@ public:
 		ray.origin = scene.cam.pos;
 
 		for (int y = r.rows().begin(); y != r.rows().end(); ++y)
-		//for (int y = r.begin(); y != r.end(); ++y)
 		{
 			BYTE *imgData = img.getScanLine(y);
 			imgData += 4 * r.cols().begin();
 
 			for (int x = r.cols().begin(); x < r.cols().end(); x++, imgData += 4)
-			//for (int x = 0; x < scene.resX; x++, imgData += 4)
 			{
-				Color col(0, 0, 0);
+				Color outPix(all_zero());
+				Color alphaPix(all_zero());
 				bool hitSomething;
 
 				for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -57,11 +57,13 @@ public:
 
 						scene.cam.project(fx, fy, ray);
 
-						Color traceCol = scene.trace(ray, hitSomething);
+						Color alphaFrag, outFrag;
+						outFrag = scene.trace(ray, hitSomething, alphaFrag);
 						if (hitSomething)
-							col += traceCol * 0.25f;
+							outPix += outFrag * 0.25f;
 						else
-							col += scene.background * 0.25f;
+							outPix += scene.background * 0.25f;
+						alphaPix += alphaFrag * 0.25f;
 					}
 				}
 
@@ -75,11 +77,13 @@ public:
 				col.g = powf(col.g, invGamma);
 				col.b = powf(col.b, invGamma);*/
 
-				clamp(col);
-				
-				const float	r = col.getX() * 255,
-							g = col.getY() * 255,
-							b = col.getZ() * 255;
+				clamp(outPix);
+				clamp(alphaPix);
+			
+				const float	r = outPix.getX() * 255,
+							g = outPix.getY() * 255,
+							b = outPix.getZ() * 255,
+							a = maxElem(alphaPix) * 255;
 				imgData[FI_RGBA_RED]	= BYTE(r);
 				imgData[FI_RGBA_GREEN]	= BYTE(g);
 				imgData[FI_RGBA_BLUE]	= BYTE(b);
@@ -139,6 +143,7 @@ void Scene::prepare()
 
 void Scene::render()
 {
+	background = Color(1.f);
 
 	fipImage img(FIT_BITMAP, (WORD)resX, (WORD)resY, 32);
 	BYTE *imgData = img.accessPixels();
@@ -156,7 +161,8 @@ void Scene::render()
 	{
 		for (int x = 0; x < resX; x++, imgData += 4)
 		{
-			Color col(0, 0, 0);
+			Color outPix(all_zero());
+			Color alphaPix(all_zero());
 			bool hitSomething;
 
 			for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
@@ -169,23 +175,27 @@ void Scene::render()
 
 					cam.project(fx, fy, r);
 
-					Color traceCol = trace(r, hitSomething);
+					Color alphaFrag, outFrag;
+					outFrag = trace(r, hitSomething, alphaFrag);
 					if (hitSomething)
-						col += traceCol * 0.25f;
+						outPix += outFrag * 0.25f;
 					else
-						col += background * 0.25f;
+						outPix += background * 0.25f;
+					alphaPix += alphaFrag * 0.25f;
 				}
 			}
 
-			clamp(col);
+			clamp(outPix);
+			clamp(alphaPix);
 			
-			const float	r = col.getX() * 255,
-						g = col.getY() * 255,
-						b = col.getZ() * 255;
+			const float	r = outPix.getX() * 255,
+						g = outPix.getY() * 255,
+						b = outPix.getZ() * 255,
+						a = maxElem(alphaPix) * 255;
 			imgData[FI_RGBA_RED]	= BYTE(r);
 			imgData[FI_RGBA_GREEN]	= BYTE(g);
 			imgData[FI_RGBA_BLUE]	= BYTE(b);
-			imgData[FI_RGBA_ALPHA]	= 255;
+			imgData[FI_RGBA_ALPHA]	= BYTE(a);
 		}
 	}
 #endif
@@ -194,21 +204,25 @@ void Scene::render()
 }
 
 bool dummy;
-Color Scene::trace(const Ray &eye, bool &hitSomething)
+Color Scene::trace(const Ray &eye, bool &hitSomething, Color &Oi) const
 {
 	if (eye.traceDepth == 16)
-		return Color(0, 0, 0);
+	{
+		return Color(all_zero());
+	}
 
 	Ray ray(eye);
-	ray.traceDepth++;
-
-	return traceNoDepthMod(ray, hitSomething);
+	Oi = Color(all_zero());
+	return traceNoDepthMod(ray, hitSomething, Oi);
 }
 
-Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
+Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 {
 	if (ray.traceDepth == 16)
-		return Color(sse::all_one);
+	{
+		hitSomething = false;
+		return Color(all_zero());
+	}
 	ray.traceDepth++;
 
 	float t = 20000;
@@ -217,14 +231,17 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	if (!nearestObj)
 	{
 		hitSomething = false;
-		return Color(0, 0, 0);
+		return Color(all_zero());
 	}
 
 	hitSomething = true;
 
 	// Object doesn't have shader, make it appear even for blind people!
 	if (!nearestObj->hasShader())
+	{
+		Oi = Color(sse::all_one);
 		return Color(1, 0, 1);
+	}
 
 	Vector3 p = ray.origin + ray.direction() * t;
 	IntersectionInfo info;
@@ -240,82 +257,15 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething)
 	shader.setVarValueByIndex(CompiledShader::I, ray.direction());
 	shader.exec();
 
-	Color Ci, Oi;
-	shader.getOutput(Ci, Oi);
+	Color Ci, thisOi;
+	shader.getOutput(Ci, thisOi);
+	Oi += thisOi;
 
 	if (isOpaque(Oi))
 		return Ci;
 
-	ray.origin += ray.direction() * (t + 0.000001f);
-	return Ci + mulPerElem((Vector3(1) - Oi), traceNoDepthMod(ray, dummy));
-}
-
-bool Scene::collide(const Ray &r, float t, Color &visQty, Color &influencedColor) const
-{
-	const Geometry **obj = (const Geometry**)rt_objects;
-
-	if (r.traceDepth >= 4)
-	{
-		visQty = Color();
-		return true;
-	}
-
-	Ray ray = r;
-	ray.traceDepth++;
-
-	Color Ci, Oi;
-	Vector3 p;
-
-	visQty = Vector3(1);
-
-	static const size_t	maxAccumulatedObjects(10);
-	Geometry *			accum[maxAccumulatedObjects];
-	float				dist[maxAccumulatedObjects];
-
-	const size_t objGathered = bvhRoot->gatherAlong(ray, t, accum, dist, maxAccumulatedObjects);
-	for (size_t i = 0; i < objGathered; i++)
-	{
-		p = ray.origin + ray.direction() * dist[i];
-		IntersectionInfo info;
-		accum[i]->fillIntersectionInfo(p, info);
-
-		CompiledShader shader(accum[i]->getShader(), true);
-		shader.setCurrentDepth(ray.traceDepth);
-		shader.setVarValueByIndex(CompiledShader::P, p);
-		shader.setVarValueByIndex(CompiledShader::N, info.normal);
-		shader.setVarValueByIndex(CompiledShader::Ng, info.normal);
-		shader.setVarValueByIndex(CompiledShader::s, info.s);
-		shader.setVarValueByIndex(CompiledShader::t, info.t);
-		shader.setVarValueByIndex(CompiledShader::I, ray.direction());
-		shader.exec();
-
-		shader.getOutput(Ci, Oi);
-
-		if (isOpaque(Oi))
-		{
-			visQty = Vector3(all_zero());
-			return true;
-		}
-		else
-		{
-			visQty = minPerElem(visQty, Oi);
-
-			/*visQty.r = visQty.r <= 0.01f ? 0 : visQty.r;
-			visQty.g = visQty.g <= 0.01f ? 0 : visQty.g;
-			visQty.b = visQty.b <= 0.01f ? 0 : visQty.b;*/
-
-			influencedColor += Ci;
-
-			if (maxElem(visQty) <= 0.01f)
-			{
-				influencedColor = Vector3(all_zero());
-				visQty = Vector3(all_zero());
-				return true;
-			}
-		}
-	}
-
-	return false;
+	ray.origin += ray.direction() * (t + 0.001f);
+	return Ci + mulPerElem((Vector3(1) - thisOi), traceNoDepthMod(ray, dummy, Oi));
 }
 
 void Scene::ambient(Color &out) const
@@ -325,13 +275,12 @@ void Scene::ambient(Color &out) const
 
 void Scene::diffuse(const Ray &r, Color &out) const
 {
-	Vector3 normDir = normalize(r.direction());
+	Vector3 dir = r.direction();
 	const Light **light = (const Light**)rt_lights;
 
-	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Vector3 p = r.origin + r.direction() * 0.000001f;
+	const Vector3 p = r.origin + r.direction() * 0.0001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -342,7 +291,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 		Vector3 L2P = (*light)->pos - p;
 		const float t = length(L2P);
 		L2P /= t;
-		const float L2PdotN = dot(L2P, normDir);
+		const float L2PdotN = dot(L2P, dir);
 		
 		if (L2PdotN < 0)
 		{
@@ -351,14 +300,20 @@ void Scene::diffuse(const Ray &r, Color &out) const
 		}
 
 		ray.setDirection(L2P);
-		bool lightOccluded = collide(ray, t, visibility, influencedColor);
+		bool hit;
+		Color opacity(all_zero());
+		Color influencedColor = trace(ray, hit, opacity);
+		Color visibility = (Color(sse::all_one) - opacity);
 
-		if (!lightOccluded)
+		if (!hit)
 		{
-			if (minElem(visibility) > 0.999f)
-				out += (*light)->color * L2PdotN;
-			else
-				out += mulPerElem((*light)->color, mulPerElem(visibility, influencedColor)) * L2PdotN;
+			out += (*light)->color * L2PdotN;
+		}
+		else if (minElem(visibility) > 0.001f)
+		{
+			Color receivedLight = mulPerElem(visibility, (*light)->color);
+			receivedLight += influencedColor;
+			out += receivedLight * L2PdotN;
 		}
 
 		++light;
@@ -367,15 +322,14 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const
 {
-	const Vector3 normDir = normalize(r.direction());
-	const Vector3 normVDir = normalize(-viewDir);
+	const Vector3 &dir = r.direction();
 
 	const Light **light = (const Light**)rt_lights;
 
 	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Vector3 p = r.origin + r.direction() * 0.000001f;
+	const Vector3 p = r.origin + dir * 0.0001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -388,16 +342,26 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 		float t = length(L2P);
 		L2P /= t;
 		ray.setDirection(L2P);
-		bool lightOccluded = collide(ray, t, visibility, influencedColor);
 
-		if (!lightOccluded)
+		bool hit;
+		Color opacity(all_zero());
+		Color influencedColor = trace(ray, hit, opacity);
+		Color visibility = (Color(sse::all_one) - opacity);
+
+		if (!hit || minElem(visibility) > 0.001f)
 		{
-			const Vector3 H = normalize(L2P + normVDir);
-			const float NdH = dot(normDir, H);
-			if (minElem(visibility) > 0.999f)
-				out += (*light)->color * static_cast<float>(pow(max(0, NdH), 1/roughness));
+			const Vector3 H = normalize(L2P + viewDir);
+			const float NdH = dot(dir, H);
+			const float specMult = static_cast<float>(pow(max(0, NdH), 1/roughness));
+
+			if (!hit)
+				out += (*light)->color * specMult;
 			else
-				out += mulPerElem((*light)->color, mulPerElem(visibility, influencedColor)) * static_cast<float>(pow(max(0, NdH), 1/roughness));
+			{
+				Color receivedLight = mulPerElem(visibility, (*light)->color);
+				receivedLight += influencedColor;
+				out += receivedLight * specMult;
+			}
 		}
 
 		++light;

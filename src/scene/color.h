@@ -15,13 +15,7 @@ inline void clamp(Color &c)
 
 inline bool isOpaque(const Color &c)
 {
-	__m128 r = minps(c.get128(), sse::all_one);
-	r = shuffle1ps(r, 0, 0, 0, 0);
-
-	float a;
-	storess(r, &a);
-
-	return a >= 1 - 0.00001f;
+	return minElem(c) >= 1 - 0.00001f;
 }
 
 #endif

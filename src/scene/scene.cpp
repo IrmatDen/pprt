@@ -125,12 +125,6 @@ Camera& Scene::camera()
 
 void Scene::prepare()
 {
-	/*rt_objects = new Geometry*[objects.size() + 1];
-	int loop = 0;
-	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it, ++loop)
-		rt_objects[loop] = (*it).get();
-	rt_objects[loop] = 0;*/
-
 	rt_lights = memory::construct<Light*>(lights.size() + 1);
 	int loop = 0;
 	for(Lights::iterator it = lights.begin(); it != lights.end(); ++it, ++loop)
@@ -143,8 +137,6 @@ void Scene::prepare()
 
 void Scene::render()
 {
-	background = Color(1.f);
-
 	fipImage img(FIT_BITMAP, (WORD)resX, (WORD)resY, 32);
 	BYTE *imgData = img.accessPixels();
 
@@ -203,7 +195,6 @@ void Scene::render()
 	img.save(outName.c_str());
 }
 
-bool dummy;
 Color Scene::trace(const Ray &eye, bool &hitSomething, Color &Oi) const
 {
 	if (eye.traceDepth == 16)
@@ -218,7 +209,7 @@ Color Scene::trace(const Ray &eye, bool &hitSomething, Color &Oi) const
 
 Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 {
-	if (ray.traceDepth == 16)
+	if (ray.traceDepth == 8)
 	{
 		hitSomething = false;
 		return Color(all_zero());
@@ -265,7 +256,14 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 		return Ci;
 
 	ray.origin += ray.direction() * (t + 0.001f);
-	return Ci + mulPerElem((Vector3(1) - thisOi), traceNoDepthMod(ray, dummy, Oi));
+
+	bool nextHit;
+	const Color nextColor = traceNoDepthMod(ray, nextHit, Oi);
+
+	if (!nextHit)
+		return Ci;
+
+	return Ci + mulPerElem((Vector3(1) - thisOi), nextColor);
 }
 
 void Scene::ambient(Color &out) const
@@ -339,8 +337,18 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 		// Check if the current light is occluded
 		Vector3 L2P = (*light)->pos - p;
 
-		float t = length(L2P);
+		Vectormath::floatInVec t(_mm_sqrt_ps(_vmathVfDot3( L2P.get128(), L2P.get128() )));
+
+		//Vectormath::floatInVec t = length(L2P);
 		L2P /= t;
+		const float L2PdotN = dot(L2P, dir);
+		
+		if (L2PdotN < 0)
+		{
+			++light;
+			continue;
+		}
+
 		ray.setDirection(L2P);
 
 		bool hit;

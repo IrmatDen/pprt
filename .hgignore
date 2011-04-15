@@ -13,3 +13,4 @@ Release\*
 *.imd
 CodeAnalyst/CRT/*.dir/*.tbp
 CodeAnalyst/CRT/*.dir/*.map
+VTune/*

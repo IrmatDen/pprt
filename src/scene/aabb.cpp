@@ -11,17 +11,35 @@ AABB::AABB()
 
 bool AABB::hit(const Ray &ray, const float &t) const
 {
-	const Vector3	l1	= mulPerElem(ray.invDir, (_min - ray.origin)),
-					l2	= mulPerElem(ray.invDir, (_max - ray.origin)),
-					l1a	= minPerElem(l1, Vector3(sse::plus_inf)),
-					l2a	= minPerElem(l2, Vector3(sse::plus_inf)),
-					l1b	= maxPerElem(l1, Vector3(sse::plus_inf)),
-					l2b	= maxPerElem(l2, Vector3(sse::plus_inf)),
-					lmax = maxPerElem(l1a, l2a),
-					lmin = minPerElem(l1b, l2b);
-
-	const bool hit = !mask_all(orps(cmplt(lmax.get128(), all_zero()), cmpgt(lmin.get128(), lmax.get128())));
-
+	const __m128
+		xl1 = mulps(ray.invDir.getX().get128(), subps(_min.getX().get128(), ray.origin.getX().get128())),
+		xl2 = mulps(ray.invDir.getX().get128(), subps(_max.getX().get128(), ray.origin.getX().get128())),
+		xl1a = minps(xl1, sse::plus_inf),  xl2a = minps(xl2, sse::plus_inf),
+		xl1b = maxps(xl1, sse::minus_inf), xl2b = maxps(xl2, sse::minus_inf);
+	
+	__m128
+		lmax = maxps(xl1a,xl2a),
+		lmin = minps(xl1b,xl2b);
+	
+	const __m128
+		yl1 = mulps(ray.invDir.getY().get128(), subps(_min.getY().get128(), ray.origin.getY().get128())),
+		yl2 = mulps(ray.invDir.getY().get128(), subps(_max.getY().get128(), ray.origin.getY().get128())),
+		yl1a = minps(yl1, sse::plus_inf),  yl2a = minps(yl2, sse::plus_inf),
+		yl1b = maxps(yl1, sse::minus_inf), yl2b = maxps(yl2, sse::minus_inf);
+	
+	lmax = minps(maxps(yl1a,yl2a), lmax);
+	lmin = maxps(minps(yl1b,yl2b), lmin);
+	
+	const __m128
+		zl1 = mulps(ray.invDir.getZ().get128(), subps(_min.getZ().get128(), ray.origin.getZ().get128())),
+		zl2 = mulps(ray.invDir.getZ().get128(), subps(_max.getZ().get128(), ray.origin.getZ().get128())),
+		zl1a = minps(zl1, sse::plus_inf),  zl2a = minps(zl2, sse::plus_inf),
+		zl1b = maxps(zl1, sse::minus_inf), zl2b = maxps(zl2, sse::minus_inf);
+	
+	lmax = minps(maxps(zl1a,zl2a), lmax);
+	lmin = maxps(minps(zl1b,zl2b), lmin);
+	
+	const bool hit = !mask_all(orps(cmplt(lmax, all_zero()),cmpgt(lmin, lmax)));
 	return hit;
 }
 

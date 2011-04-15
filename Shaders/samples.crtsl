@@ -19,7 +19,7 @@ surface diffuse_sample()
 surface specular_sample(real roughness=0.1;)
 {
 	Oi = Os;
-	Ci = Os * Cs * (diffuse(N) * 0.5 + 0.5 * specular(N, I, roughness));
+	Ci = Os * Cs * (diffuse(N) * 0.5 + 0.5 * specular(N, -normalize(I), roughness));
 }
 
 surface reflect_sample(real roughness=0.1;)

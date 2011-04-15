@@ -23,7 +23,7 @@ enum VariableType
 
 typedef boost::variant<Vector3, Color, float> VarValue;
 
-struct Variable
+struct _MM_ALIGN16 Variable
 {
 	Variable() : storageType(VST_Uniform)	{}
 	Variable(VariableStorageType _storageType, VariableType _type, const std::string &_name, const VarValue &_value)
@@ -31,7 +31,7 @@ struct Variable
 	{
 	}
 
-	VarValue 				content;
+	VarValue  				content;
 	VariableStorageType		storageType;
 	VariableType			type;
 	std::string				name;

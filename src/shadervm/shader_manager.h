@@ -5,6 +5,7 @@
 #include <string>
 
 #include <CGTFile.h>
+#undef byte
 
 #include "compiled_shader.h"
 

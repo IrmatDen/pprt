@@ -85,7 +85,7 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 }
 
 CompiledShader::CompiledShader(const CompiledShader &other, bool runtime)
-:varTable(other.varTable),
+:rtVarTable(other.rtVarTable),
 codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
 scene(other.scene), execStack(256)
 {
@@ -94,6 +94,7 @@ scene(other.scene), execStack(256)
 		type		= other.type;
 		shaderName	= other.shaderName;
 		code		= other.code;
+		varTable	= other.varTable;
 	}
 }
 
@@ -102,6 +103,7 @@ CompiledShader& CompiledShader::operator=(const CompiledShader &other)
 	type		= other.type;
 	shaderName	= other.shaderName;
 	varTable	= other.varTable;
+	rtVarTable	= other.rtVarTable;
 	code		= other.code;
 	scene		= other.scene;
 
@@ -114,15 +116,21 @@ CompiledShader CompiledShader::cloneWithCodePtr(ByteCode *bcode, size_t codeLen)
 	ret.codePtr		= bcode;
 	ret.codeSize	= codeLen;
 	ret.codePtrEnd	= ret.codePtr + ret.codeSize;
+	ret.rtVarTable	= rtVarTable;
 
 	return ret;
+}
+
+void CompiledShader::addVar(const Variable &v)
+{
+	varTable.push_back(v);
+	rtVarTable.push_back(v.content);
 }
 
 void CompiledShader::addVar(VariableStorageType varST, VariableType varT, const std::string &name, const VarValue &value)
 {
 	Variable v(varST, varT, name, value);
-	
-	varTable.push_back(v);
+	addVar(v);
 }
 
 void CompiledShader::setVarValue(const std::string &name, const VarValue &value)
@@ -132,21 +140,23 @@ void CompiledShader::setVarValue(const std::string &name, const VarValue &value)
 		if ((*it).name == name)
 		{
 			(*it).content = value;
+			const size_t idx = distance(varTable.begin(), it);
+			assert(idx < rtVarTable.size());
+			rtVarTable.at(idx) = value;
 		}
 	}
 }
 
 void CompiledShader::setVarValueByIndex(size_t index, const VarValue &value)
 {
-	assert(index < varTable.size());
-
-	varTable[index].content = value;
+	assert(index < rtVarTable.size());
+	rtVarTable[index] = value;
 }
 
 void CompiledShader::getOutput(Color &color, Color &opacity)
 {
-	color	= boost::get<Color>(varTable[Ci].content);
-	opacity	= boost::get<Color>(varTable[Oi].content);
+	color	= boost::get<Color>(rtVarTable[Ci]);
+	opacity	= boost::get<Color>(rtVarTable[Oi]);
 }
 
 void CompiledShader::parseInstr(const std::string &instr)
@@ -599,25 +609,25 @@ void CompiledShader::exec()
 
 		case PushVec:
 			{
-				const Variable &var = varTable[boost::get<int>(eip->second)];
+				const VarValue &var = rtVarTable[boost::get<int>(eip->second)];
 				assert(var.type == VT_Vector);
-				execStack.push(get<Vector3>(var.content));
+				execStack.push(get<Vector3>(var));
 			}
 			break;
 			
 		case PushCol:
 			{
-				const Variable &var = varTable[boost::get<int>(eip->second)];
+				const VarValue &var = rtVarTable[boost::get<int>(eip->second)];
 				assert(var.type == VT_Color);
-				execStack.push(get<Color>(var.content));
+				execStack.push(get<Color>(var));
 			}
 			break;
 
 		case PushReal:
 			{
-				const Variable &var = varTable[boost::get<int>(eip->second)];
+				const VarValue &var = rtVarTable[boost::get<int>(eip->second)];
 				assert(var.type == VT_Float);
-				execStack.push(get<float>(var.content));
+				execStack.push(get<float>(var));
 			}
 			break;
 #pragma endregion
@@ -876,50 +886,50 @@ void CompiledShader::exec()
 #pragma region Popping
 		case PopVecVec:
 			{
-				Variable &var = varTable[boost::get<int>(eip->second)];
-				var.content = execStack.pop<Vector3>();
+				VarValue &var = rtVarTable[boost::get<int>(eip->second)];
+				var = execStack.pop<Vector3>();
 			}
 			break;
 
 		case PopVecReal:
 			{
-				Variable &var = varTable[boost::get<int>(eip->second)];
-				var.content = Vector3(execStack.pop<float>());
+				VarValue &var = rtVarTable[boost::get<int>(eip->second)];
+				var = Vector3(execStack.pop<float>());
 			}
 			break;
 
 		case PopVecCol:
 			{
-				Variable &var = varTable[boost::get<int>(eip->second)];
-				var.content = Vector3(execStack.pop<Color>());
+				VarValue &var = rtVarTable[boost::get<int>(eip->second)];
+				var = Vector3(execStack.pop<Color>());
 			}
 			break;
 
 		case PopColCol:
 			{
-				Variable &var = varTable[boost::get<int>(eip->second)];
-				var.content = execStack.pop<Color>();
+				VarValue &var = rtVarTable[boost::get<int>(eip->second)];
+				var = execStack.pop<Color>();
 			}
 			break;
 
 		case PopColReal:
 			{
-				Variable &var = varTable[boost::get<int>(eip->second)];
-				var.content = Color(execStack.pop<float>());
+				VarValue &var = rtVarTable[boost::get<int>(eip->second)];
+				var = Color(execStack.pop<float>());
 			}
 			break;
 
 		case PopColVec:
 			{
-				Variable &var = varTable[boost::get<int>(eip->second)];
-				var.content = Color(execStack.pop<Vector3>());
+				VarValue &var = rtVarTable[boost::get<int>(eip->second)];
+				var = Color(execStack.pop<Vector3>());
 			}
 			break;
 
 		case PopRealReal:
 			{
-				Variable &var = varTable[boost::get<int>(eip->second)];
-				var.content = execStack.pop<float>();
+				VarValue &var = rtVarTable[boost::get<int>(eip->second)];
+				var = execStack.pop<float>();
 			}
 			break;
 #pragma endregion

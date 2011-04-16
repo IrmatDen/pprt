@@ -116,7 +116,7 @@ public:
 
 	ShaderType			shaderType() const					{ return type; }
 
-	void addVar(const Variable &v)							{ varTable.push_back(v); }
+	void addVar(const Variable &v);
 	void addVar(VariableStorageType varST, VariableType varT, const std::string &name, const VarValue &value);
 
 	void setVarValue(const std::string &name, const VarValue &value);
@@ -130,6 +130,7 @@ public:
 	void exec();
 
 private:
+	// Compilation related datatypes
 	typedef std::vector<Variable, memory::AllocAlign16<Variable> >	VariableTable;
 	typedef std::stack<VariableType> TypeStack;
 
@@ -145,6 +146,9 @@ private:
 		int				args;
 		VariableType	retValue;
 	};
+	
+	// Runtime related datatypes
+	typedef std::vector<VarValue, memory::AllocAlign16<VarValue> >	RTVariableTable;
 
 private:
 	// Parsing helpers
@@ -177,6 +181,7 @@ private:
 	ShaderType					type;
 	std::string					shaderName;
 	VariableTable				varTable;
+	RTVariableTable				rtVarTable;
 
 	Instructions				code;
 

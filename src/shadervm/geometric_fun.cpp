@@ -10,7 +10,7 @@ void CompiledShader::faceForward()
 	const Vector3 &n = execStack.pop<Vector3>();
 	const Vector3 &i = execStack.pop<Vector3>();
 
-	Vector3 &ng = get<Vector3>(varTable[Ng].content);
+	Vector3 &ng = get<Vector3>(rtVarTable[Ng]);
 
 	float din = (dot(-i, ng) < 0 ? -1.f : 1.f);
 

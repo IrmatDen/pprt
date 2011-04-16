@@ -24,7 +24,7 @@ public:
 		memory::deallocate(stackArea);
 	}
 
-	void reset()
+	__forceinline void reset()
 	{
 		currentTop = 0;
 
@@ -35,9 +35,9 @@ public:
 	}
 
 	template <typename T>
-	void push(const T &v)
+	__forceinline void push(const T &v)
 	{
-		memmove(stackArea + currentTop, &v, sizeof(T));
+		memcpy(stackArea + currentTop, &v, sizeof(T));
 		currentTop += roundSizeToNextAlign16<T>();
 
 #ifdef _DEBUG
@@ -46,7 +46,7 @@ public:
 	}
 
 	template <typename T>
-	void pop(T &out)
+	__forceinline void pop(T &out)
 	{
 #ifdef _DEBUG
 		const std::string tName(typeid(T).name());
@@ -57,11 +57,11 @@ public:
 #endif
 
 		currentTop -= roundSizeToNextAlign16<T>();
-		memmove(&out, stackArea + currentTop, sizeof(T));
+		memcpy(&out, stackArea + currentTop, sizeof(T));
 	}
 
 	template <typename T>
-	T& pop()
+	__forceinline T& pop()
 	{
 #ifdef _DEBUG
 		const std::string tName(typeid(T).name());
@@ -78,7 +78,7 @@ public:
 
 private:
 	template <typename T>
-	size_t roundSizeToNextAlign16()
+	__forceinline size_t roundSizeToNextAlign16()
 	{
 		return (sizeof(T) & ~0xF) + (static_cast<int>((sizeof(T) & 0xF) != 0) * 16);
 	}

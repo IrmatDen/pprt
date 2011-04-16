@@ -150,6 +150,22 @@ namespace memory
 	{
 		return false;
 	}
+
+	struct PoolAllocAlign16
+	{
+		typedef size_t		size_type;
+		typedef ptrdiff_t	difference_type;
+
+		static char* malloc(const size_type bytes)
+		{
+			return allocate<char>(bytes);
+		}
+
+		static void free(char *block)
+		{
+			deallocate(block);
+		}
+	};
 }
 
 #endif

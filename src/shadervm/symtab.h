@@ -1,12 +1,16 @@
 #ifndef CRT_SYMTAB_H
 #define CRT_SYMTAB_H
 
+#include "../sse.h"
+#include "../common.h"
+#include "../scene/color.h"
+
 #include <string>
 
 #include <boost/variant.hpp>
+#include <boost/pool/singleton_pool.hpp>
 
-#include "../sse.h"
-#include "../scene/color.h"
+#include <tbb/enumerable_thread_specific.h>
 
 enum VariableStorageType
 {
@@ -16,11 +20,10 @@ enum VariableStorageType
 
 enum VariableType
 {
-	VT_Float,
+	VT_Vector,
 	VT_Color,
-	VT_Vector
+	VT_Float,
 };
-
 typedef boost::variant<Vector3, Color, float> VarValue;
 
 struct _MM_ALIGN16 Variable

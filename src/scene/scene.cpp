@@ -239,12 +239,12 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 
 	CompiledShader shader(nearestObj->getShader(), true);
 	shader.setCurrentDepth(ray.traceDepth);
-	shader.setVarValueByIndex(CompiledShader::P, p);
-	shader.setVarValueByIndex(CompiledShader::N, info.normal);
-	shader.setVarValueByIndex(CompiledShader::Ng, info.normal);
-	shader.setVarValueByIndex(CompiledShader::s, info.s);
-	shader.setVarValueByIndex(CompiledShader::t, info.t);
-	shader.setVarValueByIndex(CompiledShader::I, ray.direction());
+	shader.setRTVarValueByIndex(CompiledShader::P, p);
+	shader.setRTVarValueByIndex(CompiledShader::N, info.normal);
+	shader.setRTVarValueByIndex(CompiledShader::Ng, info.normal);
+	shader.setRTVarValueByIndex(CompiledShader::s, info.s);
+	shader.setRTVarValueByIndex(CompiledShader::t, info.t);
+	shader.setRTVarValueByIndex(CompiledShader::I, ray.direction());
 	shader.exec();
 
 	Color Ci, thisOi;

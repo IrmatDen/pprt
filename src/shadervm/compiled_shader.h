@@ -103,8 +103,13 @@ public:
 public:
 	CompiledShader(ShaderType shaderType = ST_Invalid);
 	CompiledShader(const CompiledShader &other, bool runtime = false);
+	~CompiledShader();
 
 	CompiledShader& operator=(const CompiledShader &other);
+
+	// Move ctor/assignment
+	CompiledShader(CompiledShader &&other);
+	CompiledShader& operator=(CompiledShader &&other);
 
 	CompiledShader		cloneWithCodePtr(ByteCode *bcode, size_t codeLen) const;
 
@@ -121,6 +126,7 @@ public:
 
 	void setVarValue(const std::string &name, const VarValue &value);
 	void setVarValueByIndex(size_t index, const VarValue &value);
+	void setRTVarValueByIndex(size_t index, const VarValue &value);
 	
 	void getOutput(Color &color, Color &opacity);
 
@@ -148,9 +154,12 @@ private:
 	};
 	
 	// Runtime related datatypes
-	typedef std::vector<VarValue, memory::AllocAlign16<VarValue> >	RTVariableTable;
+	//typedef std::vector<VarValue, memory::AllocAlign16<VarValue> >	RTVariableTable;
 
 private:
+	// Initialization helper
+	void initRTVars(const VarValue * const copyFrom);
+
 	// Parsing helpers
 	bool findVarIdx(const std::string &str, int &varIdx);
 	bool findFunRef(const std::string &str, FunctionInfo **fnRef);
@@ -181,7 +190,8 @@ private:
 	ShaderType					type;
 	std::string					shaderName;
 	VariableTable				varTable;
-	RTVariableTable				rtVarTable;
+	size_t						rtVarTableSize;
+	VarValue				*	rtVarTable;
 
 	Instructions				code;
 
@@ -199,11 +209,17 @@ private:
 private:
 	typedef std::map<std::string, OpCode>			OpCodeMapping;
 	typedef std::map<std::string, FunctionInfo>		FunctionMapping;
+
+	typedef boost::pool<memory::PoolAllocAlign16>			AlignedPool;
+	typedef tbb::enumerable_thread_specific<AlignedPool*>	ShaderRTVarPoolImpl;
+
+	friend struct RTVarPoolCreator;
 	
 private:
-	static OpCodeMapping	opCodeMappings;
-	static FunctionMapping	fnMappings;
-	static bool				opCodeMappingsInitialized;
+	static OpCodeMapping		opCodeMappings;
+	static FunctionMapping		fnMappings;
+	static bool					opCodeMappingsInitialized;
+	static ShaderRTVarPoolImpl	shaderRTVarPool;
 };
 
 #endif

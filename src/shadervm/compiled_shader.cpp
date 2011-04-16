@@ -12,9 +12,19 @@
 using namespace std;
 using namespace boost;
 
-CompiledShader::OpCodeMapping	CompiledShader::opCodeMappings;
-CompiledShader::FunctionMapping CompiledShader::fnMappings;
-bool							CompiledShader::opCodeMappingsInitialized = false;
+struct RTVarPoolCreator
+{
+	static CompiledShader::AlignedPool* create()
+	{
+		return new CompiledShader::AlignedPool(sizeof(VarValue));
+	}
+};
+
+
+CompiledShader::OpCodeMapping		CompiledShader::opCodeMappings;
+CompiledShader::FunctionMapping		CompiledShader::fnMappings;
+bool								CompiledShader::opCodeMappingsInitialized = false;
+CompiledShader::ShaderRTVarPoolImpl	CompiledShader::shaderRTVarPool(&RTVarPoolCreator::create);
 
 #define MK_SHADERFUNC(METHODNAME)	CompiledShader::ShaderFunction(&CompiledShader::METHODNAME)
 
@@ -55,7 +65,7 @@ void initOpCodeMappings()
 }
 
 CompiledShader::CompiledShader(ShaderType shaderType)
-:type(shaderType), scene(0), execStack(256)
+:type(shaderType), scene(nullptr), execStack(256), rtVarTable(nullptr), rtVarTableSize(0)
 {
 	if (!opCodeMappingsInitialized)
 	{
@@ -85,9 +95,8 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 }
 
 CompiledShader::CompiledShader(const CompiledShader &other, bool runtime)
-:rtVarTable(other.rtVarTable),
-codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
-scene(other.scene), execStack(256)
+	:	codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
+		scene(other.scene), execStack(256), rtVarTable(nullptr), rtVarTableSize(0)
 {
 	if (!runtime)
 	{
@@ -96,6 +105,33 @@ scene(other.scene), execStack(256)
 		code		= other.code;
 		varTable	= other.varTable;
 	}
+	else
+	{
+		if (other.rtVarTable != nullptr && other.rtVarTableSize > 0)
+		{
+			rtVarTableSize = other.rtVarTableSize;
+			initRTVars(other.rtVarTable);
+		}
+		else
+		{
+			// Generate runtime vartable
+			rtVarTableSize	= other.varTable.size();
+			rtVarTable		= static_cast<VarValue*>(shaderRTVarPool.local()->ordered_malloc(rtVarTableSize));
+			size_t i		= 0;
+			for_each(other.varTable.begin(), other.varTable.end(),
+				[&] (const Variable &v)
+				{
+					new (&rtVarTable[i]) VarValue(v.content);
+					i++;
+				} );
+		}
+	}
+}
+
+CompiledShader::~CompiledShader()
+{
+	if (rtVarTable != nullptr)
+		shaderRTVarPool.local()->ordered_free(rtVarTable, rtVarTableSize);
 }
 
 CompiledShader& CompiledShader::operator=(const CompiledShader &other)
@@ -103,9 +139,54 @@ CompiledShader& CompiledShader::operator=(const CompiledShader &other)
 	type		= other.type;
 	shaderName	= other.shaderName;
 	varTable	= other.varTable;
-	rtVarTable	= other.rtVarTable;
 	code		= other.code;
 	scene		= other.scene;
+
+	if (rtVarTable != nullptr)
+		shaderRTVarPool.local()->ordered_free(rtVarTable, rtVarTableSize);
+
+	rtVarTableSize = 0;
+	rtVarTable = nullptr;
+
+	if (other.rtVarTable != nullptr)
+	{
+		rtVarTableSize	= other.rtVarTableSize;
+		initRTVars(other.rtVarTable);
+	}
+
+	return *this;
+}
+
+void CompiledShader::initRTVars(const VarValue * const copyFrom)
+{
+	rtVarTable = static_cast<VarValue*>(shaderRTVarPool.local()->ordered_malloc(rtVarTableSize));
+	// Must copy values this way, because the soon-to-be supported strings will have to handle its memory
+	for (size_t i = 0; i != rtVarTableSize; i++)
+		rtVarTable[i] = copyFrom[i];
+}
+
+CompiledShader::CompiledShader(CompiledShader &&other)
+	:	codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
+		scene(other.scene), execStack(256), varTable(other.varTable),
+		rtVarTableSize(other.rtVarTableSize), rtVarTable(other.rtVarTable)
+{
+	other.rtVarTable = nullptr;
+}
+
+CompiledShader& CompiledShader::operator=(CompiledShader &&other)
+{
+	type		= other.type;
+	shaderName	= other.shaderName;
+	varTable	= other.varTable;
+	code		= other.code;
+	scene		= other.scene;
+
+	if (rtVarTable != nullptr)
+		shaderRTVarPool.local()->ordered_free(rtVarTable, rtVarTableSize);
+
+	rtVarTableSize	= other.rtVarTableSize;
+	rtVarTable		= other.rtVarTable;
+	other.rtVarTable = nullptr;
 
 	return *this;
 }
@@ -116,7 +197,6 @@ CompiledShader CompiledShader::cloneWithCodePtr(ByteCode *bcode, size_t codeLen)
 	ret.codePtr		= bcode;
 	ret.codeSize	= codeLen;
 	ret.codePtrEnd	= ret.codePtr + ret.codeSize;
-	ret.rtVarTable	= rtVarTable;
 
 	return ret;
 }
@@ -124,7 +204,6 @@ CompiledShader CompiledShader::cloneWithCodePtr(ByteCode *bcode, size_t codeLen)
 void CompiledShader::addVar(const Variable &v)
 {
 	varTable.push_back(v);
-	rtVarTable.push_back(v.content);
 }
 
 void CompiledShader::addVar(VariableStorageType varST, VariableType varT, const std::string &name, const VarValue &value)
@@ -140,16 +219,19 @@ void CompiledShader::setVarValue(const std::string &name, const VarValue &value)
 		if ((*it).name == name)
 		{
 			(*it).content = value;
-			const size_t idx = distance(varTable.begin(), it);
-			assert(idx < rtVarTable.size());
-			rtVarTable.at(idx) = value;
 		}
 	}
 }
 
 void CompiledShader::setVarValueByIndex(size_t index, const VarValue &value)
 {
-	assert(index < rtVarTable.size());
+	varTable.at(index).content = value;
+}
+
+void CompiledShader::setRTVarValueByIndex(size_t index, const VarValue &value)
+{
+	assert(rtVarTable != nullptr);
+	assert(index < rtVarTableSize);
 	rtVarTable[index] = value;
 }
 
@@ -610,7 +692,6 @@ void CompiledShader::exec()
 		case PushVec:
 			{
 				const VarValue &var = rtVarTable[boost::get<int>(eip->second)];
-				assert(var.type == VT_Vector);
 				execStack.push(get<Vector3>(var));
 			}
 			break;
@@ -618,7 +699,6 @@ void CompiledShader::exec()
 		case PushCol:
 			{
 				const VarValue &var = rtVarTable[boost::get<int>(eip->second)];
-				assert(var.type == VT_Color);
 				execStack.push(get<Color>(var));
 			}
 			break;
@@ -626,7 +706,6 @@ void CompiledShader::exec()
 		case PushReal:
 			{
 				const VarValue &var = rtVarTable[boost::get<int>(eip->second)];
-				assert(var.type == VT_Float);
 				execStack.push(get<float>(var));
 			}
 			break;

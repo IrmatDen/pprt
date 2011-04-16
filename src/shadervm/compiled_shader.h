@@ -1,16 +1,17 @@
 #ifndef CRT_COMPILED_SHADER_H
 #define CRT_COMPILED_SHADER_H
+#include "symtab.h"
+#include "vmstack.h"
+
+#include "../scene/color.h"
+#include "../common.h"
 
 #include <map>
 #include <queue>
 #include <string>
 #include <stack>
 
-#include "symtab.h"
-#include "vmstack.h"
-
-#include "../scene/color.h"
-#include "../common.h"
+#include <tbb/enumerable_thread_specific.h>
 
 class Scene;
 
@@ -155,7 +156,6 @@ private:
 	
 	// Runtime related datatypes
 	//typedef std::vector<VarValue, memory::AllocAlign16<VarValue> >	RTVariableTable;
-
 private:
 	// Initialization helper
 	void initRTVars(const VarValue * const copyFrom);
@@ -210,8 +210,7 @@ private:
 	typedef std::map<std::string, OpCode>			OpCodeMapping;
 	typedef std::map<std::string, FunctionInfo>		FunctionMapping;
 
-	typedef boost::pool<memory::PoolAllocAlign16>			AlignedPool;
-	typedef tbb::enumerable_thread_specific<AlignedPool*>	ShaderRTVarPoolImpl;
+	typedef tbb::enumerable_thread_specific<memory::AlignedPool*>	ShaderRTVarPoolImpl;
 
 	friend struct RTVarPoolCreator;
 	

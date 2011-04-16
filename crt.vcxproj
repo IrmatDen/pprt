@@ -140,6 +140,7 @@
     <ClCompile Include="src\shadervm\shader_manager.cpp" />
     <ClCompile Include="src\shadervm\shading_lighting_fun.cpp" />
     <ClCompile Include="src\shadervm\type_ctor.cpp" />
+    <ClCompile Include="src\shadervm\vmstack.cpp" />
     <ClCompile Include="src\shader_compiler\mnemonic_gen_visitor.cpp" />
     <ClCompile Include="src\shader_compiler\SL_ASTCreator.cpp" />
     <ClCompile Include="src\shader_compiler\SL_ASTVisitor.cpp" />

@@ -3,6 +3,8 @@
 
 #include "sse.h"
 
+#include <boost/pool/singleton_pool.hpp>
+
 #ifndef _MM_ALIGN16
 #define _MM_ALIGN16		_declspec(align(16))
 #endif
@@ -166,6 +168,8 @@ namespace memory
 			deallocate(block);
 		}
 	};
+
+	typedef boost::pool<memory::PoolAllocAlign16> AlignedPool;
 }
 
 #endif

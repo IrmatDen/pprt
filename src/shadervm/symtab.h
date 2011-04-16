@@ -8,9 +8,6 @@
 #include <string>
 
 #include <boost/variant.hpp>
-#include <boost/pool/singleton_pool.hpp>
-
-#include <tbb/enumerable_thread_specific.h>
 
 enum VariableStorageType
 {

@@ -101,6 +101,9 @@
     <ClCompile Include="src\shader_compiler\useless_nodes_removal_visitor.cpp">
       <Filter>Source Files\shader_compiler</Filter>
     </ClCompile>
+    <ClCompile Include="src\shadervm\vmstack.cpp">
+      <Filter>Source Files\ShaderVM</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\common.h">

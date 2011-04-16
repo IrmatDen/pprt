@@ -1,27 +1,49 @@
 #ifndef CRT_VMSTACK_H
 #define CRT_VMSTACK_H
 
+#include "../common.h"
+#include "symtab.h"
+
 #ifdef _DEBUG
 #include <stack>
 #include <string>
 #endif
 
-#include "../common.h"
-#include "symtab.h"
+#include <tbb/enumerable_thread_specific.h>
 
 // WARNING: this stack only works for types that do NOT require construction nor destruction!
 class VMStack
 {
 public:
-	VMStack(size_t stackSize)
-		: currentTop(0)
+	VMStack()
+		: stackArea(nullptr), currentTop(0)
 	{
-		stackArea = memory::allocate<unsigned char>(stackSize);
+	}
+	
+	VMStack(VMStack &&other)
+		: currentTop(other.currentTop), stackArea(other.stackArea)
+	{
+		other.stackArea = nullptr;
 	}
 
 	~VMStack()
 	{
-		memory::deallocate(stackArea);
+		if (stackArea != nullptr)
+			stackPool.local()->free(stackArea);
+	}
+
+	VMStack& operator=(VMStack &&other)
+	{
+		currentTop	= other.currentTop;
+		stackArea	= other.stackArea;
+
+		other.stackArea = nullptr;
+	}
+
+	__forceinline void allocate()
+	{
+		if (stackArea == nullptr)
+			stackArea = reinterpret_cast<unsigned char*>(stackPool.local()->malloc());
 	}
 
 	__forceinline void reset()
@@ -90,6 +112,14 @@ private:
 #ifdef _DEBUG
 	std::stack<std::string> stackedTypeNames;
 #endif
+
+private:
+	typedef tbb::enumerable_thread_specific<memory::AlignedPool*>	StackPoolImpl;
+
+	friend struct StackPoolCreator;
+	
+private:
+	static StackPoolImpl	stackPool;
 };
 
 #endif

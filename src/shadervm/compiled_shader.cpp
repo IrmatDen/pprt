@@ -14,9 +14,10 @@ using namespace boost;
 
 struct RTVarPoolCreator
 {
-	static CompiledShader::AlignedPool* create()
+	static memory::AlignedPool* create()
 	{
-		return new CompiledShader::AlignedPool(sizeof(VarValue));
+		const size_t base_size = sizeof(VarValue) * 128;
+		return new memory::AlignedPool(base_size, base_size * 2);
 	}
 };
 
@@ -65,7 +66,7 @@ void initOpCodeMappings()
 }
 
 CompiledShader::CompiledShader(ShaderType shaderType)
-:type(shaderType), scene(nullptr), execStack(256), rtVarTable(nullptr), rtVarTableSize(0)
+:type(shaderType), scene(nullptr), rtVarTable(nullptr), rtVarTableSize(0)
 {
 	if (!opCodeMappingsInitialized)
 	{
@@ -96,7 +97,7 @@ CompiledShader::CompiledShader(ShaderType shaderType)
 
 CompiledShader::CompiledShader(const CompiledShader &other, bool runtime)
 	:	codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
-		scene(other.scene), execStack(256), rtVarTable(nullptr), rtVarTableSize(0)
+		scene(other.scene), rtVarTable(nullptr), rtVarTableSize(0)
 {
 	if (!runtime)
 	{
@@ -162,12 +163,12 @@ void CompiledShader::initRTVars(const VarValue * const copyFrom)
 	rtVarTable = static_cast<VarValue*>(shaderRTVarPool.local()->ordered_malloc(rtVarTableSize));
 	// Must copy values this way, because the soon-to-be supported strings will have to handle its memory
 	for (size_t i = 0; i != rtVarTableSize; i++)
-		rtVarTable[i] = copyFrom[i];
+		new (&rtVarTable[i]) VarValue(copyFrom[i]);
 }
 
 CompiledShader::CompiledShader(CompiledShader &&other)
 	:	codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
-		scene(other.scene), execStack(256), varTable(other.varTable),
+		scene(other.scene), execStack(other.execStack), varTable(other.varTable),
 		rtVarTableSize(other.rtVarTableSize), rtVarTable(other.rtVarTable)
 {
 	other.rtVarTable = nullptr;
@@ -180,6 +181,7 @@ CompiledShader& CompiledShader::operator=(CompiledShader &&other)
 	varTable	= other.varTable;
 	code		= other.code;
 	scene		= other.scene;
+	execStack	= other.execStack;
 
 	if (rtVarTable != nullptr)
 		shaderRTVarPool.local()->ordered_free(rtVarTable, rtVarTableSize);
@@ -678,6 +680,7 @@ bool CompiledShader::findFunRef(const std::string &str, FunctionInfo **fnRef)
 void CompiledShader::exec()
 {
 	eip = codePtr;
+	execStack.allocate();
 	execStack.reset();
 
 	while (eip != codePtrEnd)

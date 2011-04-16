@@ -7,9 +7,11 @@ bool Sphere::hit(const Ray &ray, float &t) const
 	const Vector3 dist	= pos - ray.origin;
 
 	const float b		= dot(ray.direction(), dist);
-	const float d		= b*b - dot(dist, dist) + r*r;
+	if (b < 0)
+		return false;
 
-	if (d < 0 || b < 0)
+	const float d		= b*b - dot(dist, dist) + r*r;
+	if (d < 0)
 		return false;
 	
 	const float t0		= b - sqrt(d);
@@ -33,7 +35,7 @@ bool Sphere::hit(const Ray &ray, float &t) const
 void Sphere::fillIntersectionInfo(const Vector3 &p, IntersectionInfo &ii) const
 {
 	ii.normal = (p - pos) * invr;
-	//ii.normal.normalize();
+	//ii.normal = normalize(ii.normal);
 
 	float invPi = 1.f / 3.141592654f;
 	ii.s = ::asinf(ii.normal.getX()) * invPi + 0.5f;

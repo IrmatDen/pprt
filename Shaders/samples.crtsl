@@ -51,8 +51,8 @@ surface smoothstep_sample(real rim_width = 0.5;)
 
 surface mix_sample()
 {
-	color top = color(0.878, 0.996, 0.474);
-	color low = color(0.580, 0.690, 0.988);
+	color top = color(0.878, 0.996, 0.250);
+	color low = color(0.250, 0.878, 0.988);
 	Oi = Os;
-	Ci = Oi * Cs * diffuse(N) * mix(top, low, t);
+	Ci = (Oi * Cs * diffuse(N) + ambient()) * mix(top, low, t);
 }

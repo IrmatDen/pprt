@@ -1,6 +1,7 @@
 Option shaderspath ./Shaders
 
-Output constant_color_shaded_sphere.png 800 600 +z
+Output constant_color_shaded_sphere.png
+Format 800 600 1
 CamLookAt <0, 0, -10> <0, 0, 0>
 
 Color 0.25 0.25 1

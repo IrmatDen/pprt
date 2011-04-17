@@ -29,7 +29,7 @@ public:
 public:
 	#pragma warning(disable:4355)
 	Scene(int width=0, int height=0)
-		: resX(width), resY(height), storeZ(false),
+		: resX(width), resY(height),
 		background(all_zero()),
 		rt_objects(0), rt_lights(0),
 		bvhRoot(0)
@@ -45,7 +45,6 @@ public:
 	void		setOutputFile(const std::string &outFile)	{ outName = outFile; }
 	void		setWidth(int width)							{ resX = width; }
 	void		setHeight(int height)						{ resY = height; }
-	void		storeZValues(bool store)					{ storeZ = store; }
 
 	Camera&		camera();
 
@@ -69,7 +68,6 @@ public:
 private:
 	std::string				outName;
 	int						resX, resY;
-	bool					storeZ;
 
 	Color					background;
 

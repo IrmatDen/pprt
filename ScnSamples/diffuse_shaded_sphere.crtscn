@@ -1,6 +1,7 @@
 Option shaderspath ./Shaders
 
-Output diffuse_sphere.png 1024 768 +z
+Output diffuse_sphere.png
+Format 800 600 1
 CamLookAt <-3, 1.5, -3> <0, 0, 5>
 
 PointLight <-4, -1.5, 3> 1 1 1

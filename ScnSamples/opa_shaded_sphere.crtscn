@@ -1,6 +1,7 @@
 Option shaderspath ./Shaders
 
-Output opa_sphere.png 800 600 +z
+Output opa_sphere.png
+Format 800 600 1
 Background 0 0 0
 CamLookAt <-3, 3.5, -5> <3, 0, 7>
 

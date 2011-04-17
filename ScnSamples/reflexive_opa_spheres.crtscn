@@ -1,6 +1,7 @@
 Option shaderspath ./Shaders
 
-Output reflexive_opa_spheres.png 400 300 +z
+Output reflexive_opa_spheres.png
+Format 800 600 1
 Background 0 0 0
 CamLookAt <-3, 3.5, -5> <3, 0, 7>
 

@@ -61,16 +61,20 @@ namespace ScnParser
 
 				option = "Option" >> +blank_p >> ("shaderspath"	>> +blank_p >> ((+(alnum_p | punct_p))[shaderPath_a(self.scene)] % (+blank_p)));
 
+				// Camera definitions
+					camera =	format;
+					format =	"Format" >> +blank_p >>
+								int_p	[bind(&Scene::setWidth) (var(self.scene), arg1)]	>> +blank_p >>				// width
+								int_p	[bind(&Scene::setHeight)(var(self.scene), arg1)]	>> +blank_p >>				// height
+								real_p;																					// pixel aspect ratio
+
 				// Scene definition
 					scene =		output
 							|	background
 							|	camLookAt;
 
 					output = ( "Output"	>> +blank_p >>
-								string	[bind(&Scene::setOutputFile)(var(self.scene), CONSTRUCT_STR)]  >> +blank_p >>	// filepath
-								uint_p	[bind(&Scene::setWidth) (var(self.scene), arg1)]	>> +blank_p >>				// width
-								uint_p	[bind(&Scene::setHeight)(var(self.scene), arg1)]	>>							// height
-								!(blank_p >> str_p("+z")[bind(&Scene::storeZValues)(var(self.scene), true)])			// store Z?
+								string	[bind(&Scene::setOutputFile)(var(self.scene), CONSTRUCT_STR)]					// filepath
 							  );
 
 					background = "Background" >> +blank_p >> color_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
@@ -123,6 +127,7 @@ namespace ScnParser
 				
 				// Grammar line definition & root.
 					element =	  option
+								| camera
 								| scene
 								| lights
 								| graphicsState
@@ -140,6 +145,7 @@ namespace ScnParser
 
 			// Specific elements
 			rule<ScannerT> option;
+			rule<ScannerT> camera, format;
 			rule<ScannerT> scene, output, background, camLookAt;
 			rule<ScannerT> graphicsState, color, opacity;
 			rule<ScannerT> lights, pointLight;

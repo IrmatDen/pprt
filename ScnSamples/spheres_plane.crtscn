@@ -1,6 +1,7 @@
 Option shaderspath ./Shaders
 
-Output spheres_plane.png 800 600 +z
+Output spheres_plane.png
+Format 800 600 1
 CamLookAt <0, 1, -15> <0, 0, 0>
 
 PointLight <-4, 20, -3> 0.5 0.5 0.5

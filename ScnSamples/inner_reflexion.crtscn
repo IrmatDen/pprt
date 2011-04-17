@@ -1,6 +1,7 @@
 Option shaderspath ./Shaders
 
-Output inner_reflexion.png 1024 768 +z
+Output inner_reflexion.png
+Format 800 600 1
 Background 0 0 0
 CamLookAt <-3, 1.5, -3> <0, 0, 5>
 

@@ -1,9 +1,9 @@
 Option shaderspath ./Shaders
 
-Output smoothstep_sphere.png
+Output "smoothstep_sphere.png" "file" "rgba"
 Format 800 600 1
 Background 0 0 0
 CamLookAt <-3, 1.5, -3> <0, 0, 5>
 
-Sphere 1 < 0,  0, 5> smoothstep_sample
+Sphere 1 < 0,  0, 5> "smoothstep_sample"
 

@@ -1,6 +1,6 @@
 Option shaderspath ./Shaders
 
-Output spheres_plane.png
+Output "spheres_plane.png" "file" "rgba"
 Format 800 600 1
 CamLookAt <0, 1, -15> <0, 0, 0>
 
@@ -12,12 +12,12 @@ PointLight <0, -1.5, 1.5> 1 1 1
 
 Color 1 1 1
 Opacity 0.25 0.25 0.25
-Sphere 1 < 0, -1.25, -1> mix_sample
+Sphere 1 < 0, -1.25, -1> "mix_sample"
 
 Opacity 1 1 1
 Color 1 1 1
 
-Sphere 0.75 < -2, -0.5, 3> reflect_sample
-Sphere 0.75 <  2, -0.5, 3> reflect_sample
+Sphere 0.75 < -2, -0.5, 3> "reflect_sample"
+Sphere 0.75 <  2, -0.5, 3> "reflect_sample"
 
-Plane <0, 1, 0> -2.5 plastic
+Plane <0, 1, 0> -2.5 "plastic"

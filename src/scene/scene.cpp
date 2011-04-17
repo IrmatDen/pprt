@@ -94,6 +94,9 @@ public:
 	{
 		pixelStore = &pixStore;
 		win = new sf::RenderWindow(sf::VideoMode(pixelStore->getWidth(), pixelStore->getHeight()), displayName);
+		// Try not to kill the render times...
+		win->SetFramerateLimit(5);
+
 		displayImg.Create(pixelStore->getWidth(), pixelStore->getHeight(), sf::Color(0, 0, 0, 0));
 		displayImg.SetSmooth(false);
 		displaySprite.SetImage(displayImg);

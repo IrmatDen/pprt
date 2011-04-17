@@ -17,7 +17,7 @@ struct RTVarPoolCreator
 	static memory::AlignedPool* create()
 	{
 		const size_t base_size = sizeof(VarValue) * 128;
-		return new memory::AlignedPool(base_size, base_size * 2);
+		return new memory::AlignedPool(base_size);
 	}
 };
 
@@ -108,24 +108,9 @@ CompiledShader::CompiledShader(const CompiledShader &other, bool runtime)
 	}
 	else
 	{
-		if (other.rtVarTable != nullptr && other.rtVarTableSize > 0)
-		{
-			rtVarTableSize = other.rtVarTableSize;
-			initRTVars(other.rtVarTable);
-		}
-		else
-		{
-			// Generate runtime vartable
-			rtVarTableSize	= other.varTable.size();
-			rtVarTable		= static_cast<VarValue*>(shaderRTVarPool.local()->ordered_malloc(rtVarTableSize));
-			size_t i		= 0;
-			for_each(other.varTable.begin(), other.varTable.end(),
-				[&] (const Variable &v)
-				{
-					new (&rtVarTable[i]) VarValue(v.content);
-					i++;
-				} );
-		}
+		assert(other.rtVarTable != nullptr && other.rtVarTableSize > 0);
+		rtVarTableSize = other.rtVarTableSize;
+		initRTVars(other.rtVarTable);
 	}
 }
 
@@ -161,13 +146,11 @@ CompiledShader& CompiledShader::operator=(const CompiledShader &other)
 void CompiledShader::initRTVars(const VarValue * const copyFrom)
 {
 	rtVarTable = static_cast<VarValue*>(shaderRTVarPool.local()->ordered_malloc(rtVarTableSize));
-	// Must copy values this way, because the soon-to-be supported strings will have to handle its memory
-	for (size_t i = 0; i != rtVarTableSize; i++)
-		new (&rtVarTable[i]) VarValue(copyFrom[i]);
+	memcpy(rtVarTable, copyFrom, sizeof(VarValue) * rtVarTableSize);
 }
 
 CompiledShader::CompiledShader(CompiledShader &&other)
-	:	codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
+	:	shaderName(other.shaderName), codePtr(other.codePtr), codeSize(other.codeSize), codePtrEnd(other.codePtrEnd),
 		scene(other.scene), execStack(other.execStack), varTable(other.varTable),
 		rtVarTableSize(other.rtVarTableSize), rtVarTable(other.rtVarTable)
 {
@@ -675,6 +658,22 @@ bool CompiledShader::findFunRef(const std::string &str, FunctionInfo **fnRef)
 	*fnRef = &(mappedFnRef->second);
 
 	return true;
+}
+
+void CompiledShader::finalize()
+{
+	// Generate runtime vartable
+	rtVarTableSize	= varTable.size();
+	rtVarTable		= static_cast<VarValue*>(shaderRTVarPool.local()->ordered_malloc(rtVarTableSize));
+	size_t i		= 0;
+	for_each(varTable.begin(), varTable.end(),
+		[&] (const Variable &v)
+		{
+			new (&rtVarTable[i]) VarValue(v.content);
+			i++;
+		} );
+
+	varTable.swap(VariableTable());
 }
 
 void CompiledShader::exec()

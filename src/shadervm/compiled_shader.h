@@ -127,12 +127,15 @@ public:
 
 	void setVarValue(const std::string &name, const VarValue &value);
 	void setVarValueByIndex(size_t index, const VarValue &value);
-	void setRTVarValueByIndex(size_t index, const VarValue &value);
-	
-	void getOutput(Color &color, Color &opacity);
 
 	void parseInstr(const std::string &instr);
 	Instructions getCode() const { return code; }
+
+	void finalize();
+
+	void setRTVarValueByIndex(size_t index, const VarValue &value);
+	
+	void getOutput(Color &color, Color &opacity);
 
 	void exec();
 

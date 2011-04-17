@@ -40,6 +40,8 @@ public:
 
 	void					setShaderParams(const ShaderParams &p);
 
+	void					prepareShader();
+
 protected:
 	Geometry() : pos(0.f), color(0.f), opacity(0.f), shader(0) 			{}
 	Geometry(const Vector3 &p) : pos(p), color(1), shader(0)			{}

@@ -125,6 +125,9 @@ Camera& Scene::camera()
 
 void Scene::prepare()
 {
+	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
+		(*it)->prepareShader();
+
 	rt_lights = memory::construct<Light*>(lights.size() + 1);
 	int loop = 0;
 	for(Lights::iterator it = lights.begin(); it != lights.end(); ++it, ++loop)

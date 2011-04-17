@@ -1,5 +1,5 @@
-#ifndef CRT_CAMERA_H
-#define CRT_CAMERA_H
+#ifndef PPRT_CAMERA_H
+#define PPRT_CAMERA_H
 
 #include "ray.h"
 

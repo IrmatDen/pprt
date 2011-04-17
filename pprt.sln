@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 10
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crt", "crt.vcxproj", "{41F568D5-F547-457A-9B9E-438C5A28CEE2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pprt", "pprt.vcxproj", "{41F568D5-F547-457A-9B9E-438C5A28CEE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

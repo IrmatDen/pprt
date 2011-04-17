@@ -1,5 +1,5 @@
-#ifndef CRT_SSE_H
-#define CRT_SSE_H
+#ifndef PPRT_SSE_H
+#define PPRT_SSE_H
 
 #include <limits>
 #include <xmmintrin.h>

@@ -1,5 +1,5 @@
-#ifndef CRT_SHADERVM_SHADER_PARAM_H
-#define CRT_SHADERVM_SHADER_PARAM_H
+#ifndef PPRT_SHADERVM_SHADER_PARAM_H
+#define PPRT_SHADERVM_SHADER_PARAM_H
 
 #include <vector>
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef CRT_AABB_H
-#define CRT_AABB_H
+#ifndef PPRT_AABB_H
+#define PPRT_AABB_H
 
 #include "ray.h"
 

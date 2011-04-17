@@ -1,5 +1,5 @@
-#ifndef CRT_COLOR_H
-#define CRT_COLOR_H
+#ifndef PPRT_COLOR_H
+#define PPRT_COLOR_H
 
 #include "../sse.h"
 

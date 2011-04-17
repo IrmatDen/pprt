@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+ <version type="u32_t">1</version>
+ <All_Configurations-All_Platforms>
+  <version type="u32_t">1</version>
+  <target_settings>
+   <selected_workload>workload.application</selected_workload>
+   <result_pattern>r@@@{at}</result_pattern>
+   <store_in_proj_dir type="bool">true</store_in_proj_dir>
+   <result_dir>F:\src\crt_vs2010\VTune\pprt</result_dir>
+   <workloads>
+    <workload>
+     <application type="pointer" type_id="dasID_cctrl2::ApplicationWorkload" ptr_type="dasID_cctrl2::IWorkload">
+      <workload>
+       <launch_app.app_to_launch>F:\src\crt_vs2010\Release\pprt.exe</launch_app.app_to_launch>
+       <launch_app.app_parameters></launch_app.app_parameters>
+       <launch_app.working_folder>F:\src\crt_vs2010</launch_app.working_folder>
+       <system.duration type="null"></system.duration>
+       <result_directory.path>F:\src\crt_vs2010\VTune\pprt\r@@@{at}</result_directory.path>
+       <context>
+        <contextValue>
+         <id>allowMultipleRuns</id>
+         <value type="bool">true</value>
+        </contextValue>
+        <contextValue>
+         <id>analyzeSystemWide</id>
+         <value type="bool">false</value>
+        </contextValue>
+        <contextValue>
+         <id>dataLimit</id>
+         <value type="s32_t">100</value>
+        </contextValue>
+        <contextValue>
+         <id>followChild</id>
+         <value type="bool">false</value>
+        </contextValue>
+        <contextValue>
+         <id>goodFastFrameThreshold</id>
+         <value type="double">100</value>
+        </contextValue>
+        <contextValue>
+         <id>mrteMode</id>
+         <value>native</value>
+        </contextValue>
+        <contextValue>
+         <id>slowGoodFrameThreshold</id>
+         <value type="double">40</value>
+        </contextValue>
+        <contextValue>
+         <id>targetDurationType</id>
+         <value>short</value>
+        </contextValue>
+       </context>
+       <search_directories type="bag"/>
+      </workload>
+     </application>
+     <process type="pointer" type_id="dasID_cctrl2::AttachWorkload" ptr_type="dasID_cctrl2::IWorkload">
+      <workload>
+       <result_directory.path>F:\src\crt_vs2010\VTune\pprt\r@@@{at}</result_directory.path>
+       <context>
+        <contextValue>
+         <id>allowMultipleRuns</id>
+         <value type="bool">false</value>
+        </contextValue>
+        <contextValue>
+         <id>analyzeSystemWide</id>
+         <value type="bool">false</value>
+        </contextValue>
+        <contextValue>
+         <id>dataLimit</id>
+         <value type="s32_t">100</value>
+        </contextValue>
+        <contextValue>
+         <id>followChild</id>
+         <value type="bool">true</value>
+        </contextValue>
+        <contextValue>
+         <id>goodFastFrameThreshold</id>
+         <value type="double">100</value>
+        </contextValue>
+        <contextValue>
+         <id>mrteMode</id>
+         <value>native</value>
+        </contextValue>
+        <contextValue>
+         <id>slowGoodFrameThreshold</id>
+         <value type="double">40</value>
+        </contextValue>
+        <contextValue>
+         <id>targetDurationType</id>
+         <value>short</value>
+        </contextValue>
+       </context>
+       <search_directories type="bag"/>
+      </workload>
+     </process>
+     <system type="pointer" type_id="dasID_cctrl2::SystemWideWorkload" ptr_type="dasID_cctrl2::IWorkload">
+      <workload>
+       <result_directory.path>F:\src\crt_vs2010\VTune\pprt\r@@@{at}</result_directory.path>
+      </workload>
+     </system>
+    </workload>
+   </workloads>
+  </target_settings>
+  <searchDirs>
+   <searchCategory>
+    <category type="u8_t">1</category>
+   </searchCategory>
+   <searchCategory>
+    <category type="u8_t">2</category>
+   </searchCategory>
+   <searchCategory>
+    <category type="u8_t">3</category>
+    <searchDirectory>
+     <name>f:\src\crt_vs2010\src\shadervm</name>
+     <recursive type="bool">false</recursive>
+     <priority type="bool">false</priority>
+    </searchDirectory>
+   </searchCategory>
+   <searchCategory>
+    <category type="u8_t">4</category>
+   </searchCategory>
+  </searchDirs>
+  <analysis_type_settings>
+   <selected_analysis_type_path>F:\Intel\VTune Amplifier XE 2011\config\analysis_type\hotspots.cfg</selected_analysis_type_path>
+  </analysis_type_settings>
+ </All_Configurations-All_Platforms>
+</root>

@@ -1,5 +1,5 @@
-#ifndef CRT_SCNPARSER_H
-#define CRT_SCNPARSER_H
+#ifndef PPRT_SCNPARSER_H
+#define PPRT_SCNPARSER_H
 
 #include <string>
 #include <iostream>

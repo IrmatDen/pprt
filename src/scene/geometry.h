@@ -1,5 +1,5 @@
-#ifndef CRT_GEOMETRY_H
-#define CRT_GEOMETRY_H
+#ifndef PPRT_GEOMETRY_H
+#define PPRT_GEOMETRY_H
 
 #include <string>
 #include <boost/shared_ptr.hpp>

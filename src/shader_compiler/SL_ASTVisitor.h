@@ -1,5 +1,5 @@
-#ifndef CRT_SL_ASTVISITOR_H
-#define CRT_SL_ASTVISITOR_H
+#ifndef PPRT_SL_ASTVISITOR_H
+#define PPRT_SL_ASTVISITOR_H
 
 class SLNode;
 class TermNode;

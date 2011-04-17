@@ -1,5 +1,5 @@
-#ifndef CRT_PLANE_H
-#define CRT_PLANE_H
+#ifndef PPRT_PLANE_H
+#define PPRT_PLANE_H
 
 #include "geometry.h"
 

@@ -1,5 +1,5 @@
-#ifndef CRT_COMMON_H
-#define CRT_COMMON_H
+#ifndef PPRT_COMMON_H
+#define PPRT_COMMON_H
 
 #include "sse.h"
 

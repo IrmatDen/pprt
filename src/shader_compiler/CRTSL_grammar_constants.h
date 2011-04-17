@@ -1,5 +1,5 @@
-#ifndef CRT_GRAMMAR_CONSTANTS_H
-#define CRT_GRAMMAR_CONSTANTS_H
+#ifndef PPRT_GRAMMAR_CONSTANTS_H
+#define PPRT_GRAMMAR_CONSTANTS_H
 
 enum SymbolConstants
 {

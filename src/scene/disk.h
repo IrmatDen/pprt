@@ -1,5 +1,5 @@
-#ifndef CRT_DISK_H
-#define CRT_DISK_H
+#ifndef PPRT_DISK_H
+#define PPRT_DISK_H
 
 #include "geometry.h"
 

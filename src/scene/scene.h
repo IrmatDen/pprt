@@ -1,5 +1,5 @@
-#ifndef CRT_SCENE_H
-#define CRT_SCENE_H
+#ifndef PPRT_SCENE_H
+#define PPRT_SCENE_H
 
 #include <vector>
 #include <string>

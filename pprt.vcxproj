@@ -12,8 +12,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGUID>{41F568D5-F547-457A-9B9E-438C5A28CEE2}</ProjectGUID>
-    <RootNamespace>crt</RootNamespace>
+    <RootNamespace>pprt</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>pprt</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -30,6 +31,12 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(LocalAppData)\Microsoft\VisualStudio\10.0\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="boost.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="boost.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -53,7 +60,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>F:\libs\tbb30_20101215oss\include;F:\libs\FreeImage\Dist;F:\libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\boost\boost_1_44;F:\libs\cpp-gpengine\include;$(SolutionDir)\dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\libs\boost\boost_1_44;$(SolutionDir)\dependencies\tbb\include;$(SolutionDir)\dependencies\FreeImage;$(SolutionDir)\dependencies\cpp-gpengine\include;$(SolutionDir)\dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>
       <DisableSpecificWarnings>4820;4514;4668;4201</DisableSpecificWarnings>
@@ -65,7 +72,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>F:\libs\boost\boost_1_44\lib;F:\libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\cpp-gpengine\lib;F:\libs\tbb30_20101215oss\lib\ia32\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\libs\boost\boost_1_44\lib;$(SolutionDir)\dependencies\FreeImage;$(SolutionDir)\dependencies\cpp-gpengine\lib;$(SolutionDir)\dependencies\tbb\lib\ia32\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -93,7 +100,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4530;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AdditionalIncludeDirectories>F:\libs\tbb30_20101215oss\include;F:\libs\FreeImage\Dist;F:\libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\boost\boost_1_44;F:\libs\cpp-gpengine\include;$(SolutionDir)\dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\dependencies\tbb\include;$(SolutionDir)\dependencies\FreeImage;$(SolutionDir)\dependencies\cpp-gpengine\include;$(SolutionDir)\dependencies;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>false</BrowseInformation>
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -108,7 +115,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>F:\libs\boost\boost_1_44\lib;F:\libs\FreeImage\Wrapper\FreeImagePlus\dist;F:\libs\cpp-gpengine\lib;F:\libs\tbb30_20101215oss\lib\ia32\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\dependencies\FreeImage;$(SolutionDir)\dependencies\cpp-gpengine\lib;$(SolutionDir)\dependencies\tbb\lib\ia32\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>

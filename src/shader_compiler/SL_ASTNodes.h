@@ -1,5 +1,5 @@
-#ifndef CRT_SL_ASTNODES_H
-#define CRT_SL_ASTNODES_H
+#ifndef PPRT_SL_ASTNODES_H
+#define PPRT_SL_ASTNODES_H
 
 #include <ASTCreator.h>
 

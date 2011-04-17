@@ -1,5 +1,5 @@
-#ifndef CRT_SYMTAB_H
-#define CRT_SYMTAB_H
+#ifndef PPRT_SYMTAB_H
+#define PPRT_SYMTAB_H
 
 #include "../sse.h"
 #include "../common.h"

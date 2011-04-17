@@ -1,5 +1,5 @@
-#ifndef CRT_STDOUT_VISITOR_H
-#define CRT_STDOUT_VISITOR_H
+#ifndef PPRT_STDOUT_VISITOR_H
+#define PPRT_STDOUT_VISITOR_H
 
 #include "SL_ASTVisitor.h"
 

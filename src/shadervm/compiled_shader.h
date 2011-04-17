@@ -1,5 +1,5 @@
-#ifndef CRT_COMPILED_SHADER_H
-#define CRT_COMPILED_SHADER_H
+#ifndef PPRT_COMPILED_SHADER_H
+#define PPRT_COMPILED_SHADER_H
 #include "symtab.h"
 #include "vmstack.h"
 

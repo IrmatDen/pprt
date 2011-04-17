@@ -1,5 +1,5 @@
-#ifndef CRT_SPHERE_H
-#define CRT_SPHERE_H
+#ifndef PPRT_SPHERE_H
+#define PPRT_SPHERE_H
 
 #include "geometry.h"
 

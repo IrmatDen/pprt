@@ -1,5 +1,5 @@
-#ifndef CRT_RAY_H
-#define CRT_RAY_H
+#ifndef PPRT_RAY_H
+#define PPRT_RAY_H
 
 #include "../sse.h"
 

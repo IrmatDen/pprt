@@ -1,5 +1,5 @@
-#ifndef CRT_LIGHT_H
-#define CRT_LIGHT_H
+#ifndef PPRT_LIGHT_H
+#define PPRT_LIGHT_H
 
 #include <boost/shared_ptr.hpp>
 

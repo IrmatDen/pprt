@@ -1,5 +1,5 @@
-#ifndef CRT_TYPE_PARSERS_H
-#define CRT_TYPE_PARSERS_H
+#ifndef PPRT_TYPE_PARSERS_H
+#define PPRT_TYPE_PARSERS_H
 
 // IMPORTANT: this file can't be used alone, it's only to be included in scnparser.h which
 // contains the good includes and typedefs!

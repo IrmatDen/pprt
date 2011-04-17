@@ -59,10 +59,8 @@ public:
 
 						Color alphaFrag, outFrag;
 						outFrag = scene.trace(ray, hitSomething, alphaFrag);
-						if (hitSomething)
-							outPix += outFrag * 0.25f;
-						else
-							outPix += scene.background * 0.25f;
+
+						outPix += outFrag * 0.25f;
 						alphaPix += alphaFrag * 0.25f;
 					}
 				}
@@ -171,10 +169,8 @@ void Scene::render()
 
 					Color alphaFrag, outFrag;
 					outFrag = trace(r, hitSomething, alphaFrag);
-					if (hitSomething)
-						outPix += outFrag * 0.25f;
-					else
-						outPix += background * 0.25f;
+
+					outPix += outFrag * 0.25f;
 					alphaPix += alphaFrag * 0.25f;
 				}
 			}
@@ -206,7 +202,8 @@ Color Scene::trace(const Ray &eye, bool &hitSomething, Color &Oi) const
 
 	Ray ray(eye);
 	Oi = Color(all_zero());
-	return traceNoDepthMod(ray, hitSomething, Oi);
+	Color traced = traceNoDepthMod(ray, hitSomething, Oi);
+	return traced + mulPerElem((Vector3(1) - Oi), background);
 }
 
 Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const

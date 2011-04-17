@@ -39,4 +39,4 @@ Opacity 1 1 1
 Color 1 1 1
 
 Sphere 1 < 3, 0, 7> reflect_sample
-Sphere 1 < 3, 0, 9> metal
+Sphere 1 < 3, 0, 9> reflect_sample

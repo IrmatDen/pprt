@@ -1,6 +1,6 @@
 Option shaderspath ./Shaders
 
-Display "constant_color_shaded_sphere.png" "file" "rgba"
+Display "constant_color_shaded_sphere.png" "framebuffer" "rgba"
 Format 800 600 1
 CamLookAt <0, 0, -10> <0, 0, 0>
 

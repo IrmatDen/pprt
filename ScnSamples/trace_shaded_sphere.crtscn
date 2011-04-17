@@ -1,6 +1,6 @@
 Option shaderspath ./Shaders
 
-Output "reflect_sphere.png" "file" "rgba"
+Display "reflect_sphere.png" "framebuffer" "rgba"
 Format 800 600 1
 Background 0 0 0
 CamLookAt <-3, 1.5, -3> <0, 0, 5>

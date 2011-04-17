@@ -1,6 +1,6 @@
 Option shaderspath ./Shaders
 
-Output "specular_sphere.png" "file" "rgba"
+Display "specular_sphere.png" "framebuffer" "rgba"
 Format 800 600 1
 #Background (0, 0, 0, 1)
 CamLookAt <-3, 1.5, -3> <0, 0, 5>

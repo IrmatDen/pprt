@@ -8,9 +8,10 @@
 #include <FreeImagePlus.h>
 
 #include <tbb/task_scheduler_init.h>
-#include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/parallel_for.h>
+#include <tbb/mutex.h>
+#include <tbb/atomic.h>
 
 #include "scene.h"
 #include "bvh.h"
@@ -19,29 +20,161 @@
 
 #include "../common.h"
 
-//#define NOTHREADING
+#include <SFML/Graphics.hpp>
 
-class TraceScanLine
+#define THREADING 1
+
+struct Rect
+{
+	int left,	top;
+	int width,	height;
+};
+
+template <typename PixelType = unsigned char, int PixelSize = 4>
+class PixelStore
 {
 public:
-	TraceScanLine(Scene &scene, fipImage &out)
-		:scn(scene), img(out)
+	typedef PixelType pixel_t;
+
+	static const int pixel_size = PixelSize;
+
+public:
+	PixelStore(int w, int h)
+		: width(w), height(h), rowSize(width * PixelSize), imgData(nullptr)
+	{
+		imgData = new pixel_t[width * height * PixelSize];
+	}
+
+	~PixelStore()
+	{
+		delete [] imgData;
+	}
+
+	int getWidth() const		{ return width; }
+	int getHeight() const		{ return height; }
+	static int getPixelSize()	{ return PixelSize; }
+
+	pixel_t* getScanline(int y)
+	{
+		assert(y < height);
+		return imgData + y * rowSize;
+	}
+
+	pixel_t* getPixels()
+	{
+		return imgData;
+	}
+
+private:
+	const int	width;
+	const int	height;
+	const int	rowSize;
+	pixel_t		*imgData;
+};
+typedef PixelStore<> RGBAStore;
+
+template <typename PixelStoreT = RGBAStore>
+class Framebuffer
+{
+public:
+	typedef PixelStoreT	pixel_store_t;
+
+public:
+	Framebuffer()
+		: win(nullptr), pixelStore(nullptr)
+	{
+	}
+
+	~Framebuffer()
+	{
+		delete win;
+	}
+
+	void create(pixel_store_t &pixStore, const std::string &displayName)
+	{
+		pixelStore = &pixStore;
+		win = new sf::RenderWindow(sf::VideoMode(pixelStore->getWidth(), pixelStore->getHeight()), displayName);
+		displayImg.Create(pixelStore->getWidth(), pixelStore->getHeight(), sf::Color(0, 0, 0, 0));
+		displayImg.SetSmooth(false);
+		displaySprite.SetImage(displayImg);
+		displaySprite.FlipY(true);
+
+		updateRequired = false;
+	}
+
+	void run()
+	{
+		if (win == nullptr)
+			return;
+
+		while (win->IsOpened())
+		{
+			if (updateRequired)
+			{
+				displayImg.UpdatePixels(pixelStore->getPixels());
+				updateRequired = false;
+			}
+
+			sf::Event evt;
+			while (win->GetEvent(evt))
+			{
+				switch (evt.Type)
+				{
+				case sf::Event::Closed:
+					win->Close();
+					break;
+				}
+			}
+
+			win->Clear();
+			win->Draw(displaySprite);
+			win->Display();
+		}
+	}
+
+	void tagUpdate()
+	{
+		updateRequired = true;
+	}
+
+private:
+	sf::RenderWindow	*win;
+	sf::Image			displayImg;
+	sf::Sprite			displaySprite;
+	pixel_store_t		*pixelStore;
+
+	tbb::atomic<bool>	updateRequired;
+};
+
+template <typename PixelStoreT = RGBAStore>
+class TraceBlock
+{
+public:
+	typedef PixelStoreT	pixel_store_t;
+
+public:
+	TraceBlock(Scene &scene, pixel_store_t &out, Framebuffer<pixel_store_t> *renderWnd = nullptr)
+		:scn(&scene), img(&out), fb(renderWnd)
 	{
 	}
 
 	void operator()(const tbb::blocked_range2d<int> &r) const
 	{
-		Scene &scene = scn;
-
 		Ray ray;
-		ray.origin = scene.cam.pos;
+		ray.origin = scn->camera().pos;
+
+		Rect blockDef;
+		blockDef.top	= r.rows().begin();
+		blockDef.left	= r.cols().begin();
+		blockDef.height	= r.rows().size();
+		blockDef.width	= r.cols().size();
 
 		for (int y = r.rows().begin(); y != r.rows().end(); ++y)
 		{
-			BYTE *imgData = img.getScanLine(y);
-			imgData += 4 * r.cols().begin();
+			typename pixel_store_t::pixel_t *imgData = img->getScanline(y);
+			imgData += pixel_store_t::getPixelSize() * r.cols().begin();
 
-			for (int x = r.cols().begin(); x < r.cols().end(); x++, imgData += 4)
+			for (int x = r.cols().begin(); x < r.cols().end(); x++, imgData += pixel_store_t::getPixelSize())
 			{
 				Color outPix(all_zero());
 				Color alphaPix(all_zero());
@@ -52,13 +185,13 @@ public:
 					for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
 					{
 						// Bring x & y in [-1,1] range, and generate primary's ray dir.
-						float fx =		fragx * 1.0f / scene.resX * 2 - 1;
-						float fy = 1 -	fragy * 1.0f / scene.resY * 2;
+						float fx =		fragx * 1.0f / img->getWidth() * 2 - 1;
+						float fy = 1 -	fragy * 1.0f / img->getHeight() * 2;
 
-						scene.cam.project(fx, fy, ray);
+						scn->camera().project(fx, fy, ray);
 
 						Color alphaFrag, outFrag;
-						outFrag = scene.trace(ray, hitSomething, alphaFrag);
+						outFrag = scn->trace(ray, hitSomething, alphaFrag);
 
 						outPix += outFrag * 0.25f;
 						alphaPix += alphaFrag * 0.25f;
@@ -78,21 +211,21 @@ public:
 				clamp(outPix);
 				clamp(alphaPix);
 			
-				const float	r = outPix.getX() * 255,
-							g = outPix.getY() * 255,
-							b = outPix.getZ() * 255,
-							a = maxElem(alphaPix) * 255;
-				imgData[FI_RGBA_RED]	= BYTE(r);
-				imgData[FI_RGBA_GREEN]	= BYTE(g);
-				imgData[FI_RGBA_BLUE]	= BYTE(b);
-				imgData[FI_RGBA_ALPHA]	= 255;
+				imgData[0] = static_cast<pixel_store_t::pixel_t>(outPix.getX() * 255);
+				imgData[1] = static_cast<pixel_store_t::pixel_t>(outPix.getY() * 255);
+				imgData[2] = static_cast<pixel_store_t::pixel_t>(outPix.getZ() * 255);
+				imgData[3] = static_cast<pixel_store_t::pixel_t>(maxElem(alphaPix) * 255);
 			}
 		}
+
+		if (fb)
+			fb->tagUpdate();
 	}
 
 private:
-	Scene		&	scn;
-	fipImage	&	img;
+	Scene						*	scn;
+	pixel_store_t				*	img;
+	Framebuffer<pixel_store_t>	*	fb;
 };
 
 Scene::~Scene()
@@ -138,59 +271,91 @@ void Scene::prepare()
 
 void Scene::render()
 {
-	fipImage img(FIT_BITMAP, (WORD)resX, (WORD)resY, 32);
-	BYTE *imgData = img.accessPixels();
+	RGBAStore imgStore(resX, resY);
+	Framebuffer<RGBAStore> fb;
+	sf::Thread *renderThread;
+	TraceBlock<RGBAStore> *tracer;
 
 	cam.init(resX, resY);
 
-#ifndef NOTHREADING
-	tbb::task_scheduler_init tbbInit;
-	tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), TraceScanLine(*this, img), tbb::auto_partitioner());
-#else
-	Ray r;
-	r.origin = cam.pos;
-	for (int y = 0; y < resY; y++)
+	if (displayType == DT_File)
 	{
-		for (int x = 0; x < resX; x++, imgData += 4)
+		tracer = new TraceBlock<RGBAStore>(*this, imgStore);
+	}
+	else // DT_Framebuffer
+	{
+		fb.create(imgStore, displayName);
+		tracer = new TraceBlock<RGBAStore>(*this, imgStore, &fb);
+	}
+
+#if THREADING == 1
+	renderThread = new sf::Thread(
+		[&] ()
 		{
-			Color outPix(all_zero());
-			Color alphaPix(all_zero());
-			bool hitSomething;
+			tbb::task_scheduler_init tbbInit;
+			tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), *tracer, tbb::auto_partitioner());
+		} );
+	renderThread->Launch();
+#else
+	renderThread = new sf::Thread(
+		[&] ()
+		{
+			const int blockSide = 16;
 
-			for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
+			int y = 0;
+			const int	maxY = (resY / blockSide) * blockSide,
+						remY = resY - maxY;
+			const int	maxX = (resX / blockSide) * blockSide,
+						remX = resX - maxX;
+			for (; y != maxY; y += blockSide)
 			{
-				for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
-				{
-					// Bring x & y in [-1,1] range, and generate primary's ray dir.
-					float fx =		fragx * 1.0f / resX * 2 - 1;
-					float fy = 1 -	fragy * 1.0f / resY * 2;
+				int x = 0;
+				for (; x < maxX; x += blockSide)
+					(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, x, x + blockSide));
 
-					cam.project(fx, fy, r);
-
-					Color alphaFrag, outFrag;
-					outFrag = trace(r, hitSomething, alphaFrag);
-
-					outPix += outFrag * 0.25f;
-					alphaPix += alphaFrag * 0.25f;
-				}
+				if (remX > 0)
+					(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, maxX, resX));
 			}
 
-			clamp(outPix);
-			clamp(alphaPix);
-			
-			const float	r = outPix.getX() * 255,
-						g = outPix.getY() * 255,
-						b = outPix.getZ() * 255,
-						a = maxElem(alphaPix) * 255;
-			imgData[FI_RGBA_RED]	= BYTE(r);
-			imgData[FI_RGBA_GREEN]	= BYTE(g);
-			imgData[FI_RGBA_BLUE]	= BYTE(b);
-			imgData[FI_RGBA_ALPHA]	= BYTE(a);
-		}
-	}
-#endif
+			if (remY > 0)
+			{
+				int x = 0;
+				for (; x < maxX; x += blockSide)
+					(*tracer)(tbb::blocked_range2d<int>(maxY, resY, x, x + blockSide));
 
-	img.save(displayName.c_str());
+				if (remX > 0)
+					(*tracer)(tbb::blocked_range2d<int>(maxY, resY, maxX, resX));
+			}
+		} );
+	renderThread->Launch();
+#endif
+	
+	if (displayType == DT_File)
+	{
+		renderThread->Wait();
+
+		fipImage img(FIT_BITMAP, (WORD)resX, (WORD)resY, 32);
+
+		for (int y = 0; y != resY; y++)
+		{
+			RGBAStore::pixel_t *pixelsData = imgStore.getScanline(y);
+			BYTE *imgData = img.getScanLine(y);
+
+			for (int x = 0; x != resX; x++, imgData += 4, pixelsData += imgStore.getPixelSize())
+			{
+				imgData[FI_RGBA_RED]	= BYTE(pixelsData[0]);
+				imgData[FI_RGBA_GREEN]	= BYTE(pixelsData[1]);
+				imgData[FI_RGBA_BLUE]	= BYTE(pixelsData[2]);
+				imgData[FI_RGBA_ALPHA]	= BYTE(pixelsData[3]);
+			}
+		}
+
+		img.save(displayName.c_str());
+	}
+	else
+	{
+		fb.run();
+	}
 }
 
 Color Scene::trace(const Ray &eye, bool &hitSomething, Color &Oi) const

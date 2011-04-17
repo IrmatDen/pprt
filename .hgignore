@@ -10,6 +10,7 @@ ipch*
 *.opensdf
 Debug\*
 Release\*
+ReleaseFullDebugInfo\*
 *.imd
 CodeAnalyst/CRT/*.dir/*.tbp
 CodeAnalyst/CRT/*.dir/*.map

@@ -9,8 +9,6 @@
 #include <string>
 #endif
 
-#include <tbb/enumerable_thread_specific.h>
-
 // WARNING: this stack only works for types that do NOT require construction nor destruction!
 class VMStack
 {
@@ -112,14 +110,9 @@ private:
 #ifdef _DEBUG
 	std::stack<std::string> stackedTypeNames;
 #endif
-
-private:
-	typedef tbb::enumerable_thread_specific<memory::AlignedPool*>	StackPoolImpl;
-
-	friend struct StackPoolCreator;
 	
 private:
-	static StackPoolImpl	stackPool;
+	static memory::UCharPool	stackPool;
 };
 
 #endif

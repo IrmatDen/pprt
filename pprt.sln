@@ -1,18 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 10
+# Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pprt", "pprt.vcxproj", "{41F568D5-F547-457A-9B9E-438C5A28CEE2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
+		ReleaseFullDebugInfo|Win32 = ReleaseFullDebugInfo|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{41F568D5-F547-457A-9B9E-438C5A28CEE2}.Debug|Win32.ActiveCfg = Debug|Win32
 		{41F568D5-F547-457A-9B9E-438C5A28CEE2}.Debug|Win32.Build.0 = Debug|Win32
 		{41F568D5-F547-457A-9B9E-438C5A28CEE2}.Release|Win32.ActiveCfg = Release|Win32
 		{41F568D5-F547-457A-9B9E-438C5A28CEE2}.Release|Win32.Build.0 = Release|Win32
+		{41F568D5-F547-457A-9B9E-438C5A28CEE2}.ReleaseFullDebugInfo|Win32.ActiveCfg = ReleaseFullDebugInfo|Win32
+		{41F568D5-F547-457A-9B9E-438C5A28CEE2}.ReleaseFullDebugInfo|Win32.Build.0 = ReleaseFullDebugInfo|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

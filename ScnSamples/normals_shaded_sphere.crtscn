@@ -1,6 +1,6 @@
 Option shaderspath ./Shaders
 
-Output "surfaceNormals_sphere.png" "file" "rgba"
+Display "surfaceNormals_sphere.png" "file" "rgba"
 Format 800 600 1
 CamLookAt <-5, -3, -10> <0, 0, 5>
 

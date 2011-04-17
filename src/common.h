@@ -5,6 +5,8 @@
 
 #include <boost/pool/singleton_pool.hpp>
 
+#include <tbb/enumerable_thread_specific.h>
+
 #ifndef _MM_ALIGN16
 #define _MM_ALIGN16		_declspec(align(16))
 #endif
@@ -153,6 +155,11 @@ namespace memory
 		return false;
 	}
 
+
+	//---------------------------------------------------------------
+	// Pool related stuff
+	//---------------------------------------------------------------
+
 	struct PoolAllocAlign16
 	{
 		typedef size_t		size_type;
@@ -169,7 +176,17 @@ namespace memory
 		}
 	};
 
-	typedef boost::pool<memory::PoolAllocAlign16> AlignedPool;
+	typedef boost::pool<memory::PoolAllocAlign16>			AlignedPool;
+	typedef tbb::enumerable_thread_specific<AlignedPool*>	UCharPool;
+
+	template <size_t RequestedSize, size_t NextSize = 32>
+	struct UCharPoolCreator
+	{
+		static AlignedPool* create()
+		{
+			return new AlignedPool(sizeof(unsigned char) * RequestedSize, NextSize);
+		}
+	};
 }
 
 #endif

@@ -190,7 +190,7 @@ void Scene::render()
 	}
 #endif
 
-	img.save(outName.c_str());
+	img.save(displayName.c_str());
 }
 
 Color Scene::trace(const Ray &eye, bool &hitSomething, Color &Oi) const

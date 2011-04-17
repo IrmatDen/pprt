@@ -15,6 +15,12 @@
 
 class BVH;
 
+enum DisplayType
+{
+	DT_File,
+	DT_Framebuffer,
+};
+
 class Scene
 {
 	friend class TraceScanLine;
@@ -42,7 +48,9 @@ public:
 
 	bool		loadScnFile(const std::string &filename);
 
-	void		setOutputFile(const std::string &outFile)	{ outName = outFile; }
+	void		setDisplayName(const std::string &name)		{ displayName = name; }
+	void		setDisplayType(DisplayType type)			{ displayType = type; }
+
 	void		setWidth(int width)							{ resX = width; }
 	void		setHeight(int height)						{ resY = height; }
 
@@ -66,7 +74,9 @@ public:
 	void		specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const;
 
 private:
-	std::string				outName;
+	std::string				displayName;
+	DisplayType				displayType;
+
 	int						resX, resY;
 
 	Color					background;

@@ -5,9 +5,10 @@
 // contains the good includes and typedefs!
 
 //-----------------------------------------------------------------------------------------------------------
-// Shader path actor
+// Options actor
 
 #include <boost/filesystem.hpp>
+#include <iostream>
 
 #include "../common.h"
 
@@ -32,6 +33,36 @@ struct shaderPath_a
 					scene.shaderManager.loadFile(p.file_string());
 				}
 			}
+		}
+	}
+
+	Scene			&	scene;
+};
+//-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
+// Displays actor
+
+struct displayType_a
+{
+	displayType_a(Scene &scn) : scene(scn) {}
+	
+	void operator()(const iterator_t &first, const iterator_t &end) const
+	{
+		std::string type_str(first + 1, end - 1);
+
+		if (type_str == "file")
+		{
+			scene.setDisplayType(DT_File);
+		}
+		else if (type_str == "framebuffer")
+		{
+			scene.setDisplayType(DT_Framebuffer);
+		}
+		else
+		{
+			std::cout << "Unknown display type: \"" << type_str << "\", defaulting to framebuffer." << std::endl;
+			scene.setDisplayType(DT_Framebuffer);
 		}
 	}
 

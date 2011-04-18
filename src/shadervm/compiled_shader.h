@@ -156,9 +156,7 @@ private:
 		int				args;
 		VariableType	retValue;
 	};
-	
-	// Runtime related datatypes
-	//typedef std::vector<VarValue, memory::AllocAlign16<VarValue> >	RTVariableTable;
+
 private:
 	// Initialization helper
 	void initRTVars(const VarValue * const copyFrom);
@@ -173,41 +171,41 @@ private:
 		void vec3Ctor();
 
 		// Mathematical functions
-		void	smoothstep();
+		void smoothstep();
 
 		// Geometric functions
-		void	faceForward();
-		void	normalize();
-		void	reflect();
+		void faceForward();
+		void normalize();
+		void reflect();
 
 		// Color functions
-		void	mix();
+		void mix();
 
 		// Shading and lighting functions
-		void	ambient();
-		void	diffuse();
-		void	specular();
-		void	trace();
+		void ambient();
+		void diffuse();
+		void specular();
+		void trace();
 
 private:
-	ShaderType					type;
-	std::string					shaderName;
-	VariableTable				varTable;
-	size_t						rtVarTableSize;
-	VarValue				*	rtVarTable;
+	ShaderType			type;
+	std::string			shaderName;
+	VariableTable		varTable;
+	size_t				rtVarTableSize;
+	VarValue		*	rtVarTable;
 
-	Instructions				code;
+	Instructions		code;
 
-	ByteCode				*	codePtr;
-	ByteCode				*	codePtrEnd;
-	size_t						codeSize;
-	ByteCode				*	eip;
+	ByteCode		*	codePtr;
+	ByteCode		*	codePtrEnd;
+	size_t				codeSize;
+	ByteCode		*	eip;
 
-	TypeStack					typeStack;	//<! Used at compilation only. Will be moved to a shader compiler module soon
-	VMStack						execStack;
+	TypeStack			typeStack;	//<! Used at compilation only. Will be moved to a shader compiler module soon
+	VMStack				execStack;
 
-	Scene					*	scene;
-	int							currentDepth;
+	Scene			*	scene;
+	int					currentDepth;
 
 private:
 	typedef std::map<std::string, OpCode>			OpCodeMapping;

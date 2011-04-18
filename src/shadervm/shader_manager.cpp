@@ -20,7 +20,7 @@ using namespace std;
 ShaderManager::ShaderManager()
 :scene(0)
 {
-	bool cgtLoaded = grammar.load("./src/shadervm/crtsl.cgt");
+	bool cgtLoaded = grammar.load("crtsl.cgt");
 }
 
 ShaderManager::~ShaderManager()

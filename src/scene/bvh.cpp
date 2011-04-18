@@ -8,7 +8,7 @@ using namespace std;
 
 BVH::~BVH()
 {
-	memory::destroy(root);
+	clear();
 }
 
 void BVH::build(const Scene::Geometries &objects)
@@ -17,6 +17,11 @@ void BVH::build(const Scene::Geometries &objects)
 	setAABBFor(root->aabb, objects);
 
 	buildSubTree(*root, objects);
+}
+
+void BVH::clear()
+{
+	memory::destroy(root);
 }
 
 void BVH::setAABBFor(AABB &aabb, const Scene::Geometries &objects) const

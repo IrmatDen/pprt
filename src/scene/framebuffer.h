@@ -2,6 +2,7 @@
 #define PPRT_FRAMEBUFFER_H
 
 #include "pixel_store.h"
+#include "scene.h"
 
 #include <tbb/atomic.h>
 
@@ -16,12 +17,14 @@ public:
 	typedef PixelStoreT	pixel_store_t;
 
 public:
-	Framebuffer();
+	Framebuffer(Scene &scn);
 	~Framebuffer();
 
 	void create(pixel_store_t &pixStore, const std::string &displayName);
 	void run();
 	void tagUpdate();
+
+	void allowSceneReload(bool allow);
 
 private:
 	sf::RenderWindow	*win;
@@ -29,12 +32,15 @@ private:
 	sf::Sprite			displaySprite;
 	pixel_store_t		*pixelStore;
 
+	Scene	&scene;
+	bool	allowReload;
+
 	tbb::atomic<bool>	updateRequired;
 };
 
 template <typename PixelStoreT>
-Framebuffer<PixelStoreT>::Framebuffer()
-	: win(nullptr), pixelStore(nullptr)
+Framebuffer<PixelStoreT>::Framebuffer(Scene &scn)
+	: win(nullptr), pixelStore(nullptr), scene(scn), allowReload(false)
 {
 }
 
@@ -82,6 +88,15 @@ void Framebuffer<PixelStoreT>::run()
 			case sf::Event::Closed:
 				win->Close();
 				break;
+
+			case sf::Event::KeyReleased:
+				switch (evt.Key.Code)
+				{
+				case sf::Key::F5:
+					if (allowReload)
+						scene.reloadSceneFile();
+					break;
+				}
 			}
 		}
 
@@ -95,6 +110,12 @@ template <typename PixelStoreT>
 void Framebuffer<PixelStoreT>::tagUpdate()
 {
 	updateRequired = true;
+}
+
+template <typename PixelStoreT>
+void Framebuffer<PixelStoreT>::allowSceneReload(bool allow)
+{
+	allowReload = allow;
 }
 
 #endif

@@ -1,122 +1,94 @@
+#include "scene.h"
+#include "bvh.h"
+#include "framebuffer.h"
+#include "traceblock.h"
+
+#include "../crtscn_parser/scnparser.h"
+#include "../common.h"
+
 #include <limits>
 #include <algorithm>
 #include <set>
+#include <iostream>
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 
 #include <FreeImagePlus.h>
 
+#include <SFML/Graphics.hpp>
+
 #include <tbb/task_scheduler_init.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/parallel_for.h>
 
-#include "scene.h"
-#include "bvh.h"
-#include "framebuffer.h"
-#include "pixel_store.h"
+#include <windows.h>
 
-#include "../crtscn_parser/scnparser.h"
-
-#include "../common.h"
-
-#include <SFML/Graphics.hpp>
+using namespace std;
 
 #define THREADING 1
 
-template <typename PixelStoreT = RGBAStore>
-class TraceBlock
+#pragma warning(disable:4355)
+Scene::Scene()
+	: resX(0), resY(0),
+	background(all_zero()),
+	rt_objects(nullptr), rt_lights(nullptr),
+	bvhRoot(nullptr),
+	isRenderInit(false),
+	imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr)
 {
-public:
-	typedef PixelStoreT	pixel_store_t;
-
-public:
-	TraceBlock(Scene &scene, pixel_store_t &out, Framebuffer<pixel_store_t> *renderWnd = nullptr)
-		:scn(&scene), img(&out), fb(renderWnd)
-	{
-	}
-
-	void operator()(const tbb::blocked_range2d<int> &r) const
-	{
-		Ray ray;
-		ray.origin = scn->camera().pos;
-
-		for (int y = r.rows().begin(); y != r.rows().end(); ++y)
-		{
-			typename pixel_store_t::pixel_t *imgData = img->getScanline(y);
-			imgData += pixel_store_t::getPixelSize() * r.cols().begin();
-
-			for (int x = r.cols().begin(); x < r.cols().end(); x++, imgData += pixel_store_t::getPixelSize())
-			{
-				Color outPix(all_zero());
-				Color alphaPix(all_zero());
-				bool hitSomething;
-
-				for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
-				{
-					for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
-					{
-						// Bring x & y in [-1,1] range, and generate primary's ray dir.
-						float fx =		fragx * 1.0f / img->getWidth() * 2 - 1;
-						float fy = 1 -	fragy * 1.0f / img->getHeight() * 2;
-
-						scn->camera().project(fx, fy, ray);
-
-						Color alphaFrag, outFrag;
-						outFrag = scn->trace(ray, hitSomething, alphaFrag);
-
-						outPix += outFrag * 0.25f;
-						alphaPix += alphaFrag * 0.25f;
-					}
-				}
-
-				/*const float exposure = -0.66f;
-				col.r = 1 - expf(col.r * exposure);
-				col.g = 1 - expf(col.g * exposure);
-				col.b = 1 - expf(col.b * exposure);
-
-				const float invGamma = 0.45f;
-				col.r = powf(col.r, invGamma);
-				col.g = powf(col.g, invGamma);
-				col.b = powf(col.b, invGamma);*/
-
-				clamp(outPix);
-				clamp(alphaPix);
-			
-				imgData[0] = static_cast<pixel_store_t::pixel_t>(outPix.getX() * 255);
-				imgData[1] = static_cast<pixel_store_t::pixel_t>(outPix.getY() * 255);
-				imgData[2] = static_cast<pixel_store_t::pixel_t>(outPix.getZ() * 255);
-				imgData[3] = static_cast<pixel_store_t::pixel_t>(maxElem(alphaPix) * 255);
-			}
-		}
-
-		if (fb)
-			fb->tagUpdate();
-	}
-
-private:
-	Scene						*	scn;
-	pixel_store_t				*	img;
-	Framebuffer<pixel_store_t>	*	fb;
-};
+	shaderManager.setScene(*this);
+}
+#pragma warning(default:4355)
 
 Scene::~Scene()
 {
+	clear();
+}
+
+void Scene::clear()
+{
+	if (bvhRoot)
+		memory::destroy(bvhRoot);
+
 	for(Geometries::iterator it = objects.begin(); it != objects.end(); it++)
 		memory::destroy(*it);
 
 	for(Lights::iterator it = lights.begin(); it != lights.end(); it++)
 		memory::destroy(*it);
-
-	//delete [] rt_objects;
 	
 	memory::destroy(rt_lights);
+	
+	objects.clear();
+	lights.clear();
+	shaderManager.reset();
 }
 
-bool Scene::loadScnFile(const std::string &filename)
+bool Scene::loadSceneFile(const string &filename)
 {
+	sceneFileName = filename;
+	return reloadSceneFile();
+}
+
+bool Scene::reloadSceneFile()
+{
+	clear();
+
 	ScnParser::Parser scnParser(*this);
-	bool parseRes = scnParser.parseFile(filename);
+	bool parseRes = scnParser.parseFile(sceneFileName);
+	
+	if (parseRes)
+	{
+		cout << endl << "Parsed \"" << sceneFileName << "\" successfully!" << endl;
+
+		cout << "Preparing scene..." << endl;
+		__int64 begin = timeGetTime();
+		prepare();
+		__int64 end = timeGetTime();
+		cout << "Finished preparing, duration: " << end - begin << " ms" << endl;
+
+		render();
+	}
 
 	return parseRes;
 }
@@ -143,31 +115,48 @@ void Scene::prepare()
 
 void Scene::render()
 {
-	RGBAStore imgStore(resX, resY);
-	Framebuffer<RGBAStore> fb;
-	sf::Thread *renderThread;
-	TraceBlock<RGBAStore> *tracer;
-
+	if (!isRenderInit)
+	{
+		fb = new Framebuffer<RGBAStore>(*this);
+		isRenderInit = true;
+	}
+	
+	delete imgStore;
+	delete renderThread;
+	delete tracer;
+	
+	imgStore = new RGBAStore(resX, resY);
 	cam.init(resX, resY);
 
 	if (displayType == DT_File)
 	{
-		tracer = new TraceBlock<RGBAStore>(*this, imgStore);
+		tracer = new TraceBlock<RGBAStore>(*this, *imgStore);
 	}
 	else // DT_Framebuffer
 	{
-		fb.create(imgStore, displayName);
-		tracer = new TraceBlock<RGBAStore>(*this, imgStore, &fb);
+		fb->create(*imgStore, displayName);
+		fb->allowSceneReload(false);
+		
+		tracer = new TraceBlock<RGBAStore>(*this, *imgStore, fb);
 	}
-
+	
+	cout << "Start rendering..." << endl;
+	__int64 begin = timeGetTime();
+	auto onRenderFinished = [&] ()
+		{
+			__int64 end = timeGetTime();
+			cout << "Finished rendering, duration: " << end - begin << " ms" << endl;
+			fb->allowSceneReload(true);
+		};
 #if THREADING == 1
 	renderThread = new sf::Thread(
 		[&] ()
 		{
 			tbb::task_scheduler_init tbbInit;
 			tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), *tracer, tbb::auto_partitioner());
+
+			onRenderFinished();
 		} );
-	renderThread->Launch();
 #else
 	renderThread = new sf::Thread(
 		[&] ()
@@ -198,9 +187,11 @@ void Scene::render()
 				if (remX > 0)
 					(*tracer)(tbb::blocked_range2d<int>(maxY, resY, maxX, resX));
 			}
+
+			onRenderFinished();
 		} );
-	renderThread->Launch();
 #endif
+	renderThread->Launch();
 	
 	if (displayType == DT_File)
 	{
@@ -210,10 +201,10 @@ void Scene::render()
 
 		for (int y = 0; y != resY; y++)
 		{
-			RGBAStore::pixel_t *pixelsData = imgStore.getScanline(y);
+			RGBAStore::pixel_t *pixelsData = imgStore->getScanline(y);
 			BYTE *imgData = img.getScanLine(y);
 
-			for (int x = 0; x != resX; x++, imgData += 4, pixelsData += imgStore.getPixelSize())
+			for (int x = 0; x != resX; x++, imgData += 4, pixelsData += imgStore->getPixelSize())
 			{
 				imgData[FI_RGBA_RED]	= BYTE(pixelsData[0]);
 				imgData[FI_RGBA_GREEN]	= BYTE(pixelsData[1]);
@@ -226,7 +217,7 @@ void Scene::render()
 	}
 	else
 	{
-		fb.run();
+		fb->run();
 	}
 }
 

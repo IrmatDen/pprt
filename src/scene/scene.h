@@ -1,19 +1,24 @@
 #ifndef PPRT_SCENE_H
 #define PPRT_SCENE_H
 
-#include <vector>
-#include <string>
-#include <cmath>
-
 #include "camera.h"
 #include "color.h"
 #include "geometry.h"
 #include "light.h"
 #include "ray.h"
+#include "pixel_store.h"
 
 #include "../shadervm/shader_manager.h"
 
+#include <vector>
+#include <string>
+#include <cmath>
+
+#include <SFML/System/Thread.hpp>
+
 class BVH;
+template <typename PixelStoreT> class Framebuffer;
+template <typename PixelStoreT> class TraceBlock;
 
 enum DisplayType
 {
@@ -23,8 +28,6 @@ enum DisplayType
 
 class Scene
 {
-	friend class TraceScanLine;
-
 public:
 	typedef std::vector<Geometry*>	Geometries;
 	typedef std::vector<Light*>		Lights;
@@ -33,20 +36,13 @@ public:
 	ShaderManager shaderManager;
 
 public:
-	#pragma warning(disable:4355)
-	Scene(int width=0, int height=0)
-		: resX(width), resY(height),
-		background(all_zero()),
-		rt_objects(0), rt_lights(0),
-		bvhRoot(0)
-	{
-		shaderManager.setScene(*this);
-	}
-	#pragma warning(default:4355)
-
+	Scene();
 	~Scene();
 
-	bool		loadScnFile(const std::string &filename);
+	void		clear();
+
+	bool		loadSceneFile(const std::string &filename);
+	bool		reloadSceneFile();
 
 	void		setDisplayName(const std::string &name)		{ displayName = name; }
 	void		setDisplayType(DisplayType type)			{ displayType = type; }
@@ -74,8 +70,16 @@ public:
 	void		specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const;
 
 private:
+	std::string				sceneFileName;
+
 	std::string				displayName;
 	DisplayType				displayType;
+
+	bool					isRenderInit;
+	RGBAStore				*imgStore;
+	Framebuffer<RGBAStore>	*fb;
+	sf::Thread				*renderThread;
+	TraceBlock<RGBAStore>	*tracer;
 
 	int						resX, resY;
 

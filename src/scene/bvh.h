@@ -13,7 +13,8 @@ public:
 	BVH() : root(0) {}
 	~BVH();
 
-	void			build(const Scene::Geometries &objects);
+	void	build(const Scene::Geometries &objects);
+	void	clear();
 
 	const Geometry*	findClosest(const Ray &ray, float &t) const;
 	size_t			gatherAlong(const Ray &ray, float &t, Geometry **accum, float *distances, size_t maxObj) const;

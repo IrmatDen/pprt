@@ -1,7 +1,5 @@
 #include <string>
 
-#include <windows.h>
-
 #include "scene/scene.h"
 
 using namespace std;
@@ -21,28 +19,9 @@ int main(int argc, char **argv)
 	string scnFile = "ScnSamples/spheres_plane.crtscn";
 
 	Scene scn;
-	bool scnLoaded = scn.loadScnFile(scnFile);
-	if (scnLoaded)
-	{
-		cout << endl << "Parsed \"" << scnFile << "\" successfully!" << endl;
-
-		cout << "Preparing scene..." << endl;
-		__int64 begin = timeGetTime();
-		scn.prepare();
-		__int64 end = timeGetTime();
-		cout << "Finished preparing, duration: " << end - begin << " ms" << endl;
-
-		cout << "Start rendering..." << endl;
-		begin = timeGetTime();
-		scn.render();
-		end = timeGetTime();
-		cout << "Finished rendering, duration: " << end - begin << " ms" << endl;
-	}
-	else
+	bool scnLoaded = scn.loadSceneFile(scnFile);
+	if (!scnLoaded)
 		cout << "Loading " << scnFile << " failed!" << endl;
-	
-	/*cout << endl << "Press return to quit..." << endl;
-	cin.get();*/
 
 	return !scnLoaded;
 }

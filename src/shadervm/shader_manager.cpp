@@ -18,14 +18,30 @@
 using namespace std;
 
 ShaderManager::ShaderManager()
-:scene(0)
+:scene(nullptr)
 {
-	bool cgtLoaded = grammar.load("crtsl.cgt");
+	reset();
 }
 
 ShaderManager::~ShaderManager()
 {
-	//! \todo free shader code
+	clear();
+}
+
+void ShaderManager::reset()
+{
+	grammar.load("crtsl.cgt");
+
+	clear();
+}
+
+void ShaderManager::clear()
+{
+	shaders.clear();
+
+	for_each(shadersCodes.begin(), shadersCodes.end(),
+		[] (ShadersCode::value_type &val) { delete [] val.second; } );
+	shadersCodes.clear();
 }
 
 void ShaderManager::loadFile(const std::string &fileName)
@@ -83,7 +99,7 @@ void ShaderManager::addShader(const CompiledShader &shader)
 	shaders[shader.name()].setScene(scene);
 
 	CompiledShader::Instructions code = shader.getCode();
-	CompiledShader::ByteCode *bcode = memory::construct<CompiledShader::ByteCode>(code.size());
+	CompiledShader::ByteCode *bcode = new CompiledShader::ByteCode[code.size()];
 	shadersCodes[shader.name()] = bcode;
 	for(CompiledShader::Instructions::iterator it = code.begin(); it != code.end(); ++it, ++bcode)
 		*bcode = *it;
@@ -93,11 +109,12 @@ void ShaderManager::addShader(const CompiledShader &shader)
 
 CompiledShader ShaderManager::instanciate(const std::string &shaderName) const
 {
-	//! \todo throw not found exception if needed
 	CompiledShaders::const_iterator it = shaders.find(shaderName);
 	ShadersCode::const_iterator cit = shadersCodes.find(shaderName);
 	if (it != shaders.end())
 		return it->second.cloneWithCodePtr(cit->second, it->second.getCode().size());
+
+	cout << "\"" << shaderName << "\" can't be found" << endl;
 
 	return CompiledShader();
 }

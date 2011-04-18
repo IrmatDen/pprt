@@ -244,6 +244,7 @@
     <ClInclude Include="src\scene\ray.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\sphere.h" />
+    <ClInclude Include="src\scene\traceblock.h" />
     <ClInclude Include="src\shadervm\compiled_shader.h" />
     <ClInclude Include="src\shadervm\shader_manager.h" />
     <ClInclude Include="src\shadervm\shader_param.h" />

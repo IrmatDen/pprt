@@ -1,4 +1,4 @@
-Option shaderspath ./Shaders
+Option "searchpath" "shader" ./Shaders
 
 Display "diffuse_sphere.png" "file" "rgba"
 Format 800 600 1

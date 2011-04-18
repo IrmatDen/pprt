@@ -114,7 +114,7 @@ void Scene::prepare()
 
 void Scene::render()
 {
-	if (fb != nullptr)
+	if (fb == nullptr)
 		fb = new Framebuffer<RGBAStore>(*this);
 	
 	delete imgStore;

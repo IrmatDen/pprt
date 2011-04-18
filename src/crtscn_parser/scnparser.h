@@ -62,8 +62,6 @@ namespace ScnParser
 				// Comment definition
 				comment = ('#' >> *(anychar_p - eol_p));
 
-				option = "Option" >> +blank_p >> ("shaderspath"	>> +blank_p >> ((+(alnum_p | punct_p))[shaderPath_a(self.scene)] % (+blank_p)));
-
 				// Camera definitions (RiSpec 3.2, §4.1.1)
 					camera =	format;
 
@@ -79,6 +77,11 @@ namespace ScnParser
 								string	[bind(&Scene::setDisplayName, &self.scene, boost::cref(_str))]	>> +blank_p >>	// name
 								string	[displayType_a(self.scene)] >> +blank_p >>										// type
 								string;																					// mode
+
+				// Options (RiSpec 3.2, §4.1.4)
+					option = "Option" >> +blank_p >> searchpath;
+					searchpath = confix_p( '"', "searchpath", '"') >> +blank_p >> spShader;
+					spShader = confix_p( '"', "shader", '"') >> +blank_p >> ((+(alnum_p | punct_p))[shaderPath_a(self.scene)] % (+blank_p));
 							  
 
 				// Scene definition
@@ -153,7 +156,7 @@ namespace ScnParser
 			rule<ScannerT> comment;
 
 			// Specific elements
-			rule<ScannerT> option;
+			rule<ScannerT> option, searchpath, spShader;
 			rule<ScannerT> camera, format;
 			rule<ScannerT> displays, display;
 			rule<ScannerT> scene, background, camLookAt;

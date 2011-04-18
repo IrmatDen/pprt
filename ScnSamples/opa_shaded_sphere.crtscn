@@ -1,4 +1,4 @@
-Option shaderspath ./Shaders
+Option "searchpath" "shader" ./Shaders
 
 Display "opa_sphere.png" "file" "rgba"
 Format 800 600 1

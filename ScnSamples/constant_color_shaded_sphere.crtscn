@@ -1,4 +1,4 @@
-Option shaderspath ./Shaders
+Option "searchpath" "shader" ./Shaders
 
 Display "constant_color_shaded_sphere.png" "framebuffer" "rgba"
 Format 800 600 1

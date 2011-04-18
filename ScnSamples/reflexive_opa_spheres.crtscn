@@ -1,4 +1,4 @@
-Option "searchpath" "shader" ./Shaders
+Option "searchpath" "shader" ["./samples_shaders:&"]
 
 Display "reflexive_opa_spheres.png" "file" "rgba"
 Format 800 600 1

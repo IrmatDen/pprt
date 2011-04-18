@@ -66,7 +66,7 @@ namespace ScnParser
 				// Generic rules
 					ending			= *blank_p >> !comment >> eol_p; 
 					string			= confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
-					foldername		= +(alnum_p | '.' | ":/" | '/');
+					foldername		= '&' | +(alnum_p | '.' | ":/" | '/' | '_' | '-');
 					foldersarray	= "[\"" >> list_p(foldername[push_back_a(_strVector)], ':') >> "\"]";
 
 				// Comment definition

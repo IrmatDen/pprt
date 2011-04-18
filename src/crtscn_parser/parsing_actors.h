@@ -18,7 +18,12 @@ struct ShaderPath
 
 	void operator=(const std::vector<std::string> &folders)
 	{
-		std::for_each(folders.begin(), folders.end(), [&] (const std::string &f) { processFolder(f); } );
+		using namespace std;
+
+		vector<string> newFolders(folders);
+		string defaultFolder("./shaders");
+		replace(newFolders.begin(), newFolders.end(), string("&"), defaultFolder);
+		for_each(newFolders.begin(), newFolders.end(), [&] (const string &f) { processFolder(f); } );
 	}
 
 	void processFolder(const std::string &folderName) const

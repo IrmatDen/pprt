@@ -1,4 +1,4 @@
-Option "searchpath" "shader" ./Shaders
+Option "searchpath" "shader" ["./samples_shaders:&"]
 
 Display "mix_sphere.png" "file" "rgba"
 Format 800 600 1

@@ -36,6 +36,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{56b4e3dd-f684-42b9-9357-261a15ff8b47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Grammar">
+      <UniqueIdentifier>{99582c17-77bc-45d2-b2b2-9882d60cde1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -193,6 +196,12 @@
     <ClInclude Include="src\shadervm\vmstack.h">
       <Filter>Header Files\ShaderVM</Filter>
     </ClInclude>
+    <ClInclude Include="src\scene\pixel_store.h">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\framebuffer.h">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\standards.crtsl">
@@ -201,5 +210,10 @@
     <None Include="Shaders\samples.crtsl">
       <Filter>Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="src\shader_compiler\crtsl.grm">
+      <Filter>Grammar</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

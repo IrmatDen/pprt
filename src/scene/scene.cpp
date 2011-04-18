@@ -10,11 +10,11 @@
 #include <tbb/task_scheduler_init.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/parallel_for.h>
-#include <tbb/mutex.h>
-#include <tbb/atomic.h>
 
 #include "scene.h"
 #include "bvh.h"
+#include "framebuffer.h"
+#include "pixel_store.h"
 
 #include "../crtscn_parser/scnparser.h"
 
@@ -23,131 +23,6 @@
 #include <SFML/Graphics.hpp>
 
 #define THREADING 1
-
-struct Rect
-{
-	int left,	top;
-	int width,	height;
-};
-
-template <typename PixelType = unsigned char, int PixelSize = 4>
-class PixelStore
-{
-public:
-	typedef PixelType pixel_t;
-
-	static const int pixel_size = PixelSize;
-
-public:
-	PixelStore(int w, int h)
-		: width(w), height(h), rowSize(width * PixelSize), imgData(nullptr)
-	{
-		imgData = new pixel_t[width * height * PixelSize];
-	}
-
-	~PixelStore()
-	{
-		delete [] imgData;
-	}
-
-	int getWidth() const		{ return width; }
-	int getHeight() const		{ return height; }
-	static int getPixelSize()	{ return PixelSize; }
-
-	pixel_t* getScanline(int y)
-	{
-		assert(y < height);
-		return imgData + y * rowSize;
-	}
-
-	pixel_t* getPixels()
-	{
-		return imgData;
-	}
-
-private:
-	const int	width;
-	const int	height;
-	const int	rowSize;
-	pixel_t		*imgData;
-};
-typedef PixelStore<> RGBAStore;
-
-template <typename PixelStoreT = RGBAStore>
-class Framebuffer
-{
-public:
-	typedef PixelStoreT	pixel_store_t;
-
-public:
-	Framebuffer()
-		: win(nullptr), pixelStore(nullptr)
-	{
-	}
-
-	~Framebuffer()
-	{
-		delete win;
-	}
-
-	void create(pixel_store_t &pixStore, const std::string &displayName)
-	{
-		pixelStore = &pixStore;
-		win = new sf::RenderWindow(sf::VideoMode(pixelStore->getWidth(), pixelStore->getHeight()), displayName);
-		// Try not to kill the render times...
-		win->SetFramerateLimit(5);
-
-		displayImg.Create(pixelStore->getWidth(), pixelStore->getHeight(), sf::Color(0, 0, 0, 0));
-		displayImg.SetSmooth(false);
-		displaySprite.SetImage(displayImg);
-		displaySprite.FlipY(true);
-
-		updateRequired = false;
-	}
-
-	void run()
-	{
-		if (win == nullptr)
-			return;
-
-		while (win->IsOpened())
-		{
-			if (updateRequired)
-			{
-				displayImg.UpdatePixels(pixelStore->getPixels());
-				updateRequired = false;
-			}
-
-			sf::Event evt;
-			while (win->GetEvent(evt))
-			{
-				switch (evt.Type)
-				{
-				case sf::Event::Closed:
-					win->Close();
-					break;
-				}
-			}
-
-			win->Clear();
-			win->Draw(displaySprite);
-			win->Display();
-		}
-	}
-
-	void tagUpdate()
-	{
-		updateRequired = true;
-	}
-
-private:
-	sf::RenderWindow	*win;
-	sf::Image			displayImg;
-	sf::Sprite			displaySprite;
-	pixel_store_t		*pixelStore;
-
-	tbb::atomic<bool>	updateRequired;
-};
 
 template <typename PixelStoreT = RGBAStore>
 class TraceBlock
@@ -165,12 +40,6 @@ public:
 	{
 		Ray ray;
 		ray.origin = scn->camera().pos;
-
-		Rect blockDef;
-		blockDef.top	= r.rows().begin();
-		blockDef.left	= r.cols().begin();
-		blockDef.height	= r.rows().size();
-		blockDef.width	= r.cols().size();
 
 		for (int y = r.rows().begin(); y != r.rows().end(); ++y)
 		{

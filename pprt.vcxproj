@@ -236,8 +236,10 @@
     <ClInclude Include="src\scene\camera.h" />
     <ClInclude Include="src\scene\color.h" />
     <ClInclude Include="src\scene\disk.h" />
+    <ClInclude Include="src\scene\framebuffer.h" />
     <ClInclude Include="src\scene\geometry.h" />
     <ClInclude Include="src\scene\light.h" />
+    <ClInclude Include="src\scene\pixel_store.h" />
     <ClInclude Include="src\scene\plane.h" />
     <ClInclude Include="src\scene\ray.h" />
     <ClInclude Include="src\scene\scene.h" />
@@ -260,6 +262,9 @@
   <ItemGroup>
     <None Include="Shaders\samples.crtsl" />
     <None Include="Shaders\standards.crtsl" />
+    <CustomBuild Include="src\shader_compiler\crtsl.grm">
+      <FileType>Document</FileType>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

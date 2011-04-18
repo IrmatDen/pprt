@@ -55,6 +55,8 @@ namespace ScnParser
 		{
 		private:
 			// Temporary parsing data
+			bool						_bool;
+			int							_int;
 			std::string					_str;
 			std::vector<std::string>	_strVector;
 			ShaderPath					_shaderPaths;
@@ -67,7 +69,8 @@ namespace ScnParser
 					ending			= *blank_p >> !comment >> eol_p; 
 					string			= confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
 					foldername		= '&' | +(alnum_p | '.' | ":/" | '/' | '_' | '-');
-					foldersarray	= "[\"" >> list_p(foldername[push_back_a(_strVector)], ':') >> "\"]";
+					foldersArray	= "[\"" >> list_p(foldername[push_back_a(_strVector)], ':') >> "\"]";
+					singleBoolArray	= "[" >> bool_p [assign_a(_bool)] >> "]";
 
 				// Comment definition
 					comment = ('#' >> *(anychar_p - eol_p));
@@ -89,10 +92,12 @@ namespace ScnParser
 								string;																					// mode
 
 				// Options (RiSpec 3.2, §4.1.4)
-					option = "Option" >> +blank_p >> searchpath;
+					option = "Option" >> +blank_p >> (searchpath | usethreads);
 
-					searchpath = confix_p( '"', "searchpath", '"') >> +blank_p >> (spShader)[clear_a(_strVector)];
-					spShader = confix_p( '"', "shader", '"') >> +blank_p >> foldersarray[assign_a(_shaderPaths, _strVector)];
+					searchpath = "\"searchpath\"" >> +blank_p >> (spShader)[clear_a(_strVector)];
+					spShader = "\"shader\"" >> +blank_p >> foldersArray[assign_a(_shaderPaths, _strVector)];
+
+					usethreads = "\"usethreads\"" >> +blank_p >> singleBoolArray[bind(&Scene::enableThreading, &self.scene, boost::cref(_bool))];
 							  
 
 				// Scene definition
@@ -163,11 +168,11 @@ namespace ScnParser
 
 			// Generic types
 			rule<ScannerT> ending;
-			rule<ScannerT> string, foldername, foldersarray;
+			rule<ScannerT> string, foldername, foldersArray, singleBoolArray;
 			rule<ScannerT> comment;
 
 			// Specific elements
-			rule<ScannerT> option, searchpath, spShader;
+			rule<ScannerT> option, searchpath, spShader, usethreads;
 			rule<ScannerT> camera, format;
 			rule<ScannerT> displays, display;
 			rule<ScannerT> scene, background, camLookAt;

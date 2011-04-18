@@ -171,6 +171,41 @@ namespace tools
 	}
 }
 
+struct bool_parser
+{
+	typedef bool	result_t;
+
+	//! \todo throw malformed exception
+	template <typename ScannerT>
+	int operator()(ScannerT const &scan, result_t &result) const
+	{
+		if (scan.at_end())
+			return -1;
+
+		int len = 0;
+		char ch = *scan;
+
+		int matched = tools::eatWhitespaces(scan);
+		if (matched == -1)
+			return -1;
+		len += matched;
+
+		int res;
+		matched = tools::scanNumber(scan, res, 0);
+		if (matched == -1)
+			return -1;
+		if (res != 0 && res != 1)
+			return -1;
+
+		len += matched;
+
+		result = result_t(res == 1);
+
+		return len;
+	}
+};
+functor_parser<bool_parser> bool_p;
+
 //! Build a Color out of the scanner
 struct color_parser
 {

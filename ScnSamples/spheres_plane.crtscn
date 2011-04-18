@@ -1,4 +1,5 @@
 Option "searchpath" "shader" ["./samples_shaders:&"]
+Option "usethreads" [0]
 
 Display "spheres_plane.png" "framebuffer" "rgba"
 Format 800 600 1

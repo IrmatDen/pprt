@@ -47,6 +47,8 @@ public:
 	void		setDisplayName(const std::string &name)		{ displayName = name; }
 	void		setDisplayType(DisplayType type)			{ displayType = type; }
 
+	void		enableThreading(bool enable);
+
 	void		setWidth(int width)							{ resX = width; }
 	void		setHeight(int height)						{ resY = height; }
 
@@ -60,6 +62,10 @@ public:
 	void		prepare();
 
 	void		render();
+	void		multithreadRender();
+	void		monothreadRender();
+	void		onRenderFinished();
+
 	Color		trace(const Ray &ray, bool &hitSomething, Color &Oi = Color()) const;
 
 public:
@@ -80,19 +86,22 @@ private:
 	sf::Thread				*renderThread;
 	TraceBlock<RGBAStore>	*tracer;
 
-	int						resX, resY;
+	bool		threadingEnabled;
+	__int64		renderBeginTime;
 
-	Color					background;
+	int				resX, resY;
 
-	Camera					cam;
+	Color			background;
 
-	Geometries				objects;
-	Lights					lights;
+	Camera			cam;
 
-	Geometry			**	rt_objects;
-	Light				**	rt_lights;
+	Geometries		objects;
+	Lights			lights;
 
-	BVH					*	bvhRoot;
+	Geometry	**	rt_objects;
+	Light		**	rt_lights;
+
+	BVH			*	bvhRoot;
 };
 
 #endif

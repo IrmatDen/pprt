@@ -26,15 +26,14 @@
 
 using namespace std;
 
-#define THREADING 1
-
 #pragma warning(disable:4355)
 Scene::Scene()
 	: resX(0), resY(0),
 	background(all_zero()),
 	rt_objects(nullptr), rt_lights(nullptr),
 	bvhRoot(nullptr),
-	imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr)
+	imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr),
+	threadingEnabled(true)
 {
 	shaderManager.setScene(*this);
 }
@@ -112,6 +111,11 @@ void Scene::prepare()
 	bvhRoot->build(objects);
 }
 
+void Scene::enableThreading(bool enable)
+{
+	threadingEnabled = enable;
+}
+
 void Scene::render()
 {
 	if (fb == nullptr)
@@ -137,56 +141,12 @@ void Scene::render()
 	}
 	
 	cout << "Start rendering..." << endl;
-	__int64 begin = timeGetTime();
-	auto onRenderFinished = [&] ()
-		{
-			__int64 end = timeGetTime();
-			cout << "Finished rendering, duration: " << end - begin << " ms" << endl;
-			fb->allowSceneReload(true);
-		};
-#if THREADING == 1
-	renderThread = new sf::Thread(
-		[&] ()
-		{
-			tbb::task_scheduler_init tbbInit;
-			tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), *tracer, tbb::auto_partitioner());
+	renderBeginTime = timeGetTime();
+	if (threadingEnabled)
+		renderThread = new sf::Thread(&Scene::multithreadRender, this);
+	else
+		renderThread = new sf::Thread(&Scene::monothreadRender, this);
 
-			onRenderFinished();
-		} );
-#else
-	renderThread = new sf::Thread(
-		[&] ()
-		{
-			const int blockSide = 16;
-
-			int y = 0;
-			const int	maxY = (resY / blockSide) * blockSide,
-						remY = resY - maxY;
-			const int	maxX = (resX / blockSide) * blockSide,
-						remX = resX - maxX;
-			for (; y != maxY; y += blockSide)
-			{
-				int x = 0;
-				for (; x < maxX; x += blockSide)
-					(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, x, x + blockSide));
-
-				if (remX > 0)
-					(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, maxX, resX));
-			}
-
-			if (remY > 0)
-			{
-				int x = 0;
-				for (; x < maxX; x += blockSide)
-					(*tracer)(tbb::blocked_range2d<int>(maxY, resY, x, x + blockSide));
-
-				if (remX > 0)
-					(*tracer)(tbb::blocked_range2d<int>(maxY, resY, maxX, resX));
-			}
-
-			onRenderFinished();
-		} );
-#endif
 	renderThread->Launch();
 	
 	if (displayType == DT_File)
@@ -215,6 +175,53 @@ void Scene::render()
 	{
 		fb->run();
 	}
+}
+
+void Scene::multithreadRender()
+{
+	tbb::task_scheduler_init tbbInit;
+	tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), *tracer, tbb::auto_partitioner());
+
+	onRenderFinished();
+}
+
+void Scene::monothreadRender()
+{
+	const int blockSide = 16;
+
+	int y = 0;
+	const int	maxY = (resY / blockSide) * blockSide,
+				remY = resY - maxY;
+	const int	maxX = (resX / blockSide) * blockSide,
+				remX = resX - maxX;
+	for (; y != maxY; y += blockSide)
+	{
+		int x = 0;
+		for (; x < maxX; x += blockSide)
+			(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, x, x + blockSide));
+
+		if (remX > 0)
+			(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, maxX, resX));
+	}
+
+	if (remY > 0)
+	{
+		int x = 0;
+		for (; x < maxX; x += blockSide)
+			(*tracer)(tbb::blocked_range2d<int>(maxY, resY, x, x + blockSide));
+
+		if (remX > 0)
+			(*tracer)(tbb::blocked_range2d<int>(maxY, resY, maxX, resX));
+	}
+
+	onRenderFinished();
+}
+
+void Scene::onRenderFinished()
+{
+	__int64 end = timeGetTime();
+	cout << "Finished rendering, duration: " << end - renderBeginTime << " ms" << endl;
+	fb->allowSceneReload(true);
 }
 
 Color Scene::trace(const Ray &eye, bool &hitSomething, Color &Oi) const

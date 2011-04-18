@@ -34,13 +34,17 @@ private:
 
 	Scene	&scene;
 	bool	allowReload;
+	
+	bool	isCreated;
+	bool	isRunning;
 
 	tbb::atomic<bool>	updateRequired;
 };
 
 template <typename PixelStoreT>
 Framebuffer<PixelStoreT>::Framebuffer(Scene &scn)
-	: win(nullptr), pixelStore(nullptr), scene(scn), allowReload(false)
+	: win(nullptr), pixelStore(nullptr), scene(scn), allowReload(false),
+	isCreated(false), isRunning(false)
 {
 }
 
@@ -54,6 +58,10 @@ template <typename PixelStoreT>
 void Framebuffer<PixelStoreT>::create(pixel_store_t &pixStore, const std::string &displayName)
 {
 	pixelStore = &pixStore;
+
+	if (isCreated)
+		return;
+
 	win = new sf::RenderWindow(sf::VideoMode(pixelStore->getWidth(), pixelStore->getHeight()), displayName);
 	// Try not to kill the render times...
 	win->SetFramerateLimit(5);
@@ -64,13 +72,17 @@ void Framebuffer<PixelStoreT>::create(pixel_store_t &pixStore, const std::string
 	displaySprite.FlipY(true);
 
 	updateRequired = false;
+
+	isCreated = true;
 }
 
 template <typename PixelStoreT>
 void Framebuffer<PixelStoreT>::run()
 {
-	if (win == nullptr)
+	if (isRunning || win == nullptr)
 		return;
+
+	isRunning = true;
 
 	while (win->IsOpened())
 	{

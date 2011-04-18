@@ -12,20 +12,23 @@
 
 #include "../common.h"
 
-struct shaderPath_a
+struct ShaderPath
 {
-	shaderPath_a(Scene &scn) : scene(scn) {}
-	
-	void operator()(const iterator_t &first, const iterator_t &end) const
-	{
-		std::string folder(first, end);
+	ShaderPath(Scene &scn) : scene(scn) {}
 
+	void operator=(const std::vector<std::string> &folders)
+	{
+		std::for_each(folders.begin(), folders.end(), [&] (const std::string &f) { processFolder(f); } );
+	}
+
+	void processFolder(const std::string &folderName) const
+	{
 		namespace fs = boost::filesystem;
 		//! \todo throw path not a folder/not found exception
 
-		if (fs::is_directory(folder))
+		if (fs::is_directory(folderName))
 		{
-			for (fs::directory_iterator it(folder); it != fs::directory_iterator(); ++it)
+			for (fs::directory_iterator it(folderName); it != fs::directory_iterator(); ++it)
 			{
 				fs::path p = it->path();
 				if (p.extension() == ".crtsl")
@@ -36,7 +39,7 @@ struct shaderPath_a
 		}
 	}
 
-	Scene			&	scene;
+	Scene &scene;
 };
 //-----------------------------------------------------------------------------------------------------------
 
@@ -49,7 +52,9 @@ struct displayType_a
 	
 	void operator()(const iterator_t &first, const iterator_t &end) const
 	{
-		std::string type_str(first + 1, end - 1);
+		std::string type_str(first, end);
+		type_str.erase(0, 1);
+		type_str.erase(type_str.length() - 1, 1);
 
 		if (type_str == "file")
 		{

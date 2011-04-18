@@ -1,15 +1,20 @@
 #ifndef PPRT_SCNPARSER_H
 #define PPRT_SCNPARSER_H
 
+#include "scene.h"
+
+#include "../common.h"
+
 #include <boost/spirit.hpp>
 #include <boost/spirit/phoenix.hpp>
-
-#include "scene.h"
+#include <boost/spirit/actor/clear_actor.hpp>
+#include <boost/filesystem.hpp>
 
 #include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <vector>
 
 using namespace boost::spirit;
 using namespace phoenix;
@@ -19,6 +24,8 @@ typedef file_iterator<char_t>		iterator_t;
 typedef scanner<iterator_t>			scanner_t;
 typedef rule<scanner_t>				rule_t;
 
+#include "parsing_actors.h"
+
 struct NonAlignedVec3
 {
 	NonAlignedVec3() {}
@@ -27,8 +34,6 @@ struct NonAlignedVec3
 
 	operator Vector3() const { return Vector3(x, y, z); }
 };
-	
-#include "parsing_actors.h"
 #include "../parser/type_parsers.h"
 
 namespace ScnParser
@@ -50,25 +55,30 @@ namespace ScnParser
 		{
 		private:
 			// Temporary parsing data
-			std::string _str;
+			std::string					_str;
+			std::vector<std::string>	_strVector;
+			ShaderPath					_shaderPaths;
 
 		public:
 			definition(ScnSyntax const &self)
+				: _shaderPaths(self.scene)
 			{
 				// Generic rules
-				ending		= *blank_p >> !comment >> eol_p; 
-				string		= confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
+					ending			= *blank_p >> !comment >> eol_p; 
+					string			= confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
+					foldername		= +(alnum_p | '.' | ":/" | '/');
+					foldersarray	= "[\"" >> list_p(foldername[push_back_a(_strVector)], ':') >> "\"]";
 
 				// Comment definition
-				comment = ('#' >> *(anychar_p - eol_p));
+					comment = ('#' >> *(anychar_p - eol_p));
 
 				// Camera definitions (RiSpec 3.2, §4.1.1)
 					camera =	format;
 
 					format =	"Format" >> +blank_p >>
-								int_p	[bind(&Scene::setWidth)(var(self.scene), arg1)]		>> +blank_p >>				// width
-								int_p	[bind(&Scene::setHeight)(var(self.scene), arg1)]	>> +blank_p >>				// height
-								real_p;																				// pixel aspect ratio
+								int_p	[bind(&Scene::setWidth)(var(self.scene), arg1)]		>> +blank_p >>		// width
+								int_p	[bind(&Scene::setHeight)(var(self.scene), arg1)]	>> +blank_p >>		// height
+								real_p;																			// pixel aspect ratio
 
 				// Displays definitions (RiSpec 3.2, §4.1.2)
 					displays =	display;
@@ -80,8 +90,9 @@ namespace ScnParser
 
 				// Options (RiSpec 3.2, §4.1.4)
 					option = "Option" >> +blank_p >> searchpath;
-					searchpath = confix_p( '"', "searchpath", '"') >> +blank_p >> spShader;
-					spShader = confix_p( '"', "shader", '"') >> +blank_p >> ((+(alnum_p | punct_p))[shaderPath_a(self.scene)] % (+blank_p));
+
+					searchpath = confix_p( '"', "searchpath", '"') >> +blank_p >> (spShader)[clear_a(_strVector)];
+					spShader = confix_p( '"', "shader", '"') >> +blank_p >> foldersarray[assign_a(_shaderPaths, _strVector)];
 							  
 
 				// Scene definition
@@ -152,7 +163,7 @@ namespace ScnParser
 
 			// Generic types
 			rule<ScannerT> ending;
-			rule<ScannerT> string;
+			rule<ScannerT> string, foldername, foldersarray;
 			rule<ScannerT> comment;
 
 			// Specific elements

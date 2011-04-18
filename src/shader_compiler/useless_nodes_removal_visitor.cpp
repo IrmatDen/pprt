@@ -278,8 +278,6 @@ void UselessNodesRemovalVisitor::visit(ProcArgsListNode &node)
 
 void UselessNodesRemovalVisitor::deleteUselessNodes()
 {
-	cout << "Removed " << uselessNodes.size() << " nodes." << endl;
-
 	while(!uselessNodes.empty())
 	{
 		delete uselessNodes.top();

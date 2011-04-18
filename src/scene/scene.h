@@ -75,7 +75,6 @@ private:
 	std::string				displayName;
 	DisplayType				displayType;
 
-	bool					isRenderInit;
 	RGBAStore				*imgStore;
 	Framebuffer<RGBAStore>	*fb;
 	sf::Thread				*renderThread;

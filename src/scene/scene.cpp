@@ -34,7 +34,6 @@ Scene::Scene()
 	background(all_zero()),
 	rt_objects(nullptr), rt_lights(nullptr),
 	bvhRoot(nullptr),
-	isRenderInit(false),
 	imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr)
 {
 	shaderManager.setScene(*this);
@@ -115,11 +114,8 @@ void Scene::prepare()
 
 void Scene::render()
 {
-	if (!isRenderInit)
-	{
+	if (fb != nullptr)
 		fb = new Framebuffer<RGBAStore>(*this);
-		isRenderInit = true;
-	}
 	
 	delete imgStore;
 	delete renderThread;

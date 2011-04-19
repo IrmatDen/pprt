@@ -93,7 +93,7 @@ void Framebuffer<PixelStoreT>::run()
 		}
 
 		sf::Event evt;
-		while (win->GetEvent(evt))
+		while (win->PollEvent(evt))
 		{
 			switch (evt.Type)
 			{

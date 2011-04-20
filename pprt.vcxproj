@@ -227,6 +227,7 @@
     <ClCompile Include="src\shader_compiler\useless_nodes_removal_visitor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\aligned_vector.h" />
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\crtscn_parser\parsing_actors.h" />
     <ClInclude Include="src\crtscn_parser\scnparser.h" />

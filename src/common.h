@@ -141,6 +141,12 @@ namespace memory
 		{
 			memory::deallocate(p);
 		}
+
+		// deallocate storage p of deleted elements
+		void deallocate (pointer p)
+		{
+			memory::deallocate(p);
+		}
 	};
 
 	// return that all specializations of this allocator are interchangeable

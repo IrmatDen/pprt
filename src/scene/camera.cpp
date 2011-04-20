@@ -20,7 +20,7 @@ void Camera::finalize(CameraModel model, const Matrix4 &worldToCam, float aspect
 		break;
 
 	case CM_Perspective:
-		// Ignore aspect ratio setting here as we apply it below
+		// Ignore aspect ratio setting here as we apply it below through the screenScale matrix
 		CamToScreen = Matrix4::perspective(fov, 1.f, nearClip, farClip);
 		break;
 	}

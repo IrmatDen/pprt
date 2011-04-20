@@ -5,6 +5,7 @@
 
 #include "../scene/color.h"
 #include "../common.h"
+#include "../aligned_vector.h"
 
 #include <map>
 #include <queue>
@@ -141,8 +142,8 @@ public:
 
 private:
 	// Compilation related datatypes
-	typedef std::vector<Variable, memory::AllocAlign16<Variable> >	VariableTable;
-	typedef std::stack<VariableType> TypeStack;
+	typedef AlignedVector<Variable>		VariableTable;
+	typedef std::stack<VariableType>	TypeStack;
 
 	struct FunctionInfo
 	{

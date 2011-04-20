@@ -205,6 +205,9 @@
     <ClInclude Include="src\scene\traceblock.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="src\aligned_vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\standards.crtsl">

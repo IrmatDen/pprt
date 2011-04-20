@@ -12,20 +12,11 @@
 using namespace std;
 using namespace boost;
 
-struct RTVarPoolCreator
-{
-	static memory::AlignedPool* create()
-	{
-		const size_t base_size = sizeof(VarValue) * 128;
-		return new memory::AlignedPool(base_size);
-	}
-};
-
 
 CompiledShader::OpCodeMapping		CompiledShader::opCodeMappings;
 CompiledShader::FunctionMapping		CompiledShader::fnMappings;
 bool								CompiledShader::opCodeMappingsInitialized = false;
-CompiledShader::ShaderRTVarPoolImpl	CompiledShader::shaderRTVarPool(&RTVarPoolCreator::create);
+memory::TLPool						CompiledShader::shaderRTVarPool(&memory::PoolCreator<VarValue, 128>::create);
 
 #define MK_SHADERFUNC(METHODNAME)	CompiledShader::ShaderFunction(&CompiledShader::METHODNAME)
 

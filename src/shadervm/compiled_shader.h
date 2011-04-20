@@ -211,16 +211,12 @@ private:
 private:
 	typedef std::map<std::string, OpCode>			OpCodeMapping;
 	typedef std::map<std::string, FunctionInfo>		FunctionMapping;
-
-	typedef tbb::enumerable_thread_specific<memory::AlignedPool*>	ShaderRTVarPoolImpl;
-
-	friend struct RTVarPoolCreator;
 	
 private:
 	static OpCodeMapping		opCodeMappings;
 	static FunctionMapping		fnMappings;
 	static bool					opCodeMappingsInitialized;
-	static ShaderRTVarPoolImpl	shaderRTVarPool;
+	static memory::TLPool		shaderRTVarPool;
 };
 
 #endif

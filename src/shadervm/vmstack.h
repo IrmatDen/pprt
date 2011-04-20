@@ -112,7 +112,7 @@ private:
 #endif
 	
 private:
-	static memory::UCharPool	stackPool;
+	static memory::TLPool	stackPool;
 };
 
 #endif

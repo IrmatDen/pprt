@@ -1,3 +1,3 @@
 #include "vmstack.h"
 
-memory::UCharPool VMStack::stackPool(&memory::UCharPoolCreator<256>::create);
+memory::TLPool VMStack::stackPool(&memory::PoolCreator<unsigned char, 256>::create);

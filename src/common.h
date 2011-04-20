@@ -183,14 +183,14 @@ namespace memory
 	};
 
 	typedef boost::pool<memory::PoolAllocAlign16>			AlignedPool;
-	typedef tbb::enumerable_thread_specific<AlignedPool*>	UCharPool;
+	typedef tbb::enumerable_thread_specific<AlignedPool*>	TLPool;
 
-	template <size_t RequestedSize, size_t NextSize = 32>
-	struct UCharPoolCreator
+	template <typename T, size_t RequestedSize, size_t NextSize = 32>
+	struct PoolCreator
 	{
 		static AlignedPool* create()
 		{
-			return new AlignedPool(sizeof(unsigned char) * RequestedSize, NextSize);
+			return new AlignedPool(sizeof(T) * RequestedSize, NextSize);
 		}
 	};
 }

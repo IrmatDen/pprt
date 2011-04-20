@@ -37,7 +37,7 @@ struct translate_a
 {
 	void operator()(const NonAlignedVec3 &vec) const
 	{
-		TransformStack::currentTransform = TransformStack::currentTransform * Matrix4::translation(vec);
+		TransformStack::currentTransform = Matrix4::translation(vec) * TransformStack::currentTransform;
 	}
 };
 
@@ -46,7 +46,7 @@ struct rotate_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		const Matrix4 rot = Matrix4::rotation(deg2rad(angleDegrees), normalize(axis));
-		TransformStack::currentTransform = TransformStack::currentTransform * rot;
+		TransformStack::currentTransform = rot * TransformStack::currentTransform;
 	}
 
 	static double	angleDegrees;

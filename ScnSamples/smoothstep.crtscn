@@ -2,8 +2,13 @@ Option "searchpath" "shader" ["./samples_shaders:&"]
 
 Display "smoothstep_sphere.png" "file" "rgba"
 Format 800 600 1
-Background 0 0 0
-CamLookAt <-3, 1.5, -3> <0, 0, 5>
+Projection "perspective" "fov" 75
+Clipping 0.1 1000
+#CamLookAt <-3, 1.5, -3> <0, 0, 5>
 
-Sphere 1 < 0,  0, 5> "smoothstep_sample"
+Background 0 0 0
+
+WorldBegin
+	Sphere 1 < 0,  0, 5> "smoothstep_sample"
+WorldEnd
 

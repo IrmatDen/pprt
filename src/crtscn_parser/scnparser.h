@@ -90,7 +90,7 @@ namespace ScnParser
 
 					projection	=	"Projection" >> +blank_p >> (perspProj | orthoProj);
 					perspProj	=	str_p("\"perspective\"") [assign_a(CameraSettings::projType)] >>
-									!(+blank_p >> real_p [assign_a(CameraSettings::fov)]);
+									!(+blank_p >> "\"fov\"" >> +blank_p >> real_p [assign_a(CameraSettings::fov)]);
 					orthoProj	=	str_p("\"orthographic\"") [assign_a(CameraSettings::projType)];
 
 					clipping	=	"Clipping" >> +blank_p >>

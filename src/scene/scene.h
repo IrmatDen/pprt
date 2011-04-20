@@ -49,9 +49,6 @@ public:
 
 	void		enableThreading(bool enable);
 
-	void		setWidth(int width)							{ resX = width; }
-	void		setHeight(int height)						{ resY = height; }
-
 	Camera&		camera();
 
 	void		setBackground(const Color &bg)				{ background = bg; }
@@ -88,8 +85,6 @@ private:
 
 	bool		threadingEnabled;
 	__int64		renderBeginTime;
-
-	int				resX, resY;
 
 	Color			background;
 

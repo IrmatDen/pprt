@@ -77,7 +77,7 @@ namespace ScnParser
 					comment = ('#' >> *(anychar_p - eol_p));
 
 				// Attibutes (RiSpec 3.2, §4)
-					worldBegin	= str_p("WorldBegin") [CameraSettings(self.scene)];
+					worldBegin	= str_p("WorldBegin") [worldBegin_a(self.scene)];
 					worldEnd	= str_p("WorldEnd");
 
 				// Camera definitions (RiSpec 3.2, §4.1.1)

@@ -63,41 +63,6 @@ Vector3	rotate_a::axis;
 
 struct CameraSettings
 {
-	CameraSettings(Scene &scn) : scene(scn) {}
-
-	// Finalize camera and apply it
-	void operator()(const iterator_t&, const iterator_t&) const
-	{
-		const float aspect = static_cast<float>(resX * pix_aspectRatio / resY);
-		
-		float screenExtents[4];
-		if (aspect > 1.f)
-		{
-			screenExtents[0] = -aspect;
-			screenExtents[1] =  aspect;
-			screenExtents[2] = -1.f;
-			screenExtents[3] =  1.f;
-		}
-		else
-		{
-			screenExtents[0] = -1.f;
-			screenExtents[1] =  1.f;
-			screenExtents[2] = -1.f / aspect;
-			screenExtents[3] =  1.f / aspect;
-		}
-
-		Camera::CameraModel cm = Camera::CM_Orthographic;
-		if (projType == "\"perspective\"")
-			cm = Camera::CM_Perspective;
-
-		scene.camera().finalize(cm, TransformStack::currentTransform, aspect, deg2rad(fov), resX, resY, (float)hither, (float)yon, screenExtents);
-
-		scene.setWidth(resX);
-		scene.setHeight(resY);
-	}
-	
-	Scene	&scene;
-
 	// Format
 	static int		resX, resY;
 	static double	pix_aspectRatio;
@@ -122,6 +87,48 @@ double		CameraSettings::fov = 90.0;
 // 2. but the renderer works with floats
 double	CameraSettings::hither	= static_cast<double>(std::numeric_limits<float>::epsilon());
 double	CameraSettings::yon		= static_cast<double>(std::numeric_limits<float>::max());
+//-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
+// Attributes actions
+
+struct worldBegin_a
+{
+	worldBegin_a(Scene &scn) : scene(scn) {}
+	
+	Scene	&scene;
+
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		// Finalize camera
+		const float aspect = static_cast<float>(CameraSettings::resX * CameraSettings::pix_aspectRatio / CameraSettings::resY);
+		
+		float screenExtents[4];
+		if (aspect > 1.f)
+		{
+			screenExtents[0] = -aspect;
+			screenExtents[1] =  aspect;
+			screenExtents[2] = -1.f;
+			screenExtents[3] =  1.f;
+		}
+		else
+		{
+			screenExtents[0] = -1.f;
+			screenExtents[1] =  1.f;
+			screenExtents[2] = -1.f / aspect;
+			screenExtents[3] =  1.f / aspect;
+		}
+
+		Camera::CameraModel cm = Camera::CM_Orthographic;
+		if (CameraSettings::projType == "\"perspective\"")
+			cm = Camera::CM_Perspective;
+
+		scene.camera().finalize(cm, TransformStack::currentTransform, aspect, deg2rad(CameraSettings::fov),
+								CameraSettings::resX, CameraSettings::resY, (float)CameraSettings::hither, (float)CameraSettings::yon,
+								screenExtents);
+	}
+};
+
 //-----------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------

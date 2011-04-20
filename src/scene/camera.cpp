@@ -9,6 +9,9 @@ void Camera::finalize(CameraModel model, const Matrix4 &worldToCam, float aspect
 	nearClip	= hither;
 	farClip		= yon;
 
+	xRes	= width;
+	yRes	= height;
+
 	WorldToCam	= worldToCam;
 	CamToWorld	= inverse(WorldToCam);
 
@@ -27,8 +30,8 @@ void Camera::finalize(CameraModel model, const Matrix4 &worldToCam, float aspect
 
 	WorldToScreen = CamToScreen * WorldToCam;
 
-	const Matrix4 resScale		(Matrix4::scale(Vector3(static_cast<float>(width),
-														static_cast<float>(height),
+	const Matrix4 resScale		(Matrix4::scale(Vector3(static_cast<float>(xRes),
+														static_cast<float>(yRes),
 														1.f)));
 	const Matrix4 screenScale	(Matrix4::scale(Vector3(1.f / (screenExtents[1] - screenExtents[0]),
 														1.f / (screenExtents[2] - screenExtents[3]),

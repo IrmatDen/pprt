@@ -28,12 +28,11 @@ using namespace std;
 
 #pragma warning(disable:4355)
 Scene::Scene()
-	: resX(0), resY(0),
-	background(all_zero()),
-	rt_objects(nullptr), rt_lights(nullptr),
-	bvhRoot(nullptr),
-	imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr),
-	threadingEnabled(true)
+	:	background(all_zero()),
+		rt_objects(nullptr), rt_lights(nullptr),
+		bvhRoot(nullptr),
+		imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr),
+		threadingEnabled(true)
 {
 	shaderManager.setScene(*this);
 }
@@ -125,7 +124,7 @@ void Scene::render()
 	delete renderThread;
 	delete tracer;
 	
-	imgStore = new RGBAStore(resX, resY);
+	imgStore = new RGBAStore(cam.getWidth(), cam.getHeight());
 
 	if (displayType == DT_File)
 	{
@@ -152,14 +151,14 @@ void Scene::render()
 	{
 		renderThread->Wait();
 
-		fipImage img(FIT_BITMAP, (WORD)resX, (WORD)resY, 32);
+		fipImage img(FIT_BITMAP, (WORD)cam.getWidth(), (WORD)cam.getHeight(), 32);
 
-		for (int y = 0; y != resY; y++)
+		for (int y = 0; y != cam.getHeight(); y++)
 		{
 			RGBAStore::pixel_t *pixelsData = imgStore->getScanline(y);
 			BYTE *imgData = img.getScanLine(y);
 
-			for (int x = 0; x != resX; x++, imgData += 4, pixelsData += imgStore->getPixelSize())
+			for (int x = 0; x != cam.getWidth(); x++, imgData += 4, pixelsData += imgStore->getPixelSize())
 			{
 				imgData[FI_RGBA_RED]	= BYTE(pixelsData[0]);
 				imgData[FI_RGBA_GREEN]	= BYTE(pixelsData[1]);
@@ -179,7 +178,7 @@ void Scene::render()
 void Scene::multithreadRender()
 {
 	tbb::task_scheduler_init tbbInit;
-	tbb::parallel_for(tbb::blocked_range2d<int>(0, resY, 0, resX), *tracer, tbb::auto_partitioner());
+	tbb::parallel_for(tbb::blocked_range2d<int>(0, cam.getHeight(), 0, cam.getWidth()), *tracer, tbb::auto_partitioner());
 
 	onRenderFinished();
 }
@@ -189,10 +188,10 @@ void Scene::monothreadRender()
 	const int blockSide = 16;
 
 	int y = 0;
-	const int	maxY = (resY / blockSide) * blockSide,
-				remY = resY - maxY;
-	const int	maxX = (resX / blockSide) * blockSide,
-				remX = resX - maxX;
+	const int	maxY = (cam.getHeight() / blockSide) * blockSide,
+				remY = cam.getHeight() - maxY;
+	const int	maxX = (cam.getWidth() / blockSide) * blockSide,
+				remX = cam.getWidth() - maxX;
 	for (; y != maxY; y += blockSide)
 	{
 		int x = 0;
@@ -200,17 +199,17 @@ void Scene::monothreadRender()
 			(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, x, x + blockSide));
 
 		if (remX > 0)
-			(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, maxX, resX));
+			(*tracer)(tbb::blocked_range2d<int>(y, y + blockSide, maxX, cam.getWidth()));
 	}
 
 	if (remY > 0)
 	{
 		int x = 0;
 		for (; x < maxX; x += blockSide)
-			(*tracer)(tbb::blocked_range2d<int>(maxY, resY, x, x + blockSide));
+			(*tracer)(tbb::blocked_range2d<int>(maxY, cam.getHeight(), x, x + blockSide));
 
 		if (remX > 0)
-			(*tracer)(tbb::blocked_range2d<int>(maxY, resY, maxX, resX));
+			(*tracer)(tbb::blocked_range2d<int>(maxY, cam.getHeight(), maxX, cam.getWidth()));
 	}
 
 	onRenderFinished();

@@ -17,8 +17,8 @@ public:
 	void	mergeWith(const AABB &other);
 
 public:
-	Vector3	_min;
-	Vector3	_max;
+	Point3	_min;
+	Point3	_max;
 };
 
 #endif

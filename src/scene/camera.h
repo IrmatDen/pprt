@@ -6,23 +6,28 @@
 class Camera
 {
 public:
+	enum CameraModel
+	{
+		CM_Orthographic,
+		CM_Perspective
+	};
+
+public:
 	Camera()
-		:target(Vector3::zAxis()), up(Vector3::yAxis()), fov(60)
 	{
 	}
 
-	void		init(int width, int height);
-	void		project(float x, float y, Ray &r) const;
+	void	finalize(CameraModel model,	const Matrix4 &camToWorld, float aspectRatio, float fov,
+						int width, int height, float hither, float yon,
+						const float screenExtents[4]);
+	void	project(float x, float y, Ray &r) const;
 
 public:
-	Vector3	pos;
-	Vector3	target;
-	Vector3	up;
-	float	fov;
-
-private:
-	// Define the camera frame
-	Vector3 u, v, w;
+	CameraModel	camModel;
+	Matrix4		CamToWorld, WorldToCam;
+	Matrix4		CamToScreen, WorldToScreen, RasterToCam;
+	Matrix4		ScreenToRaster, RasterToScreen;
+	float		nearClip, farClip;
 };
 
 #endif

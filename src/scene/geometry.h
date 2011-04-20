@@ -24,11 +24,11 @@ public:
 	virtual ~Geometry();
 
 	virtual bool			hit(const Ray &ray, float &t) const = 0;
-	virtual void			fillIntersectionInfo(const Vector3 &p, IntersectionInfo &ii) const = 0;
+	virtual void			fillIntersectionInfo(const Point3 &p, IntersectionInfo &ii) const = 0;
 
 	const AABB&				getAABB() const							{ return aabb; }
 
-	const Vector3&			position() const						{ return pos; }
+	const Point3&			position() const						{ return pos; }
 
 	void					setColor(const Color &c)				{ color = c; }
 	void					setOpacity(const Color &o)				{ opacity = o; }
@@ -44,12 +44,12 @@ public:
 
 protected:
 	Geometry() : pos(0.f), color(0.f), opacity(0.f), shader(0) 			{}
-	Geometry(const Vector3 &p) : pos(p), color(1), shader(0)			{}
+	Geometry(const Point3 &p) : pos(p), color(1), shader(0)				{}
 
 protected:
 	AABB					aabb;
 
-	Vector3					pos;
+	Point3					pos;
 
 	Color					color;
 	Color					opacity;

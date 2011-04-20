@@ -9,7 +9,7 @@
 class Light
 {
 public:
-	Vector3		pos;
+	Point3		pos;
 	Color		color;
 };
 

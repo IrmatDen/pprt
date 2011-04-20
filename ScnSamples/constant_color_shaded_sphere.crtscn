@@ -1,8 +1,19 @@
 Option "searchpath" "shader" ["./samples_shaders:&"]
+Option "usethreads" [1]
 
 Display "constant_color_shaded_sphere.png" "framebuffer" "rgba"
 Format 800 600 1
-CamLookAt <0, 0, -10> <0, 0, 0>
+Projection "orthographic"
+Clipping 15 20
 
-Color 0.25 0.25 1
-Sphere 1.5 <0, 0, 5> "constant"
+WorldBegin
+
+PointLight <0, 0, 0> 1 1 1
+
+Color 1 0 0
+Sphere 40 <0, -40, 150> "matte"
+
+Color 0 1 0
+Sphere 40 <0, 40, 150> "matte"
+
+WorldEnd

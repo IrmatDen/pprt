@@ -4,13 +4,86 @@
 // IMPORTANT: this file can't be used alone, it's only to be included in scnparser.h which
 // contains the good includes and typedefs!
 
-//-----------------------------------------------------------------------------------------------------------
-// Options actor
-
 #include <boost/filesystem.hpp>
 #include <iostream>
 
 #include "../common.h"
+#include "../shadervm/shader_param.h"
+
+template <typename T>
+inline float deg2rad(T deg) { return static_cast<float>(deg * 0.01745329252); }
+
+//-----------------------------------------------------------------------------------------------------------
+// CameraSettings holder
+
+struct CameraSettings
+{
+	CameraSettings(Scene &scn) : scene(scn) {}
+
+	// Finalize camera and apply it
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		Matrix4 projMtx = Matrix4::identity();
+
+		const float aspect = static_cast<float>(resX * pix_aspectRatio / resY);
+		
+		float screenExtents[4];
+		if (aspect > 1.f)
+		{
+			screenExtents[0] = -aspect;
+			screenExtents[1] =  aspect;
+			screenExtents[2] = -1.f;
+			screenExtents[3] =  1.f;
+		}
+		else
+		{
+			screenExtents[0] = -1.f;
+			screenExtents[1] =  1.f;
+			screenExtents[2] = -1.f / aspect;
+			screenExtents[3] =  1.f / aspect;
+		}
+
+		Camera::CameraModel cm = Camera::CM_Orthographic;
+		if (projType == "\"perspective\"")
+			cm = Camera::CM_Perspective;
+
+		Matrix4 worldToCam(Matrix4::identity());
+		scene.camera().finalize(cm, worldToCam, aspect, deg2rad(fov), resX, resY, (float)hither, (float)yon, screenExtents);
+
+		scene.setWidth(resX);
+		scene.setHeight(resY);
+	}
+	
+	Scene	&scene;
+
+	// Format
+	static int		resX, resY;
+	static double	pix_aspectRatio;
+
+	// Projection
+	static std::string	projType;
+	static double		fov;
+
+	// Clipping
+	static double	hither, yon;
+};
+
+int		CameraSettings::resX			= 640;
+int		CameraSettings::resY			= 480;
+double	CameraSettings::pix_aspectRatio	= 1.0;
+
+std::string	CameraSettings::projType("orthographic");
+double		CameraSettings::fov = 90.0;
+
+// Getting eps/max from float & cast to double is required because:
+// 1. boost.spirit real parser expects double
+// 2. but the renderer works with floats
+double	CameraSettings::hither	= static_cast<double>(std::numeric_limits<float>::epsilon());
+double	CameraSettings::yon		= static_cast<double>(std::numeric_limits<float>::max());
+//-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
+// Options actor
 
 struct ShaderPath
 {
@@ -83,7 +156,6 @@ struct displayType_a
 //-----------------------------------------------------------------------------------------------------------
 // Material actors
 
-#include "../shadervm/shader_param.h"
 struct shaderParams_a
 {
 	void operator()(const Color &col) const
@@ -128,16 +200,25 @@ struct newPointLight_a
 		scene.addLight(l);
 
 		// Reset fields to allow for defaults
-		pos = Vector3(0);
+		pos = Point3(0);
 		color = Color(0);
 	}
 
 	Scene			&	scene;
-	static Vector3		pos;
+	static Point3		pos;
 	static Color		color;
 };
-Vector3	newPointLight_a::pos;
+Point3	newPointLight_a::pos;
 Color	newPointLight_a::color;
+//-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
+// Transform actors
+
+struct transform_a
+{
+};
+
 //-----------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------
@@ -151,7 +232,7 @@ struct newSphere_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Vector3 p = pos;
+		Point3 p = pos;
 		Geometry *g(memory::construct<Sphere>((float)radius, p));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
@@ -160,7 +241,7 @@ struct newSphere_a
 		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
-		pos = Vector3(0);
+		pos = Point3(0);
 		radius = 0;
 		matName = "";
 
@@ -169,11 +250,11 @@ struct newSphere_a
 
 	Scene			&	scene;
 	static double		radius;
-	static Vector3		pos;
+	static Point3		pos;
 	static std::string	matName;
 };
 double		newSphere_a::radius;
-Vector3		newSphere_a::pos;
+Point3		newSphere_a::pos;
 std::string	newSphere_a::matName;
 
 
@@ -232,7 +313,7 @@ struct newDisk_a
 
 		// Reset fields to allow for defaults
 		radius = 0;
-		pos = Vector3(0);
+		pos = Point3(0);
 		normal = Vector3(0);
 		matName = "";
 
@@ -241,12 +322,12 @@ struct newDisk_a
 
 	Scene			&	scene;
 	static double		radius;
-	static Vector3		pos;
+	static Point3		pos;
 	static Vector3		normal;
 	static std::string	matName;
 };
 double		newDisk_a::radius;
-Vector3		newDisk_a::pos;
+Point3		newDisk_a::pos;
 Vector3		newDisk_a::normal;
 std::string	newDisk_a::matName;
 //-----------------------------------------------------------------------------------------------------------

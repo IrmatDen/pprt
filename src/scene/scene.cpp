@@ -126,7 +126,6 @@ void Scene::render()
 	delete tracer;
 	
 	imgStore = new RGBAStore(resX, resY);
-	cam.init(resX, resY);
 
 	if (displayType == DT_File)
 	{
@@ -264,13 +263,13 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 		return Color(1, 0, 1);
 	}
 
-	Vector3 p = ray.origin + ray.direction() * t;
+	Point3 p = ray.origin + ray.direction() * t;
 	IntersectionInfo info;
 	nearestObj->fillIntersectionInfo(p, info);
 
 	CompiledShader shader(nearestObj->getShader(), true);
 	shader.setCurrentDepth(ray.traceDepth);
-	shader.setRTVarValueByIndex(CompiledShader::P, p);
+	shader.setRTVarValueByIndex(CompiledShader::P, Vector3(p));
 	shader.setRTVarValueByIndex(CompiledShader::N, info.normal);
 	shader.setRTVarValueByIndex(CompiledShader::Ng, info.normal);
 	shader.setRTVarValueByIndex(CompiledShader::s, info.s);
@@ -308,7 +307,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Vector3 p = r.origin + r.direction() * 0.0001f;
+	const Point3 p = r.origin + r.direction() * 0.0001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -357,7 +356,7 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Vector3 p = r.origin + dir * 0.0001f;
+	const Point3 p = r.origin + dir * 0.0001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -390,7 +389,7 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 		{
 			const Vector3 H = normalize(L2P + viewDir);
 			const float NdH = dot(dir, H);
-			const float specMult = static_cast<float>(pow(max(0, NdH), 1/roughness));
+			const float specMult = static_cast<float>(pow(max(0.f, NdH), 1/roughness));
 
 			if (!hit)
 				out += (*light)->color * specMult;

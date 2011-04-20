@@ -7,10 +7,10 @@ class _MM_ALIGN16 Sphere : public Geometry
 {
 public:
 	Sphere(float radius = 1) : r(radius),invr(1/r)							{}
-	Sphere(float radius, const Vector3 &p) : Geometry(p), r(radius),invr(1/r)  { buildAABB(); }
+	Sphere(float radius, const Point3 &p) : Geometry(p), r(radius),invr(1/r)  { buildAABB(); }
 
 	virtual bool			hit(const Ray &ray, float &t) const;
-	virtual void			fillIntersectionInfo(const Vector3 &p, IntersectionInfo &ii) const;
+	virtual void			fillIntersectionInfo(const Point3 &p, IntersectionInfo &ii) const;
 
 private:
 	void	buildAABB()

@@ -33,7 +33,6 @@ template <typename PixelStoreT>
 void TraceBlock<PixelStoreT>::operator()(const tbb::blocked_range2d<int> &r) const
 {
 	Ray ray;
-	ray.origin = scn->camera().pos;
 
 	for (int y = r.rows().begin(); y != r.rows().end(); ++y)
 	{
@@ -50,11 +49,7 @@ void TraceBlock<PixelStoreT>::operator()(const tbb::blocked_range2d<int> &r) con
 			{
 				for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
 				{
-					// Bring x & y in [-1,1] range, and generate primary's ray dir.
-					float fx =		fragx * 1.0f / img->getWidth() * 2 - 1;
-					float fy = 1 -	fragy * 1.0f / img->getHeight() * 2;
-
-					scn->camera().project(fx, fy, ray);
+					scn->camera().project(fragx, fragy, ray);
 
 					Color alphaFrag, outFrag;
 					outFrag = scn->trace(ray, hitSomething, alphaFrag);

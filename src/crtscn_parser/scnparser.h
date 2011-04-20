@@ -32,7 +32,8 @@ struct NonAlignedVec3
 	NonAlignedVec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
 	float x, y, z;
 
-	operator Vector3() const { return Vector3(x, y, z); }
+	operator Vector3() const	{ return Vector3(x, y, z); }
+	operator Point3() const		{ return Point3(x, y, z); }
 };
 #include "../parser/type_parsers.h"
 
@@ -75,13 +76,26 @@ namespace ScnParser
 				// Comment definition
 					comment = ('#' >> *(anychar_p - eol_p));
 
-				// Camera definitions (RiSpec 3.2, §4.1.1)
-					camera =	format;
+				// Attibutes (RiSpec 3.2, §4)
+					worldBegin	= str_p("WorldBegin") [CameraSettings(self.scene)];
+					worldEnd	= str_p("WorldEnd");
 
-					format =	"Format" >> +blank_p >>
-								int_p	[bind(&Scene::setWidth)(var(self.scene), arg1)]		>> +blank_p >>		// width
-								int_p	[bind(&Scene::setHeight)(var(self.scene), arg1)]	>> +blank_p >>		// height
-								real_p;																			// pixel aspect ratio
+				// Camera definitions (RiSpec 3.2, §4.1.1)
+					camera =	format | projection | clipping;
+
+					format		=	"Format" >> +blank_p >>
+									int_p	[assign_a(CameraSettings::resX)]	>> +blank_p >>		// width
+									int_p	[assign_a(CameraSettings::resY)]	>> +blank_p >>		// height
+									real_p	[assign_a(CameraSettings::pix_aspectRatio)];			// pixel aspect ratio
+
+					projection	=	"Projection" >> +blank_p >> (perspProj | orthoProj);
+					perspProj	=	str_p("\"perspective\"") [assign_a(CameraSettings::projType)] >>
+									!(+blank_p >> real_p [assign_a(CameraSettings::fov)]);
+					orthoProj	=	str_p("\"orthographic\"") [assign_a(CameraSettings::projType)];
+
+					clipping	=	"Clipping" >> +blank_p >>
+									real_p	[assign_a(CameraSettings::hither)] >> +blank_p >>
+									real_p	[assign_a(CameraSettings::yon)];
 
 				// Displays definitions (RiSpec 3.2, §4.1.2)
 					displays =	display;
@@ -101,13 +115,9 @@ namespace ScnParser
 							  
 
 				// Scene definition
-					scene =		background
-							|	camLookAt;
+					scene =		background;
 
 					background = "Background" >> +blank_p >> color_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
-
-					camLookAt = "CamLookAt"	>> +blank_p >> vec3_p[assign_a(self.scene.camera().pos)] >> +blank_p
-														>> vec3_p[assign_a(self.scene.camera().target)];
 
 				// Graphics state
 					graphicsState = color | opacity;
@@ -159,6 +169,7 @@ namespace ScnParser
 								| scene
 								| lights
 								| graphicsState
+								| worldBegin | worldEnd
 								| geometries;
 					statement = *blank_p >> !element >> ending >> *blank_p;
 					base_expression = *statement;
@@ -172,10 +183,11 @@ namespace ScnParser
 			rule<ScannerT> comment;
 
 			// Specific elements
+			rule<ScannerT> worldBegin, worldEnd;
 			rule<ScannerT> option, searchpath, spShader, usethreads;
-			rule<ScannerT> camera, format;
+			rule<ScannerT> camera, format, projection, perspProj, orthoProj, clipping;
 			rule<ScannerT> displays, display;
-			rule<ScannerT> scene, background, camLookAt;
+			rule<ScannerT> scene, background;
 			rule<ScannerT> graphicsState, color, opacity;
 			rule<ScannerT> lights, pointLight;
 			rule<ScannerT> geometries, sphere, plane, disk;

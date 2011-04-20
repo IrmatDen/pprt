@@ -1,32 +1,67 @@
 #include "camera.h"
 
-#define PIOVER180 0.017453292519943f
-
-void Camera::init(int width, int height)
+void Camera::finalize(CameraModel model, const Matrix4 &camToWorld, float aspectRatio, float fov,
+						int width, int height, float hither, float yon,
+						const float screenExtents[4])
 {
-	fov = 18.3f;
+	camModel	= model;
 
-	float fovx = fov * PIOVER180;
-	float hFov = tan(fovx);
-	float vFov = tan(((float)height / width) * 47 * PIOVER180);
-	
-	up = normalize(up);
-	
-	w = target - pos;
-	w = normalize(w);
+	nearClip	= hither;
+	farClip		= yon;
 
-	u = cross(up, w);
-	u *= hFov;
+	CamToWorld	= camToWorld;
+	WorldToCam	= inverse(CamToWorld);
 
-	v = cross(w, -u);
-	v *= vFov;
+	switch (camModel)
+	{
+	case CM_Orthographic:
+		// Near/far clipping are enforced through ray boundaries defined in Camera::project
+		CamToScreen = Matrix4::orthographic(screenExtents[0], screenExtents[1], screenExtents[2], screenExtents[3], 0.f, 1.f);
+		break;
+
+	case CM_Perspective:
+		// Ignore aspect ratio setting here as we apply it below
+		CamToScreen = Matrix4::perspective(fov, 1.f, nearClip, farClip);
+		break;
+	}
+
+	WorldToScreen = CamToScreen * WorldToCam;
+
+	const Matrix4 resScale		(Matrix4::scale(Vector3(static_cast<float>(width),
+														static_cast<float>(height),
+														1.f)));
+	const Matrix4 screenScale	(Matrix4::scale(Vector3(1.f / (screenExtents[1] - screenExtents[0]),
+														1.f / (screenExtents[2] - screenExtents[3]),
+														1.f)));
+	const Matrix4 trans(Matrix4::translation(Vector3(-screenExtents[0], -screenExtents[3], 0.f)));
+	ScreenToRaster = resScale * screenScale * trans;
+	RasterToScreen = inverse(ScreenToRaster);
+
+	RasterToCam = inverse(CamToScreen) * RasterToScreen;
+	// Revert Z axis in order to look toward +Z
+	RasterToCam.setElem(3, 2, -RasterToCam.getElem(3, 2));
 }
 
 void Camera::project(float x, float y, Ray &r) const
 {
-	r.origin = pos;
+	const Point3 rasterPt(x, y, 0);
+	const Point3 camPt((RasterToCam * rasterPt).getXYZ());
 
-	Vector3 dir = x * u + y * v + w;
-	dir = normalize(dir);
-	r.setDirection(dir);
+	Point3	rayOrigin;
+	Vector3	rayDirection;
+	switch (camModel)
+	{
+	case CM_Perspective:
+		rayDirection = normalize(Vector3(camPt));
+		rayOrigin = Point3(0.f);
+		break;
+
+	case CM_Orthographic:
+		rayOrigin = camPt;
+		rayDirection = Vector3::zAxis();
+		break;
+	}
+
+	r.origin = Point3((CamToWorld * rayOrigin).get128());
+	r.setDirection(Vector3((CamToWorld * rayDirection).get128()));
 }

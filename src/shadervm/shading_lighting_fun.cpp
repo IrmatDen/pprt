@@ -19,7 +19,7 @@ void CompiledShader::diffuse()
 	Vector3 &n = execStack.pop<Vector3>();
 
 	Color out(0.f);
-	Ray r(p, n);
+	Ray r(Point3(p), n);
 	r.traceDepth = currentDepth;
 	r.origin += r.direction() * 0.0001f;
 	scene->diffuse(r, out);
@@ -37,7 +37,7 @@ void CompiledShader::specular()
 	float roughness	= execStack.pop<float>();
 
 	Color out(0.f);
-	Ray r(p, n);
+	Ray r(Point3(p), n);
 	r.origin += r.direction() * 0.0001f;
 	r.traceDepth = currentDepth;
 	scene->specular(r, i, roughness, out);
@@ -50,7 +50,7 @@ void CompiledShader::trace()
 	Ray r;
 
 	// 2 parameters expected: origin & direction
-	r.origin = execStack.pop<Vector3>();
+	r.origin = Point3(execStack.pop<Vector3>());
 	r.setDirection(execStack.pop<Vector3>());
 	
 	r.origin += r.direction() * 0.0001f;

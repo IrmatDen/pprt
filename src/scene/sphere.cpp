@@ -32,7 +32,7 @@ bool Sphere::hit(const Ray &ray, float &t) const
 	return false;
 }
 
-void Sphere::fillIntersectionInfo(const Vector3 &p, IntersectionInfo &ii) const
+void Sphere::fillIntersectionInfo(const Point3 &p, IntersectionInfo &ii) const
 {
 	ii.normal = (p - pos) * invr;
 	//ii.normal = normalize(ii.normal);

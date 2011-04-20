@@ -69,7 +69,6 @@ void Framebuffer<PixelStoreT>::create(pixel_store_t &pixStore, const std::string
 	displayImg.Create(pixelStore->getWidth(), pixelStore->getHeight(), sf::Color(0, 0, 0, 0));
 	displayImg.SetSmooth(false);
 	displaySprite.SetImage(displayImg);
-	displaySprite.FlipY(true);
 
 	updateRequired = false;
 

@@ -1,17 +1,19 @@
 Option "searchpath" "shader" ["./samples_shaders:&"]
 
-Display "mix_sphere.png" "file" "rgba"
+Display "mix_sphere.png" "framebuffer" "rgba"
 
-#CamLookAt <-3, 1.5, -3> <0, 0, 5>
 Format 800 600 1
-Projection "perspective"
-Clipping 0.1 1000
+Projection "perspective" "fov" 45
+
+Rotate -22 0 1 0
+Rotate -15 1 0 0
+Translate 2 -1.2 0
 
 Background 0 0 0
 
 WorldBegin
-	PointLight <-4, -1.5, 2.5> 1 1 1
+	PointLight -4 -1.5 2.5 1 1 1
 
-	Sphere 1 < 0,  0, 5> "mix_sample"
+	Sphere 1 0 0 5 "mix_sample"
 WorldEnd
 

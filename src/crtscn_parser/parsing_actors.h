@@ -25,6 +25,14 @@ struct TransformStack
 std::stack<Matrix4>	TransformStack::stack;
 Matrix4				TransformStack::currentTransform(Matrix4::identity());
 
+struct identity_a
+{
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		TransformStack::currentTransform = Matrix4::identity();
+	}
+};
+
 struct translate_a
 {
 	void operator()(const NonAlignedVec3 &vec) const
@@ -32,6 +40,21 @@ struct translate_a
 		TransformStack::currentTransform = TransformStack::currentTransform * Matrix4::translation(vec);
 	}
 };
+
+struct rotate_a
+{
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		const Matrix4 rot = Matrix4::rotation(deg2rad(angleDegrees), normalize(axis));
+		TransformStack::currentTransform = TransformStack::currentTransform * rot;
+	}
+
+	static double	angleDegrees;
+	static Vector3	axis;
+};
+
+double	rotate_a::angleDegrees = 0.f;
+Vector3	rotate_a::axis;
 
 //-----------------------------------------------------------------------------------------------------------
 

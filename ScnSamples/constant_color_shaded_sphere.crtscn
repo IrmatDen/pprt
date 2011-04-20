@@ -3,11 +3,12 @@ Option "usethreads" [1]
 
 Display "constant_color_shaded_sphere.png" "framebuffer" "rgba"
 Format 800 600 1
-Projection "perspective"
+Projection "perspective" "fov" 75
 
 Translate 0 0 10
+Rotate 25 0 1 0
 
 WorldBegin
-	Color 0.25 0.25 1
-	Sphere 1.5 0 0 5 "constant"
+	Color 1 0 0
+	Sphere 10 0 0 25 "constant"
 WorldEnd

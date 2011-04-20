@@ -2,11 +2,10 @@ Option "searchpath" "shader" ["./samples_shaders:&"]
 
 Display "surfaceNormals_sphere.png" "file" "rgba"
 
-#CamLookAt <-5, -3, -10> <0, 0, 5>
 Format 800 600 1
 Projection "perspective"
 Clipping 0.1 1000
 
 WorldBegin
-	Sphere 1.5 <0, 0, 5> "surfaceNormals"
+	Sphere 1.5 0 0 5 "surfaceNormals"
 WorldEnd

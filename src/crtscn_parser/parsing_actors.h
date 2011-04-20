@@ -14,6 +14,28 @@ template <typename T>
 inline float deg2rad(T deg) { return static_cast<float>(deg * 0.01745329252); }
 
 //-----------------------------------------------------------------------------------------------------------
+// Transform actors
+
+struct TransformStack
+{
+	static std::stack<Matrix4>	stack;
+	static Matrix4				currentTransform;
+};
+
+std::stack<Matrix4>	TransformStack::stack;
+Matrix4				TransformStack::currentTransform(Matrix4::identity());
+
+struct translate_a
+{
+	void operator()(const NonAlignedVec3 &vec) const
+	{
+		TransformStack::currentTransform = TransformStack::currentTransform * Matrix4::translation(vec);
+	}
+};
+
+//-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
 // CameraSettings holder
 
 struct CameraSettings
@@ -23,8 +45,6 @@ struct CameraSettings
 	// Finalize camera and apply it
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Matrix4 projMtx = Matrix4::identity();
-
 		const float aspect = static_cast<float>(resX * pix_aspectRatio / resY);
 		
 		float screenExtents[4];
@@ -47,8 +67,7 @@ struct CameraSettings
 		if (projType == "\"perspective\"")
 			cm = Camera::CM_Perspective;
 
-		Matrix4 worldToCam(Matrix4::identity());
-		scene.camera().finalize(cm, worldToCam, aspect, deg2rad(fov), resX, resY, (float)hither, (float)yon, screenExtents);
+		scene.camera().finalize(cm, TransformStack::currentTransform, aspect, deg2rad(fov), resX, resY, (float)hither, (float)yon, screenExtents);
 
 		scene.setWidth(resX);
 		scene.setHeight(resY);
@@ -210,15 +229,6 @@ struct newPointLight_a
 };
 Point3	newPointLight_a::pos;
 Color	newPointLight_a::color;
-//-----------------------------------------------------------------------------------------------------------
-
-//-----------------------------------------------------------------------------------------------------------
-// Transform actors
-
-struct transform_a
-{
-};
-
 //-----------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------

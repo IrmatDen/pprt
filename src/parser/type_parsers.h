@@ -143,32 +143,6 @@ namespace tools
 
 		return matchedLen;
 	}
-
-	//! Eat all whitespaces and comma
-	template<typename ScannerT>
-	int eatSeparator(ScannerT const &scan)
-	{
-		if (scan.at_end())
-			return -1;
-
-		char ch;
-		int matchedLen		= 0;
-		bool commaSpotted	= false;
-
-		while (!scan.at_end() && (ch = *scan, ch == ',' || ch == ' '))
-		{
-			if (ch == ',')
-			{
-				if (!commaSpotted)	commaSpotted = true;
-				else				return -1;
-			}
-
-			++matchedLen;
-			++scan;
-		}
-
-		return matchedLen;
-	}
 }
 
 struct bool_parser
@@ -233,13 +207,18 @@ struct color_parser
 			if (matched == -1)
 				return -1;
 			len += matched;
-			matched = tools::eatWhitespaces(scan);
-			if (matched == -1)
-				return -1;
-			len += matched;
+			
+			// Don't remove last space to allow for the blank_p rule to parse as expected
+			if (i != 2)
+			{
+				matched = tools::eatWhitespaces(scan);
+				if (matched == -1)
+					return -1;
+				len += matched;
+			}
 		}
 
-		result = NonAlignedVec3(res[0], res[1], res[2]);
+		result = result_t(res[0], res[1], res[2]);
 
 		return len;
 	}
@@ -260,10 +239,6 @@ struct vec3_parser
 
 		int len = 0;
 		char ch = *scan;
-		if (ch != '<')
-			return -1;
-		++scan;
-		++len;
 
 		int matched = tools::eatWhitespaces(scan);
 		if (matched == -1)
@@ -273,27 +248,22 @@ struct vec3_parser
 		float res[3];
 		for (int i = 0; i < 3; i++)
 		{
-			int matched = tools::scanFloat(scan, res[i]);
+			matched = tools::scanFloat(scan, res[i], 0, 1);
 			if (matched == -1)
 				return -1;
 			len += matched;
-			matched = tools::eatSeparator(scan);
-			if (matched == -1)
-				return -1;
-			len += matched;
+
+			// Don't remove last space to allow for the blank_p rule to parse as expected
+			if (i != 2)
+			{
+				matched = tools::eatWhitespaces(scan);
+				if (matched == -1)
+					return -1;
+				len += matched;
+			}
 		}
 
-		matched = tools::eatWhitespaces(scan);
-		if (matched == -1)
-			return -1;
-		len += matched;
-
-		if (scan.at_end() || *scan != '>')
-			return -1;
-		++scan;
-		++len;
-
-		result = NonAlignedVec3(res[0], res[1], res[2]);
+		result = result_t(res[0], res[1], res[2]);
 
 		return len;
 	}

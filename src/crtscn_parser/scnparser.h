@@ -24,8 +24,6 @@ typedef file_iterator<char_t>		iterator_t;
 typedef scanner<iterator_t>			scanner_t;
 typedef rule<scanner_t>				rule_t;
 
-#include "parsing_actors.h"
-
 struct NonAlignedVec3
 {
 	NonAlignedVec3() {}
@@ -35,6 +33,8 @@ struct NonAlignedVec3
 	operator Vector3() const	{ return Vector3(x, y, z); }
 	operator Point3() const		{ return Point3(x, y, z); }
 };
+
+#include "parsing_actors.h"
 #include "../parser/type_parsers.h"
 
 namespace ScnParser
@@ -130,6 +130,11 @@ namespace ScnParser
 					pointLight = ("PointLight" >> +blank_p	>> vec3_p[assign_a(newPointLight_a::pos)] >> +blank_p
 															>> color_p[assign_a(newPointLight_a::color)]
 								  )[newPointLight_a(self.scene)];
+				
+				// Transformations (RiSpec 3.2, §4.3)
+					transform = translate;
+
+					translate = "Translate" >> +blank_p >> vec3_p[translate_a()];
 
 				// Geometry definitions
 					geometries =	sphere
@@ -169,6 +174,7 @@ namespace ScnParser
 								| scene
 								| lights
 								| graphicsState
+								| transform
 								| worldBegin | worldEnd
 								| geometries;
 					statement = *blank_p >> !element >> ending >> *blank_p;
@@ -190,6 +196,7 @@ namespace ScnParser
 			rule<ScannerT> scene, background;
 			rule<ScannerT> graphicsState, color, opacity;
 			rule<ScannerT> lights, pointLight;
+			rule<ScannerT> transform, translate;
 			rule<ScannerT> geometries, sphere, plane, disk;
 			rule<ScannerT> materialName;
 			rule<ScannerT> shaderParams;

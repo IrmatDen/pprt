@@ -17,7 +17,7 @@ public:
 	{
 	}
 
-	void	finalize(CameraModel model,	const Matrix4 &camToWorld, float aspectRatio, float fov,
+	void	finalize(CameraModel model,	const Matrix4 &worldToCam, float aspectRatio, float fov,
 						int width, int height, float hither, float yon,
 						const float screenExtents[4]);
 	void	project(float x, float y, Ray &r) const;

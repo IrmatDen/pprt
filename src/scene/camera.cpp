@@ -1,6 +1,6 @@
 #include "camera.h"
 
-void Camera::finalize(CameraModel model, const Matrix4 &camToWorld, float aspectRatio, float fov,
+void Camera::finalize(CameraModel model, const Matrix4 &worldToCam, float aspectRatio, float fov,
 						int width, int height, float hither, float yon,
 						const float screenExtents[4])
 {
@@ -9,8 +9,8 @@ void Camera::finalize(CameraModel model, const Matrix4 &camToWorld, float aspect
 	nearClip	= hither;
 	farClip		= yon;
 
-	CamToWorld	= camToWorld;
-	WorldToCam	= inverse(CamToWorld);
+	WorldToCam	= worldToCam;
+	CamToWorld	= inverse(WorldToCam);
 
 	switch (camModel)
 	{

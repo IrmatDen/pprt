@@ -2,6 +2,7 @@
 #define PPRT_RAY_H
 
 #include "../sse.h"
+#include "../pprt_math.h"
 
 class _MM_ALIGN16 Ray
 {

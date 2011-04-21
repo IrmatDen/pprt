@@ -1,7 +1,7 @@
 #ifndef PPRT_VMSTACK_H
 #define PPRT_VMSTACK_H
 
-#include "../common.h"
+#include "../memory.h"
 #include "symtab.h"
 
 #ifdef _DEBUG

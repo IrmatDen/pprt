@@ -228,10 +228,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aligned_vector.h" />
-    <ClInclude Include="src\common.h" />
+    <ClInclude Include="src\memory.h" />
     <ClInclude Include="src\crtscn_parser\parsing_actors.h" />
     <ClInclude Include="src\crtscn_parser\scnparser.h" />
     <ClInclude Include="src\parser\type_parsers.h" />
+    <ClInclude Include="src\pprt_math.h" />
     <ClInclude Include="src\scene\aabb.h" />
     <ClInclude Include="src\scene\bvh.h" />
     <ClInclude Include="src\scene\camera.h" />

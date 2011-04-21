@@ -5,10 +5,6 @@
 #include <xmmintrin.h>
 #include <smmintrin.h>
 
-#include <vectormath/cpp/vectormath_aos.h>
-
-using namespace Vectormath::Aos;
-
 #define set1ps(v)			_mm_set1_ps((v))
 #define loadps(mem)			_mm_load_ps((const float * const)(mem))
 #define storess(ss,mem)		_mm_store_ss((float * const)(mem),(ss))
@@ -23,7 +19,9 @@ using namespace Vectormath::Aos;
 #define minps				_mm_min_ps
 #define maxps				_mm_max_ps
 
+#define xorps(v1,v2)		_mm_xor_ps((v1),(v2))
 #define orps(v1,v2)			_mm_or_ps((v1),(v2))
+#define andps(v1,v2)		_mm_and_ps((v1),(v2))
 #define cmplt(v1,v2)		_mm_cmplt_ps((v1),(v2))
 #define cmpgt(v1,v2)		_mm_cmpgt_ps((v1),(v2))
 #define cmpge(v1,v2)		_mm_cmpge_ps((v1),(v2))
@@ -45,10 +43,12 @@ namespace sse
 		minus_inf	= set1ps(-flt_plus_inf),
 		all_one		= set1ps(1.f);
 
-	inline __m128 loadXYZW(float x, float y, float z, float w)
+	// From: http://markplusplus.wordpress.com/2007/03/14/fast-sse-select-operation/
+	inline __m128
+	fast_vecsel(const __m128& a, const __m128& b, const __m128& mask)
 	{
-		const float _MM_ALIGN16 a[4] = { x, y, z, w };
-		return loadps(a);
+		// (((b ^ a) & mask)^a)
+		return xorps(a, andps(mask, xorps(b, a)));
 	}
 }
 

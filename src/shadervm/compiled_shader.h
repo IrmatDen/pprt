@@ -4,7 +4,7 @@
 #include "vmstack.h"
 
 #include "../scene/color.h"
-#include "../common.h"
+#include "../memory.h"
 #include "../aligned_vector.h"
 
 #include <map>

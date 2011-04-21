@@ -5,7 +5,7 @@
 #include "ray.h"
 #include "scene.h"
 
-#include "../common.h"
+#include "../memory.h"
 
 class BVH
 {

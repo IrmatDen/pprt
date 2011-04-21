@@ -1,5 +1,5 @@
-#ifndef PPRT_COMMON_H
-#define PPRT_COMMON_H
+#ifndef PPRT_MEMORY_H
+#define PPRT_MEMORY_H
 
 #include "sse.h"
 

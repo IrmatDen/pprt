@@ -7,7 +7,7 @@
 #include <boost/filesystem.hpp>
 #include <iostream>
 
-#include "../common.h"
+#include "../memory.h"
 #include "../shadervm/shader_param.h"
 
 template <typename T>

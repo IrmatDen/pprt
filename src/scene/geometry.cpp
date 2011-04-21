@@ -1,7 +1,7 @@
 #include "geometry.h"
 #include "../shadervm/compiled_shader.h"
 
-#include "../common.h"
+#include "../memory.h"
 
 Geometry::~Geometry()
 {

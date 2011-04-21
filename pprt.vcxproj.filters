@@ -109,9 +109,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\crtscn_parser\parsing_actors.h">
       <Filter>Header Files\ScnParser</Filter>
     </ClInclude>
@@ -206,6 +203,12 @@
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\aligned_vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pprt_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

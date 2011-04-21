@@ -2,6 +2,7 @@
 #define PPRT_COLOR_H
 
 #include "../sse.h"
+#include "../pprt_math.h"
 
 typedef Vectormath::Aos::Vector3 Color;
 

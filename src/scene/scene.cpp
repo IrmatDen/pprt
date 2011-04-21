@@ -4,7 +4,7 @@
 #include "traceblock.h"
 
 #include "../crtscn_parser/scnparser.h"
-#include "../common.h"
+#include "../memory.h"
 
 #include <limits>
 #include <algorithm>

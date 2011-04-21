@@ -3,7 +3,7 @@
 
 #include "scene.h"
 
-#include "../common.h"
+#include "../memory.h"
 
 #include <boost/spirit.hpp>
 #include <boost/spirit/phoenix.hpp>

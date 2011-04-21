@@ -9,7 +9,7 @@
 #include "../shadervm/compiled_shader.h"
 #include "../shadervm/symtab.h"
 
-#include "../common.h"
+#include "../memory.h"
 
 using namespace std;
 using namespace boost;

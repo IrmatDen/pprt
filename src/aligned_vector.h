@@ -1,7 +1,7 @@
 #ifndef PPRT_ALIGNED_VECTOR_H
 #define PPRT_ALIGNED_VECTOR_H
 
-#include "common.h"
+#include "memory.h"
 
 #include <algorithm>
 

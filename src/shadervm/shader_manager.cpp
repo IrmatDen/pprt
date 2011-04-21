@@ -13,7 +13,7 @@
 #include "../shader_compiler/useless_nodes_removal_visitor.h"
 #include "../shader_compiler/mnemonic_gen_visitor.h"
 
-#include "../common.h"
+#include "../memory.h"
 
 using namespace std;
 

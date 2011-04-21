@@ -2,7 +2,7 @@
 #define PPRT_SYMTAB_H
 
 #include "../sse.h"
-#include "../common.h"
+#include "../memory.h"
 #include "../scene/color.h"
 
 #include <string>

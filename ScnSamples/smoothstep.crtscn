@@ -11,6 +11,7 @@ Translate 2 -1.2 0
 Background 0 0 0
 
 WorldBegin
-	Sphere 1 0 0 5 "smoothstep_sample"
+	Translate 0 0 5
+	Sphere 1 "smoothstep_sample"
 WorldEnd
 

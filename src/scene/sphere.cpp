@@ -2,42 +2,55 @@
 
 #include "sphere.h"
 
-bool Sphere::hit(const Ray &ray, float &t) const
+bool Sphere::hit(const Ray &ray, float &t, IntersectionInfo &ii) const
 {
-	const Vector3 dist	= pos - ray.origin;
+	// Make a vector to avoid Point -> Vector casting below
+	const Point3 localRayOrigin((worldToObject * ray.origin).get128());
+	const Vector3 localRayOriginAsVec(localRayOrigin);
+	const Vector3 localRayDir	((worldToObject * ray.direction()).get128());
 
-	const float b		= dot(ray.direction(), dist);
-	if (b < 0)
-		return false;
-
-	const float d		= b*b - dot(dist, dist) + r*r;
+	const float a = dot(localRayDir, localRayDir);
+	const float b = 2 * dot(localRayDir, localRayOriginAsVec);
+	const float c = dot(localRayOriginAsVec, localRayOriginAsVec) - r*r;
+	
+	// Solve quadratic
+	const float d = b*b - 4 * a * c;
 	if (d < 0)
 		return false;
 	
-	const float t0		= b - sqrt(d);
-	const float t1		= b + sqrt(d);
+	const float sqrtD = sqrt(d);
+	float q;
+	if (b < 0)
+		q = -0.5f * (b - sqrtD);
+	else
+		q = -0.5f * (b + sqrtD);
 
-	if (t0 > 0 && t0 < t)
+	float t0	= q / a;
+	float t1	= c / q;
+	if (t0 > t1)
+		std::swap(t0, t1);
+
+	if (t0 > t || t1 < 0)
+		return false;
+
+	float hit = t0;
+	if (t0 < 0)
 	{
-		t = t0;
-		return true;
+		hit = t1;
+		if (hit > t)
+			return false;
 	}
+	t = hit;
 
-	if (t1 > 0 && t1 < t)
-	{
-		t = t1;
-		return true;
-	}
+	// Now that we have a hit fill the intersection info structure
+	const Point3 localHitP(localRayOrigin + t * localRayDir);
 
-	return false;
-}
-
-void Sphere::fillIntersectionInfo(const Point3 &p, IntersectionInfo &ii) const
-{
-	ii.normal = (p - pos) * invr;
-	//ii.normal = normalize(ii.normal);
-
-	float invPi = 1.f / 3.141592654f;
+	ii.point	= Point3((objectToWorld * localHitP).get128());
+	ii.normal	= Vector3(localHitP) * invr;
+	
+	const float invPi = 1.f / 3.141592654f;
 	ii.s = ::asinf(ii.normal.getX()) * invPi + 0.5f;
 	ii.t = ::asinf(ii.normal.getY()) * invPi + 0.5f;
+
+	return true;
 }

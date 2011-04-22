@@ -39,7 +39,7 @@ bool AABB::hit(const Ray &ray, const float &t) const
 	lmax = minps(maxps(zl1a,zl2a), lmax);
 	lmin = maxps(minps(zl1b,zl2b), lmin);
 	
-	const bool hit = !mask_all(orps(cmplt(lmax, all_zero()),cmpgt(lmin, lmax)));
+	const bool hit = !mask_all(orps(cmpltps(lmax, all_zero()),cmpgtps(lmin, lmax)));
 	return hit;
 }
 

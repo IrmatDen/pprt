@@ -12,12 +12,15 @@ WorldBegin
 	PointLight -4 -1.5 3 1 1 1
 	PointLight 10 0 -50 1 1 1
 
+	Translate 0 -0.8 5
 	Color 1 0 0
-	Sphere 1 0 -0.8 5 "specular_sample" "roughness" 0.1
+	Sphere 1 "specular_sample" "roughness" 0.1
 
+	Translate -0.8 1.6 0
 	Color 0 1 0
-	Sphere 1 -0.8 0.8 5 "specular_sample" "roughness" 0.05
+	Sphere 1 "specular_sample" "roughness" 0.05
 
+	Translate 1.6 0 0
 	Color 0 0 1
-	Sphere 1 0.8 0.8 5 "specular_sample" "roughness" 0.005
+	Sphere 1 "specular_sample" "roughness" 0.005
 WorldEnd

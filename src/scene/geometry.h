@@ -14,6 +14,7 @@ class CompiledShader;
 
 struct IntersectionInfo
 {
+	Point3	point;
 	Vector3	normal;
 	float	s, t;
 };
@@ -23,12 +24,11 @@ class _MM_ALIGN16 Geometry
 public:
 	virtual ~Geometry();
 
-	virtual bool			hit(const Ray &ray, float &t) const = 0;
-	virtual void			fillIntersectionInfo(const Point3 &p, IntersectionInfo &ii) const = 0;
+	virtual bool			hit(const Ray &ray, float &t, IntersectionInfo &ii) const = 0;
 
 	const AABB&				getAABB() const							{ return aabb; }
 
-	const Point3&			position() const						{ return pos; }
+	Point3					position() const						{ return Point3(objectToWorld.getTranslation()); }
 
 	void					setColor(const Color &c)				{ color = c; }
 	void					setOpacity(const Color &o)				{ opacity = o; }
@@ -43,13 +43,14 @@ public:
 	void					prepareShader();
 
 protected:
-	Geometry() : pos(0.f), color(0.f), opacity(0.f), shader(0) 			{}
-	Geometry(const Point3 &p) : pos(p), color(1), shader(0)				{}
+	Geometry() : objectToWorld(Matrix4::identity()), color(0.f), opacity(0.f), shader(0) 			{}
+	Geometry(const Matrix4 &obj2world) : objectToWorld(obj2world), color(1), shader(0)				{ worldToObject = inverse(objectToWorld); }
 
 protected:
 	AABB					aabb;
 
-	Point3					pos;
+	Matrix4					objectToWorld;
+	Matrix4					worldToObject;
 
 	Color					color;
 	Color					opacity;

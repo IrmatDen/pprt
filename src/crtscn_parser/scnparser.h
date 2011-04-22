@@ -145,7 +145,6 @@ namespace ScnParser
 								|	plane
 								|	disk;
 					sphere	=	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)] >> +blank_p >>
-															vec3_p[assign_a(newSphere_a::pos)] >> +blank_p >>
 															string[assign_a(newSphere_a::matName, _str)] >>
 															!(+blank_p >> shaderParams)
 								)[newSphere_a(self.scene)];

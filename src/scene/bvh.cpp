@@ -170,20 +170,20 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 	}
 }
 
-const Geometry* BVH::findClosest(const Ray &ray, float &t) const
+const Geometry* BVH::findClosest(const Ray &ray, float &t, IntersectionInfo &ii) const
 {
-	return innerTraverse(root, ray, t);
+	return innerTraverse(root, ray, t, ii);
 }
 
-const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &t) const
+const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &t, IntersectionInfo &ii) const
 {
 	if (!node->aabb.hit(ray, t))
 		return 0;
 
 	if (!node->isLeaf)
 	{
-		const Geometry *lResult(innerTraverse(node->left, ray, t));
-		const Geometry *rResult(innerTraverse(node->right, ray, t));
+		const Geometry *lResult(innerTraverse(node->left, ray, t, ii));
+		const Geometry *rResult(innerTraverse(node->right, ray, t, ii));
 		
 		return rResult ? rResult : lResult;
 	}
@@ -191,39 +191,9 @@ const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &t) cons
 	const Geometry *closest(0);
 	for (int i = 0; i < node->objCount; i++)
 	{
-		if (node->objects[i]->hit(ray, t))
+		if (node->objects[i]->hit(ray, t, ii))
 			closest = node->objects[i];
 	}
 	
 	return closest;
-}
-
-size_t BVH::gatherAlong(const Ray &ray, float &t, Geometry **accum, float *distances, size_t maxObj) const
-{
-	size_t start = 0;
-	innerGather(root, ray, t, accum, distances, start, maxObj);
-	return start;
-}
-
-void BVH::innerGather(BVHNode *node, const Ray &ray, float &t, Geometry **accum, float *distances, size_t &startIdx, size_t maxObj) const
-{
-	if (!node->aabb.hit(ray, t) || startIdx == maxObj)
-		return;
-
-	if (!node->isLeaf)
-	{
-		innerGather(node->left, ray, t, accum, distances, startIdx, maxObj);
-		innerGather(node->right, ray, t, accum, distances, startIdx, maxObj);
-		return;
-	}
-
-	for (int i = 0; i < node->objCount; i++)
-	{
-		float dist = t;
-		if (node->objects[i]->hit(ray, dist))
-		{
-			accum[startIdx] = node->objects[i];
-			distances[startIdx++] = dist;
-		}
-	}
 }

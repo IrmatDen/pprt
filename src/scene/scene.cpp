@@ -166,7 +166,8 @@ void Scene::render()
 				imgData[FI_RGBA_ALPHA]	= BYTE(pixelsData[3]);
 			}
 		}
-
+		
+		img.flipVertical();
 		img.save(displayName.c_str());
 	}
 	else
@@ -185,7 +186,7 @@ void Scene::multithreadRender()
 
 void Scene::monothreadRender()
 {
-	const int blockSide = 16;
+	const int blockSide = 32;
 
 	int y = 0;
 	const int	maxY = (cam.getHeight() / blockSide) * blockSide,
@@ -245,7 +246,8 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 	ray.traceDepth++;
 
 	float t = 20000;
-	const Geometry *nearestObj = bvhRoot->findClosest(ray, t);
+	IntersectionInfo info;
+	const Geometry *nearestObj = bvhRoot->findClosest(ray, t, info);
 
 	if (!nearestObj)
 	{
@@ -262,13 +264,9 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 		return Color(1, 0, 1);
 	}
 
-	Point3 p = ray.origin + ray.direction() * t;
-	IntersectionInfo info;
-	nearestObj->fillIntersectionInfo(p, info);
-
 	CompiledShader shader(nearestObj->getShader(), true);
 	shader.setCurrentDepth(ray.traceDepth);
-	shader.setRTVarValueByIndex(CompiledShader::P, Vector3(p));
+	shader.setRTVarValueByIndex(CompiledShader::P, Vector3(info.point));
 	shader.setRTVarValueByIndex(CompiledShader::N, info.normal);
 	shader.setRTVarValueByIndex(CompiledShader::Ng, info.normal);
 	shader.setRTVarValueByIndex(CompiledShader::s, info.s);

@@ -16,13 +16,12 @@ public:
 	void	build(const Scene::Geometries &objects);
 	void	clear();
 
-	const Geometry*	findClosest(const Ray &ray, float &t) const;
-	size_t			gatherAlong(const Ray &ray, float &t, Geometry **accum, float *distances, size_t maxObj) const;
+	const Geometry*	findClosest(const Ray &ray, float &t, IntersectionInfo &ii) const;
 
 private:
 	struct _MM_ALIGN16 BVHNode
 	{
-		static const int MaxObjPerLeaf = 6;
+		static const int MaxObjPerLeaf = 1;
 
 		BVHNode() : isLeaf(false), left(0), right(0)	{}
 		~BVHNode()
@@ -77,8 +76,7 @@ private:
 	// Search for best axis to cut a given aabb
 	SplitAxis	bestNodeCut(const AABB &aabb, const Scene::Geometries &objects) const;
 
-	const Geometry*	innerTraverse(BVHNode *node, const Ray &ray, float &t) const;
-	void			innerGather(BVHNode *node, const Ray &ray, float &t, Geometry **accum, float *distances, size_t &startIdx, size_t maxObj) const;
+	const Geometry*	innerTraverse(BVHNode *node, const Ray &ray, float &t, IntersectionInfo &ii) const;
 
 private:
 	BVHNode *root;

@@ -6,10 +6,9 @@
 class Disk : public Geometry
 {
 public:
-	Disk(float radius = 1, const Point3 &position = Point3(0.f), const Vector3 &normal = Vector3::yAxis());
+	Disk(const Matrix4 &obj2world, float radius = 1, const Vector3 &normal = Vector3::yAxis());
 
-	virtual bool			hit(const Ray &ray, float &t) const;
-	virtual void			fillIntersectionInfo(const Point3 &p, IntersectionInfo &ii) const	{ ii.normal = this->n; }
+	virtual bool hit(const Ray &ray, float &t, IntersectionInfo &ii) const;
 
 private:
 	Vector3	n;

@@ -6,8 +6,9 @@ surface my_constant()
 
 surface surfaceNormals()
 {
+	vec3 Nf = faceforward(N, I);
 	Oi = Os;
-	Ci = Os * (N + 1) * 0.5;
+	Ci = Os * (Nf + 1) * 0.5;
 }
 
 surface diffuse_sample()

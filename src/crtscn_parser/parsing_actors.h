@@ -37,7 +37,7 @@ struct translate_a
 {
 	void operator()(const NonAlignedVec3 &vec) const
 	{
-		TransformStack::currentTransform = Matrix4::translation(vec) * TransformStack::currentTransform;
+		TransformStack::currentTransform = TransformStack::currentTransform * Matrix4::translation(vec);
 	}
 };
 
@@ -46,7 +46,7 @@ struct rotate_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		const Matrix4 rot = Matrix4::rotation(deg2rad(angleDegrees), normalize(axis));
-		TransformStack::currentTransform = rot * TransformStack::currentTransform;
+		TransformStack::currentTransform = TransformStack::currentTransform * rot;
 	}
 
 	static double	angleDegrees;
@@ -126,6 +126,9 @@ struct worldBegin_a
 		scene.camera().finalize(cm, TransformStack::currentTransform, aspect, deg2rad(CameraSettings::fov),
 								CameraSettings::resX, CameraSettings::resY, (float)CameraSettings::hither, (float)CameraSettings::yon,
 								screenExtents);
+
+		// Reset current transform
+		TransformStack::currentTransform = Matrix4::identity();
 	}
 };
 
@@ -273,7 +276,7 @@ struct newSphere_a
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
 		Point3 p = pos;
-		Geometry *g(memory::construct<Sphere>((float)radius, p));
+		Geometry *g(memory::construct<Sphere>(TransformStack::currentTransform, (float)radius));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
@@ -344,7 +347,7 @@ struct newDisk_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Geometry *g(memory::construct<Disk>((float)radius, pos, normalize(normal)));
+		Geometry *g(memory::construct<Disk>(TransformStack::currentTransform, (float)radius, normalize(normal)));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));

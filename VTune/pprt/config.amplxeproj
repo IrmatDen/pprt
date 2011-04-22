@@ -100,7 +100,7 @@
        <context>
         <contextValue>
          <id>allowMultipleRuns</id>
-         <value type="bool">false</value>
+         <value type="bool">true</value>
         </contextValue>
         <contextValue>
          <id>dataLimit</id>
@@ -144,6 +144,11 @@
     <category type="u8_t">3</category>
     <searchDirectory>
      <name>f:\src\crt_vs2010\src\shadervm</name>
+     <recursive type="bool">false</recursive>
+     <priority type="bool">false</priority>
+    </searchDirectory>
+    <searchDirectory>
+     <name>f:\src\pprt\src\scene</name>
      <recursive type="bool">false</recursive>
      <priority type="bool">false</priority>
     </searchDirectory>

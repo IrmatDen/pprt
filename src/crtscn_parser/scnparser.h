@@ -132,13 +132,17 @@ namespace ScnParser
 								 )[newPointLight_a(self.scene)];
 				
 				// Transformations (RiSpec 3.2, §4.3)
-					transform = identity | translate | rotate;
+					transform	= identity | translate | rotate
+								| transformBegin | transformEnd;
 
 					identity	=	str_p("Identity") [identity_a()];
 					translate	=	"Translate" >> +blank_p >> vec3_p[translate_a()];
 					rotate		=	("Rotate" >> +blank_p >> real_p [assign_a(rotate_a::angleDegrees)]
 											  >> +blank_p >> vec3_p [assign_a(rotate_a::axis)]
 									) [rotate_a()];
+
+					transformBegin	= str_p("TransformBegin")	[transformBegin_a()];
+					transformEnd	= str_p("TransformEnd")		[transformEnd_a()];
 
 				// Geometry definitions
 					geometries =	sphere
@@ -199,7 +203,7 @@ namespace ScnParser
 			rule<ScannerT> scene, background;
 			rule<ScannerT> graphicsState, color, opacity;
 			rule<ScannerT> lights, pointLight;
-			rule<ScannerT> transform, identity, translate, rotate;
+			rule<ScannerT> transform, identity, translate, rotate, transformBegin, transformEnd;
 			rule<ScannerT> geometries, sphere, plane, disk;
 			rule<ScannerT> materialName;
 			rule<ScannerT> shaderParams;

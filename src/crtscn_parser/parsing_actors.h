@@ -18,12 +18,14 @@ inline float deg2rad(T deg) { return static_cast<float>(deg * 0.01745329252); }
 
 struct TransformStack
 {
-	static std::stack<Matrix4>	stack;
-	static Matrix4				currentTransform;
+	typedef std::stack<Matrix4, std::deque<Matrix4, memory::AllocAlign16<Matrix4>>> XformStack;
+
+	static XformStack	stack;
+	static Matrix4		currentTransform;
 };
 
-std::stack<Matrix4>	TransformStack::stack;
-Matrix4				TransformStack::currentTransform(Matrix4::identity());
+TransformStack::XformStack	TransformStack::stack;
+Matrix4						TransformStack::currentTransform(Matrix4::identity());
 
 struct identity_a
 {
@@ -55,6 +57,23 @@ struct rotate_a
 
 double	rotate_a::angleDegrees = 0.f;
 Vector3	rotate_a::axis;
+
+struct transformBegin_a
+{
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		TransformStack::stack.push(TransformStack::currentTransform);
+	}
+};
+
+struct transformEnd_a
+{
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		TransformStack::currentTransform = TransformStack::stack.top();
+		TransformStack::stack.pop();
+	}
+};
 
 //-----------------------------------------------------------------------------------------------------------
 

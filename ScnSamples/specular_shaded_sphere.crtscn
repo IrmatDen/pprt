@@ -12,15 +12,25 @@ WorldBegin
 	PointLight -4 -1.5 3 1 1 1
 	PointLight 10 0 -50 1 1 1
 
-	Translate 0 -0.8 5
-	Color 1 0 0
-	Sphere 1 "specular_sample" "roughness" 0.1
+	# All spheres are placed on Z = 5 plane
+	Translate 0 0 5
+	TransformBegin
+		Translate 0 -0.8 0
+		Color 1 0 0
+		Sphere 1 "specular_sample" "roughness" 0.1
+	TransformEnd
 
-	Translate -0.8 1.6 0
-	Color 0 1 0
-	Sphere 1 "specular_sample" "roughness" 0.05
+	# These 2 spheres are placed on Y = 0.8, Z = 5 line
+	Translate 0 0.8 0
+	TransformBegin
+		Translate -0.8 0 0
+		Color 0 1 0
+		Sphere 1 "specular_sample" "roughness" 0.05
+	TransformEnd
 
-	Translate 1.6 0 0
-	Color 0 0 1
-	Sphere 1 "specular_sample" "roughness" 0.005
+	TransformBegin
+		Translate 0.8 0 0
+		Color 0 0 1
+		Sphere 1 "specular_sample" "roughness" 0.005
+	TransformEnd
 WorldEnd

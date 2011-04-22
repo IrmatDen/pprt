@@ -1,3 +1,0 @@
-ShaderVM:
-> modifier les opérateurs binaires pour utiliser des paramètres et non la stack (modif lourde)
-> remplacer boost.variant par un wrapper sans cout additionnel (union mais comment ?)

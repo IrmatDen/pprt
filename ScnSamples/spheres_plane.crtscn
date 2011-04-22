@@ -1,7 +1,7 @@
 Option "searchpath" "shader" ["./samples_shaders:&"]
 Option "usethreads" [1]
 
-Display "spheres_plane.png" "file" "rgba"
+Display "spheres_plane.png" "framebuffer" "rgba"
 Format 800 600 1
 Projection "perspective" "fov" 45
 
@@ -14,21 +14,23 @@ WorldBegin
 	PointLight 4 0 -10 0.25 0.25 0.25
 	PointLight -4 0 -10 0.25 0.25 0.25
 
-	Translate 0 -1.25 -1
-	Color 1 1 1
-	Opacity 0.25 0.25 0.25
-	Sphere 1 "mix_sample"
+	AttributeBegin
+		Translate 0 -1.25 -1
+		Opacity 0.25 0.25 0.25
+		Surface "mix_sample"
+		Sphere 1
+	AttributeEnd
 
-	Opacity 1 1 1
+	AttributeBegin
+		Surface "reflect_sample"
+		
+		Translate -2 0.75 4
+		Sphere 0.75
+		
+		Translate 4 -1.25 -1
+		Sphere 0.75
+	AttributeEnd
 
-	Color 1 1 1
-	Translate -2 0.75 4
-	Sphere 0.75 "plastic"
-	
-	Color 1 1 1
-	Translate 4 -1.25 -1
-	Sphere 0.75  "plastic"
-
-	Color 1 1 1
-	Plane 0 1 0 -2.5 "plastic"
+	Surface "plastic"
+	Plane 0 1 0 -2.5
 WorldEnd

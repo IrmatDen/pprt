@@ -15,143 +15,150 @@ WorldBegin
 	PointLight -4   -1.5 3  0.5 0.5 0.5
 	PointLight  4   -5   3  0.5 0.5 0.5
 	PointLight -1.5 -1   3  0.5 0.5 0.5
+	
+	AttributeBegin
+		Surface "matte"
+		Opacity 0.25 0.25 0.25
 
-	Opacity 0.25 0.25 0.25
-	
-	Color 0 1 1
-	TransformBegin
-		Translate 0 -1 0
-		
-		TransformBegin
-			Translate 0 0 5
-			
-			Sphere 1 "matte"
+		AttributeBegin
+			Color 0 1 1
 			
 			TransformBegin
-				Translate 3 0 0
-				Sphere 1 "matte"
+				Translate 0 -1 0
 				
-				Translate 3 0 0
-				Sphere 1 "matte"
-			TransformEnd
-		TransformEnd
-		
-		TransformBegin
-			Translate 0 0 11
-			
-			Sphere 1 "matte"
-			
-			TransformBegin
-				Translate 3 0 0
-				Sphere 1 "matte"
+				TransformBegin
+					Translate 0 0 5
+					
+					Sphere 1
+					
+					TransformBegin
+						Translate 3 0 0
+						Sphere 1
+						
+						Translate 3 0 0
+						Sphere 1
+					TransformEnd
+				TransformEnd
 				
-				Translate 3 0 0
-				Sphere 1 "matte"
+				TransformBegin
+					Translate 0 0 11
+					
+					Sphere 1
+					
+					TransformBegin
+						Translate 3 0 0
+						Sphere 1
+						
+						Translate 3 0 0
+						Sphere 1
+					TransformEnd
+				TransformEnd
 			TransformEnd
-		TransformEnd
-	TransformEnd
-	
-	TransformBegin
-		Translate 0 1 0
-		
-		TransformBegin
-			Translate 0 0 5
-			
-			Sphere 1 "matte"
 			
 			TransformBegin
-				Translate 3 0 0
-				Sphere 1 "matte"
+				Translate 0 1 0
 				
-				Translate 3 0 0
-				Sphere 1 "matte"
-			TransformEnd
-		TransformEnd
-		
-		TransformBegin
-			Translate 0 0 11
-			
-			Sphere 1 "matte"
-			
-			TransformBegin
-				Translate 3 0 0
-				Sphere 1 "matte"
+				TransformBegin
+					Translate 0 0 5
+					
+					Sphere 1
+					
+					TransformBegin
+						Translate 3 0 0
+						Sphere 1
+						
+						Translate 3 0 0
+						Sphere 1
+					TransformEnd
+				TransformEnd
 				
-				Translate 3 0 0
-				Sphere 1 "matte"
+				TransformBegin
+					Translate 0 0 11
+					
+					Sphere 1
+					
+					TransformBegin
+						Translate 3 0 0
+						Sphere 1
+						
+						Translate 3 0 0
+						Sphere 1
+					TransformEnd
+				TransformEnd
 			TransformEnd
-		TransformEnd
-	TransformEnd
-	
-	Color 1 0 0
-	TransformBegin
-		Translate 0 -1 0
+		AttributeEnd
 		
-		TransformBegin
-			Translate 0 0 7
-			
-			Sphere 1 "matte"
+		AttributeBegin
+			Color 1 0 0
 			
 			TransformBegin
-				Translate 6 0 0
-				Sphere 1 "matte"
-			TransformEnd
-		TransformEnd
-		
-		TransformBegin
-			Translate 0 0 11
-			
-			Sphere 1 "matte"
-			
-			TransformBegin
-				Translate 3 0 0
-				Sphere 1 "matte"
+				Translate 0 -1 0
 				
-				Translate 3 0 0
-				Sphere 1 "matte"
-			TransformEnd
-		TransformEnd
-	TransformEnd
-	
-	TransformBegin
-		Translate 0 1 0
-		
-		TransformBegin
-			Translate 0 0 7
-			
-			Sphere 1 "matte"
-			
-			TransformBegin
-				Translate 6 0 0
-				Sphere 1 "matte"
-			TransformEnd
-		TransformEnd
-		
-		TransformBegin
-			Translate 0 0 11
-			
-			Sphere 1 "matte"
-			
-			TransformBegin
-				Translate 3 0 0
-				Sphere 1 "matte"
+				TransformBegin
+					Translate 0 0 7
+					
+					Sphere 1
+					
+					TransformBegin
+						Translate 6 0 0
+						Sphere 1
+					TransformEnd
+				TransformEnd
 				
-				Translate 3 0 0
-				Sphere 1 "matte"
+				TransformBegin
+					Translate 0 0 11
+					
+					Sphere 1
+					
+					TransformBegin
+						Translate 3 0 0
+						Sphere 1
+						
+						Translate 3 0 0
+						Sphere 1
+					TransformEnd
+				TransformEnd
 			TransformEnd
-		TransformEnd
-	TransformEnd
+			
+			TransformBegin
+				Translate 0 1 0
+				
+				TransformBegin
+					Translate 0 0 7
+					
+					Sphere 1
+					
+					TransformBegin
+						Translate 6 0 0
+						Sphere 1
+					TransformEnd
+				TransformEnd
+				
+				TransformBegin
+					Translate 0 0 11
+					
+					Sphere 1
+					
+					TransformBegin
+						Translate 3 0 0
+						Sphere 1
+						
+						Translate 3 0 0
+						Sphere 1
+					TransformEnd
+				TransformEnd
+			TransformEnd
+		AttributeEnd
+	AttributeEnd
 
-	Opacity 1 1 1
-	Color 1 1 1
-
+	Surface "reflect_sample"
 	Translate 3 0 0
 	TransformBegin
 		Translate 0 0 7
-		Sphere 1 "reflect_sample"
+		Sphere 1
 	TransformEnd
 	TransformBegin
 		Translate 0 0 9
-		Sphere 1 "reflect_sample"
+		Sphere 1
 	TransformEnd
 WorldEnd

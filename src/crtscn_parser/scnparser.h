@@ -68,7 +68,7 @@ namespace ScnParser
 			{
 				// Generic rules
 					ending			= *blank_p >> !comment >> eol_p; 
-					string			= confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
+					quotedString	= confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
 					foldername		= '&' | +(alnum_p | '.' | ":/" | '/' | '_' | '-');
 					foldersArray	= "[\"" >> list_p(foldername[push_back_a(_strVector)], ':') >> "\"]";
 					singleBoolArray	= "[" >> bool_p [assign_a(_bool)] >> "]";
@@ -101,9 +101,9 @@ namespace ScnParser
 					displays =	display;
 
 					display =	"Display" >> +blank_p >>
-								string	[bind(&Scene::setDisplayName, &self.scene, boost::cref(_str))]	>> +blank_p >>	// name
-								string	[displayType_a(self.scene)] >> +blank_p >>										// type
-								string;																					// mode
+								quotedString	[bind(&Scene::setDisplayName, &self.scene, boost::cref(_str))]	>> +blank_p >>	// name
+								quotedString	[displayType_a(self.scene)] >> +blank_p >>										// type
+								quotedString;																					// mode
 
 				// Options (RiSpec 3.2, §4.1.4)
 					option = "Option" >> +blank_p >> (searchpath | usethreads);
@@ -115,15 +115,25 @@ namespace ScnParser
 							  
 
 				// Scene definition
-					scene =		background;
+					scene	= background;
 
 					background = "Background" >> +blank_p >> color_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
 
 				// Graphics state
-					graphicsState = color | opacity;
+					graphicsState = attributeBegin | attributeEnd | color | opacity | surface;
+
+					attributeBegin	= str_p("AttributeBegin")	[attributeBegin_a()];
+					attributeEnd	= str_p("AttributeEnd")		[attributeEnd_a()];
 					
-					color	= ("Color" >> +blank_p >> color_p[assign_a(currentColorOpa_a::color)]);
-					opacity	= ("Opacity" >> +blank_p >> color_p[assign_a(currentColorOpa_a::opacity)]);
+					color	= ("Color"		>> +blank_p >> color_p[assign_a(GraphicStateStack::current._color)]);
+					opacity	= ("Opacity"	>> +blank_p >> color_p[assign_a(GraphicStateStack::current._opacity)]);
+					
+					shaderParams =	(	quotedString [assign_a(shaderParams_a::paramName, _str)] >> +blank_p >>
+										(color_p[shaderParams_a()] | real_p[shaderParams_a()])
+									) % blank_p;
+					surface	=	"Surface" >> +blank_p >>
+								quotedString [assign_a(GraphicStateStack::current.surfaceShader, _str)] >>
+								!(+blank_p >> shaderParams [activateCurrentShaderParams_a()]);
 
 				// Lights definitions
 					lights = pointLight;
@@ -137,8 +147,8 @@ namespace ScnParser
 
 					identity	=	str_p("Identity") [identity_a()];
 					translate	=	"Translate" >> +blank_p >> vec3_p[translate_a()];
-					rotate		=	("Rotate" >> +blank_p >> real_p [assign_a(rotate_a::angleDegrees)]
-											  >> +blank_p >> vec3_p [assign_a(rotate_a::axis)]
+					rotate		=	("Rotate"	>> +blank_p >> real_p [assign_a(rotate_a::angleDegrees)]
+												>> +blank_p >> vec3_p [assign_a(rotate_a::axis)]
 									) [rotate_a()];
 
 					transformBegin	= str_p("TransformBegin")	[transformBegin_a()];
@@ -148,31 +158,18 @@ namespace ScnParser
 					geometries =	sphere
 								|	plane
 								|	disk;
-					sphere	=	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)] >> +blank_p >>
-															string[assign_a(newSphere_a::matName, _str)] >>
-															!(+blank_p >> shaderParams)
-								)[newSphere_a(self.scene)];
+
+					sphere	=	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)]
+								) [newSphere_a(self.scene)];
 
 					plane	= 	(	"Plane" >> +blank_p >>	vec3_p[assign_a(newPlane_a::normal)] >> +blank_p >>
-															real_p[assign_a(newPlane_a::offset)] >> +blank_p >>
-															!("TwoSided" >> +blank_p)[assign_a(newPlane_a::twoSided, true)] >>
-															string[assign_a(newPlane_a::matName, _str)] >>
-															!(+blank_p >> shaderParams)
-								)[newPlane_a(self.scene)];
+															real_p[assign_a(newPlane_a::offset)]
+								) [newPlane_a(self.scene)];
 
-					disk	= 	(	"Disk" >> +blank_p >> real_p[assign_a(newDisk_a::radius)] >> +blank_p >>
-														  vec3_p[assign_a(newDisk_a::pos)] >> +blank_p >>
-														  vec3_p[assign_a(newDisk_a::normal)] >> +blank_p >>
-														  string[assign_a(newDisk_a::matName, _str)] >>
-														  !(+blank_p >> shaderParams)
-								)[newDisk_a(self.scene)];
-
-				// Material-related rules
-					materialName = +(alnum_p | '_');
-					shaderParams =	(
-										'"' >> (+(alnum_p | '_'))[assign_a(shaderParams_a::paramName)] >> '"' >> +blank_p >>
-										(color_p[shaderParams_a()] | real_p[shaderParams_a()])
-									) % blank_p;
+					disk	= 	(	"Disk" >> +blank_p >> real_p[assign_a(newDisk_a::radius)]	>> +blank_p >>
+														  vec3_p[assign_a(newDisk_a::pos)]		>> +blank_p >>
+														  vec3_p[assign_a(newDisk_a::normal)]	>> +blank_p
+								) [newDisk_a(self.scene)];
 				
 				// Grammar line definition & root.
 					element =	  option
@@ -190,9 +187,9 @@ namespace ScnParser
 
 			const rule<ScannerT>& start() const	{ return base_expression; }
 
-			// Generic types
+			// General types
 			rule<ScannerT> ending;
-			rule<ScannerT> string, foldername, foldersArray, singleBoolArray;
+			rule<ScannerT> quotedString, foldername, foldersArray, singleBoolArray;
 			rule<ScannerT> comment;
 
 			// Specific elements
@@ -201,12 +198,10 @@ namespace ScnParser
 			rule<ScannerT> camera, format, projection, perspProj, orthoProj, clipping;
 			rule<ScannerT> displays, display;
 			rule<ScannerT> scene, background;
-			rule<ScannerT> graphicsState, color, opacity;
+			rule<ScannerT> graphicsState, attributeBegin, attributeEnd, color, opacity, shaderParams, surface;
 			rule<ScannerT> lights, pointLight;
 			rule<ScannerT> transform, identity, translate, rotate, transformBegin, transformEnd;
 			rule<ScannerT> geometries, sphere, plane, disk;
-			rule<ScannerT> materialName;
-			rule<ScannerT> shaderParams;
 
 			// General description
 			rule<ScannerT> element, statement, base_expression;

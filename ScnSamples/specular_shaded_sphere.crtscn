@@ -17,7 +17,8 @@ WorldBegin
 	TransformBegin
 		Translate 0 -0.8 0
 		Color 1 0 0
-		Sphere 1 "specular_sample" "roughness" 0.1
+		Surface "specular_sample" "roughness" 0.1
+		Sphere 1
 	TransformEnd
 
 	# These 2 spheres are placed on Y = 0.8, Z = 5 line
@@ -25,12 +26,14 @@ WorldBegin
 	TransformBegin
 		Translate -0.8 0 0
 		Color 0 1 0
-		Sphere 1 "specular_sample" "roughness" 0.05
+		Surface "specular_sample" "roughness" 0.05
+		Sphere 1
 	TransformEnd
 
 	TransformBegin
 		Translate 0.8 0 0
 		Color 0 0 1
-		Sphere 1 "specular_sample" "roughness" 0.005
+		Surface "specular_sample" "roughness" 0.005
+		Sphere 1
 	TransformEnd
 WorldEnd

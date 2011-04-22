@@ -8,5 +8,6 @@ Clipping 0.1 1000
 
 WorldBegin
 	Translate 0 0 5
-	Sphere 1.5 "surfaceNormals"
+	Surface "surfaceNormals"
+	Sphere 1.5
 WorldEnd

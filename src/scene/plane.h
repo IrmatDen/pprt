@@ -6,8 +6,8 @@
 class Plane : public Geometry
 {
 public:
-	Plane(const Vector3 &normal = Vector3::yAxis(), float offset = 0, bool _oneSided = true)
-		: n(normal), d(offset), oneSided(_oneSided)
+	Plane(const Vector3 &normal = Vector3::yAxis(), float offset = 0)
+		: n(normal), d(offset)
 	{
 		objectToWorld.setTranslation(d * n);
 		worldToObject = inverse(objectToWorld);
@@ -27,7 +27,6 @@ private:
 protected:
 	Vector3		n;
 	float		d;
-	bool		oneSided;
 };
 
 #endif

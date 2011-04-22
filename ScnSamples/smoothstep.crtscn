@@ -12,6 +12,7 @@ Background 0 0 0
 
 WorldBegin
 	Translate 0 0 5
-	Sphere 1 "smoothstep_sample"
+	Surface "smoothstep_sample"
+	Sphere 1
 WorldEnd
 

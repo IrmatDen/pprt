@@ -11,6 +11,8 @@ AABB::AABB()
 
 bool AABB::hit(const Ray &ray, const float &t) const
 {
+	// From tbp's Radius code: http://cvs.gna.org/cvsweb/radius/src/rt_render_packet.cc?rev=1.3;cvsroot=radius#l382
+
 	const __m128
 		xl1 = mulps(ray.invDir.getX().get128(), subps(_min.getX().get128(), ray.origin.getX().get128())),
 		xl2 = mulps(ray.invDir.getX().get128(), subps(_max.getX().get128(), ray.origin.getX().get128())),

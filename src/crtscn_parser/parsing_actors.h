@@ -78,6 +78,85 @@ struct transformEnd_a
 //-----------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------------------------------------
+// Graphics state
+
+struct shaderParams_a
+{
+	void operator()(const Color &col) const
+	{
+		params.push_back(ShaderParam(paramName, PT_Color, col));
+		paramName="";
+	}
+	
+	void operator()(double d) const
+	{
+		params.push_back(ShaderParam(paramName, PT_Float, (float)d));
+		paramName="";
+	}
+
+	static std::string	paramName;
+	static ShaderParams	params;
+};
+std::string		shaderParams_a::paramName;
+ShaderParams	shaderParams_a::params;
+
+struct GraphicState
+{
+	GraphicState()
+		:	_color(1,1,1), _opacity(1,1,1)
+	{}
+
+	Color	_color;
+	Color	_opacity;
+	
+	ShaderParams	shaderParams;
+	std::string		surfaceShader;
+};
+
+struct GraphicStateStack
+{
+	typedef std::stack<GraphicState, std::deque<GraphicState, memory::AllocAlign16<GraphicState>>> Stack;
+
+	static Stack		stateStack;
+	static GraphicState	current;
+};
+
+GraphicStateStack::Stack	GraphicStateStack::stateStack;
+GraphicState				GraphicStateStack::current;
+
+struct activateCurrentShaderParams_a
+{
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		GraphicStateStack::current.shaderParams = shaderParams_a::params;
+		shaderParams_a::params.swap(ShaderParams());
+	}
+};
+
+struct attributeBegin_a
+{
+	void operator()(const iterator_t &s, const iterator_t &e) const
+	{
+		transformBegin_a()(s, e);
+
+		GraphicStateStack::stateStack.push(GraphicStateStack::current);
+	}
+};
+
+struct attributeEnd_a
+{
+	void operator()(const iterator_t &s, const iterator_t &e) const
+	{
+		transformBegin_a()(s, e);
+
+		GraphicStateStack::current = GraphicStateStack::stateStack.top();
+		GraphicStateStack::stateStack.pop();
+	}
+};
+
+//-----------------------------------------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------------------------------------
 // CameraSettings holder
 
 struct CameraSettings
@@ -227,34 +306,6 @@ struct displayType_a
 //-----------------------------------------------------------------------------------------------------------
 // Material actors
 
-struct shaderParams_a
-{
-	void operator()(const Color &col) const
-	{
-		params.push_back(ShaderParam(paramName, PT_Color, col));
-		paramName="";
-	}
-	
-	void operator()(double d) const
-	{
-		params.push_back(ShaderParam(paramName, PT_Float, (float)d));
-		paramName="";
-	}
-
-	static std::string	paramName;
-	static ShaderParams params;
-};
-std::string		shaderParams_a::paramName;
-ShaderParams	shaderParams_a::params;
-
-struct currentColorOpa_a
-{
-	static Color		color;
-	static Color		opacity;
-};
-Color currentColorOpa_a::color(1,1,1);
-Color currentColorOpa_a::opacity(1,1,1);
-
 //-----------------------------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------------------------
@@ -294,30 +345,21 @@ struct newSphere_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Point3 p = pos;
 		Geometry *g(memory::construct<Sphere>(TransformStack::currentTransform, (float)radius));
-		g->setColor(currentColorOpa_a::color);
-		g->setOpacity(currentColorOpa_a::opacity);
-		g->setShader(scene.shaderManager.instanciate(matName));
-		g->setShaderParams(shaderParams_a::params);
+		g->setColor(GraphicStateStack::current._color);
+		g->setOpacity(GraphicStateStack::current._opacity);
+		g->setShader(scene.shaderManager.instanciate(GraphicStateStack::current.surfaceShader));
+		g->setShaderParams(GraphicStateStack::current.shaderParams);
 		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
-		pos = Point3(0);
 		radius = 0;
-		matName = "";
-
-		shaderParams_a::params = ShaderParams();
 	}
 
 	Scene			&	scene;
 	static double		radius;
-	static Point3		pos;
-	static std::string	matName;
 };
 double		newSphere_a::radius;
-Point3		newSphere_a::pos;
-std::string	newSphere_a::matName;
 
 
 
@@ -329,32 +371,24 @@ struct newPlane_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Geometry *g(memory::construct<Plane>(normalize(normal), (float)offset, !twoSided));
-		g->setColor(currentColorOpa_a::color);
-		g->setOpacity(currentColorOpa_a::opacity);
-		g->setShader(scene.shaderManager.instanciate(matName));
-		g->setShaderParams(shaderParams_a::params);
+		Geometry *g(memory::construct<Plane>(normalize(normal), (float)offset));
+		g->setColor(GraphicStateStack::current._color);
+		g->setOpacity(GraphicStateStack::current._opacity);
+		g->setShader(scene.shaderManager.instanciate(GraphicStateStack::current.surfaceShader));
+		g->setShaderParams(GraphicStateStack::current.shaderParams);
 		scene.addGeometry(g);
 
 		// Reset fields to allow for defaults
 		normal = Vector3(0);
 		offset = 0;
-		twoSided = false;
-		matName = "";
-
-		shaderParams_a::params = ShaderParams();
 	}
 
 	Scene			&	scene;
 	static Vector3		normal;
 	static double		offset;
-	static bool			twoSided;
-	static std::string	matName;
 };
 Vector3		newPlane_a::normal;
 double		newPlane_a::offset;
-bool		newPlane_a::twoSided;
-std::string	newPlane_a::matName;
 
 
 
@@ -366,7 +400,7 @@ struct newDisk_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Geometry *g(memory::construct<Disk>(TransformStack::currentTransform, (float)radius, normalize(normal)));
+		/*Geometry *g(memory::construct<Disk>(TransformStack::currentTransform, (float)radius, normalize(normal)));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));
@@ -379,7 +413,7 @@ struct newDisk_a
 		normal = Vector3(0);
 		matName = "";
 
-		shaderParams_a::params = ShaderParams();
+		shaderParams_a::params = ShaderParams();*/
 	}
 
 	Scene			&	scene;

@@ -170,20 +170,25 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 	}
 }
 
-const Geometry* BVH::findClosest(const Ray &ray, float &t, IntersectionInfo &ii) const
+const Geometry* BVH::findClosest(const Ray &ray, IntersectionInfo &ii) const
 {
-	return innerTraverse(root, ray, t, ii);
+	float tmin, tmax;
+	return innerTraverse(root, ray, tmin, tmax, ii);
 }
 
-const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &t, IntersectionInfo &ii) const
+const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &tmin, float &tmax, IntersectionInfo &ii) const
 {
-	if (!node->aabb.hit(ray, t))
+	float thisMin, thisMax;
+	if (!node->aabb.hit(ray, thisMin, thisMax) || ray.maxT < thisMin || ray.minT > thisMax)
 		return 0;
+
+	tmin = thisMin;
+	tmax = thisMax;
 
 	if (!node->isLeaf)
 	{
-		const Geometry *lResult(innerTraverse(node->left, ray, t, ii));
-		const Geometry *rResult(innerTraverse(node->right, ray, t, ii));
+		const Geometry *lResult(innerTraverse(node->left, ray, tmin, tmax, ii));
+		const Geometry *rResult(innerTraverse(node->right, ray, tmin, tmax, ii));
 		
 		return rResult ? rResult : lResult;
 	}
@@ -191,8 +196,11 @@ const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &t, Inte
 	const Geometry *closest(0);
 	for (int i = 0; i < node->objCount; i++)
 	{
-		if (node->objects[i]->hit(ray, t, ii))
+		if (node->objects[i]->hit(ray, ii))
+		{
+			tmax = ray.maxT;
 			closest = node->objects[i];
+		}
 	}
 	
 	return closest;

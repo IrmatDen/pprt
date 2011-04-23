@@ -44,16 +44,17 @@ void ConvexPolygon::buildAABB()
 // "Generalized Barycentric Coordinates on Irregular Polygons"
 // by Meyer et al. (2002)
 // Published in JGT Vol. 7, Nr 1, 2002
-bool ConvexPolygon::hit(const Ray &ray, float &t, IntersectionInfo &ii) const
+bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 {
 	Ray localRay(worldToObject * ray);
 
-	float dist;
-	if (!polyPlane.intersection(localRay, dist, ii.point) || dist > t || !aabb.hit(ray, dist))
+	float dist, bbMin;
+	Point3 pointInPlane;
+	if (!polyPlane.intersection(localRay, dist, pointInPlane) || dist > ray.maxT || !aabb.hit(ray, bbMin, dist))
 		return false;
 
-	t = dist;
-	ii.point	= Point3((objectToWorld * ii.point).get128());
+	ray.maxT	= dist;
+	ii.point	= Point3((objectToWorld * pointInPlane).get128());
 	ii.normal	= polyPlane.n;
 
 	return true;

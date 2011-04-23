@@ -27,14 +27,15 @@ surface reflect_sample(
 						real Ka = 1;
 						real Kd = 0.5;
 						real Ks = 0.5;
-						real roughness = 0.1;)
+						real roughness = 0.1;
+						real reflectStrengh = 1;)
 {
 	vec3 Nf = faceforward(normalize(N), I);
 	vec3 V = -normalize(I);
 	vec3 r = reflect(I, Nf);
 	color lighting = Ka * ambient() + Kd * diffuse(Nf) + Ks * specular(Nf, V, roughness);
 	Oi = Os;
-	Ci = Os * Cs * lighting + trace(P, r);
+	Ci = Os * Cs * ((1 - reflectStrengh) * lighting + trace(P, r) * reflectStrengh);
 }
 
 surface matte_opa(real Ka = 1;

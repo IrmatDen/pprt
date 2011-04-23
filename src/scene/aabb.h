@@ -8,7 +8,7 @@ class _MM_ALIGN16 AABB
 public:
 	AABB();
 
-	bool	hit(const Ray &ray, const float &t) const;
+	bool	hit(const Ray &ray, float &tmin, float &tmax) const;
 
 	float	distanceTo(const AABB &other) const;
 	float	surfaceArea() const;

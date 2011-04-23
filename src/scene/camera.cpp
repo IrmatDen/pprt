@@ -67,4 +67,6 @@ void Camera::project(float x, float y, Ray &r) const
 
 	r.origin = Point3((CamToWorld * rayOrigin).get128());
 	r.setDirection(Vector3((CamToWorld * rayDirection).get128()));
+	r.minT = nearClip;
+	r.maxT = farClip;
 }

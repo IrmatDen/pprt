@@ -146,11 +146,11 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseFullDebugInfo|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <PreprocessorDefinitions>__SSE__;WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;BOOST_EXCEPTION_DISABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;__SSE__;WIN32;NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;BOOST_EXCEPTION_DISABLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <StructMemberAlignment>16Bytes</StructMemberAlignment>

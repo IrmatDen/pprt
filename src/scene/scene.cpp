@@ -245,9 +245,10 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 	}
 	ray.traceDepth++;
 
-	float t = 20000;
+	const float prevMaxT = ray.maxT;
+
 	IntersectionInfo info;
-	const Geometry *nearestObj = bvhRoot->findClosest(ray, t, info);
+	const Geometry *nearestObj = bvhRoot->findClosest(ray, info);
 
 	if (!nearestObj)
 	{
@@ -281,7 +282,8 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 	if (isOpaque(Oi))
 		return Ci;
 
-	ray.origin += ray.direction() * (t + 0.001f);
+	ray.origin = info.point + (ray.direction() * 0.001f);
+	ray.maxT = prevMaxT - ray.maxT;
 
 	bool nextHit;
 	const Color nextColor = traceNoDepthMod(ray, nextHit, Oi);
@@ -323,6 +325,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 			continue;
 		}
 
+		ray.maxT = t;
 		ray.setDirection(L2P);
 		bool hit;
 		Color opacity(all_zero());

@@ -15,7 +15,7 @@ public:
 	// Point array ownership is transferred to the polygon.
 	void setPoints(size_t pointsCount, Point3 *pointArray);
 
-	virtual bool hit(const Ray &ray, float &t, IntersectionInfo &ii) const;
+	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
 
 private:
 	void buildAABB();

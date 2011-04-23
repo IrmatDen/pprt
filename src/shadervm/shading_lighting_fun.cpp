@@ -56,6 +56,8 @@ void CompiledShader::trace()
 	r.origin += r.direction() * 0.001f;
 	
 	r.traceDepth = currentDepth;
+	r.minT = 0.f;
+	r.maxT = 20000.f;
 
 	static bool dummy;
 	Color out = scene->trace(r, dummy);

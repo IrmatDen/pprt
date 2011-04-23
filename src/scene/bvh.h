@@ -16,7 +16,7 @@ public:
 	void	build(const Scene::Geometries &objects);
 	void	clear();
 
-	const Geometry*	findClosest(const Ray &ray, float &t, IntersectionInfo &ii) const;
+	const Geometry*	findClosest(const Ray &ray, IntersectionInfo &ii) const;
 
 private:
 	struct _MM_ALIGN16 BVHNode
@@ -76,7 +76,7 @@ private:
 	// Search for best axis to cut a given aabb
 	SplitAxis	bestNodeCut(const AABB &aabb, const Scene::Geometries &objects) const;
 
-	const Geometry*	innerTraverse(BVHNode *node, const Ray &ray, float &t, IntersectionInfo &ii) const;
+	const Geometry*	innerTraverse(BVHNode *node, const Ray &ray, float &tmin, float &tmax, IntersectionInfo &ii) const;
 
 private:
 	BVHNode *root;

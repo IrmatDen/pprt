@@ -9,7 +9,7 @@ AABB::AABB()
 {
 }
 
-bool AABB::hit(const Ray &ray, const float &t) const
+bool AABB::hit(const Ray &ray, float &tmin, float &tmax) const
 {
 	// From tbp's Radius code: http://cvs.gna.org/cvsweb/radius/src/rt_render_packet.cc?rev=1.3;cvsroot=radius#l382
 
@@ -42,6 +42,9 @@ bool AABB::hit(const Ray &ray, const float &t) const
 	lmin = maxps(minps(zl1b,zl2b), lmin);
 	
 	const bool hit = !mask_all(orps(cmpltps(lmax, all_zero()),cmpgtps(lmin, lmax)));
+	storess(lmin, &tmin);
+	storess(lmax, &tmax);
+
 	return hit;
 }
 

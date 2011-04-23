@@ -7,9 +7,20 @@
 class _MM_ALIGN16 Ray
 {
 public:
-	Ray():traceDepth(0) {}
-	Ray(const Point3 &o, const Vector3 &d)	: origin(o),		dir(d),		invDir(recipPerElem(dir)),	traceDepth(0)				{}
-	Ray(const Ray &r)						: origin(r.origin), dir(r.dir), invDir(r.invDir),			traceDepth(r.traceDepth)	{}
+	Ray()
+		: traceDepth(0), minT(0.f), maxT(0.f)
+	{
+	}
+	Ray(const Point3 &o, const Vector3 &d)
+		:	origin(o), dir(d), invDir(recipPerElem(dir)),
+			traceDepth(0), minT(0.f), maxT(0.f)
+	{
+	}
+	Ray(const Ray &r)
+		:	origin(r.origin), dir(r.dir), invDir(r.invDir),
+			traceDepth(r.traceDepth), minT(r.minT), maxT(r.maxT)
+	{
+	}
 
 	const Vector3&	direction() const				{ return dir; }
 	void			setDirection(const Vector3 &d)	{ dir = d; invDir = recipPerElem(dir); }
@@ -17,7 +28,9 @@ public:
 public:
 	Point3	origin;
 	Vector3	invDir;
-	int		traceDepth;
+	
+	mutable int		traceDepth;
+	mutable float	minT, maxT;
 
 private:
 	Vector3	dir;

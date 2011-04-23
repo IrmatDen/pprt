@@ -2,7 +2,7 @@
 
 #include "sphere.h"
 
-bool Sphere::hit(const Ray &ray, float &t, IntersectionInfo &ii) const
+bool Sphere::hit(const Ray &ray, IntersectionInfo &ii) const
 {
 	// Make a vector to avoid Point -> Vector casting below
 	const Point3 localRayOrigin((worldToObject * ray.origin).get128());
@@ -30,20 +30,20 @@ bool Sphere::hit(const Ray &ray, float &t, IntersectionInfo &ii) const
 	if (t0 > t1)
 		std::swap(t0, t1);
 
-	if (t0 > t || t1 < 0)
+	if (t0 > ray.maxT || t1 < 0)
 		return false;
 
 	float hit = t0;
 	if (t0 < 0)
 	{
 		hit = t1;
-		if (hit > t)
+		if (hit > ray.maxT)
 			return false;
 	}
-	t = hit;
+	ray.maxT = hit;
 
 	// Now that we have a hit fill the intersection info structure
-	const Point3 localHitP(localRayOrigin + t * localRayDir);
+	const Point3 localHitP(localRayOrigin + ray.maxT * localRayDir);
 
 	ii.point	= Point3((objectToWorld * localHitP).get128());
 	ii.normal	= Vector3(localHitP) * invr;

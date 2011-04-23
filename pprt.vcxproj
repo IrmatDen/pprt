@@ -196,12 +196,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\math\plane.cpp" />
     <ClCompile Include="src\scene\aabb.cpp" />
     <ClCompile Include="src\scene\bvh.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
     <ClCompile Include="src\scene\disk.cpp" />
     <ClCompile Include="src\scene\geometry.cpp" />
-    <ClCompile Include="src\scene\plane.cpp" />
+    <ClCompile Include="src\scene\convex_polygon.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\scene\sphere.cpp" />
     <ClCompile Include="src\shadervm\color_fun.cpp" />
@@ -228,6 +229,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\aligned_vector.h" />
+    <ClInclude Include="src\math\plane.h" />
     <ClInclude Include="src\memory.h" />
     <ClInclude Include="src\crtscn_parser\parsing_actors.h" />
     <ClInclude Include="src\crtscn_parser\scnparser.h" />
@@ -242,7 +244,7 @@
     <ClInclude Include="src\scene\geometry.h" />
     <ClInclude Include="src\scene\light.h" />
     <ClInclude Include="src\scene\pixel_store.h" />
-    <ClInclude Include="src\scene\plane.h" />
+    <ClInclude Include="src\scene\convex_polygon.h" />
     <ClInclude Include="src\scene\ray.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\sphere.h" />

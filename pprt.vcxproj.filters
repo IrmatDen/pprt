@@ -39,6 +39,12 @@
     <Filter Include="Grammar">
       <UniqueIdentifier>{99582c17-77bc-45d2-b2b2-9882d60cde1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\math">
+      <UniqueIdentifier>{e11926b6-b33d-4e20-912f-2e035c7d8082}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\math">
+      <UniqueIdentifier>{a7e29fb6-8ae4-4305-8d06-1f8b8a95d78e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -57,9 +63,6 @@
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\geometry.cpp">
-      <Filter>Source Files\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="src\scene\plane.cpp">
       <Filter>Source Files\Scene</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\scene.cpp">
@@ -107,6 +110,12 @@
     <ClCompile Include="src\shadervm\vmstack.cpp">
       <Filter>Source Files\ShaderVM</Filter>
     </ClCompile>
+    <ClCompile Include="src\scene\convex_polygon.cpp">
+      <Filter>Source Files\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="src\math\plane.cpp">
+      <Filter>Source Files\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\crtscn_parser\parsing_actors.h">
@@ -137,9 +146,6 @@
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\light.h">
-      <Filter>Header Files\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="src\scene\plane.h">
       <Filter>Header Files\Scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\ray.h">
@@ -210,6 +216,12 @@
     </ClInclude>
     <ClInclude Include="src\pprt_math.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\convex_polygon.h">
+      <Filter>Header Files\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\plane.h">
+      <Filter>Header Files\math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

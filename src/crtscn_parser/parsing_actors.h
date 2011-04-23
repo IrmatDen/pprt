@@ -259,7 +259,7 @@ struct ShaderPath
 			for (fs::directory_iterator it(folderName); it != fs::directory_iterator(); ++it)
 			{
 				fs::path p = it->path();
-				if (p.extension() == ".crtsl")
+				if (p.extension() == ".sl")
 				{
 					scene.shaderManager.loadFile(p.file_string());
 				}
@@ -337,7 +337,37 @@ Color	newPointLight_a::color;
 //-----------------------------------------------------------------------------------------------------------
 // Geometries actors
 
-#include "Sphere.h"
+#include "../scene/convex_polygon.h"
+struct newPolygon_a
+{
+	newPolygon_a(Scene &scn) : scene(scn) {}
+
+	void operator()(const iterator_t&, const iterator_t&) const
+	{
+		ConvexPolygon *poly = memory::construct<ConvexPolygon>(TransformStack::currentTransform);
+
+		const size_t npoints = points.size();
+
+		//! \todo Check that we have at least 3 points
+		Point3 *pointArray = memory::allocate<Point3>(npoints);
+		std::copy(points.begin(), points.end(), pointArray);
+		poly->setPoints(npoints, pointArray);
+
+		poly->setColor(GraphicStateStack::current._color);
+		poly->setOpacity(GraphicStateStack::current._opacity);
+		poly->setShader(scene.shaderManager.instanciate(GraphicStateStack::current.surfaceShader));
+		poly->setShaderParams(GraphicStateStack::current.shaderParams);
+
+		scene.addGeometry(poly);
+	}
+
+	Scene		&scene;
+	
+	static Vec3Array	points;
+};
+Vec3Array	newPolygon_a::points;
+
+#include "../scene/sphere.h"
 struct newSphere_a
 {
 	newSphere_a(Scene &scn) : scene(scn) {}
@@ -345,7 +375,7 @@ struct newSphere_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		Geometry *g(memory::construct<Sphere>(TransformStack::currentTransform, (float)radius));
+		Geometry *g = memory::construct<Sphere>(TransformStack::currentTransform, (float)radius);
 		g->setColor(GraphicStateStack::current._color);
 		g->setOpacity(GraphicStateStack::current._opacity);
 		g->setShader(scene.shaderManager.instanciate(GraphicStateStack::current.surfaceShader));
@@ -361,38 +391,7 @@ struct newSphere_a
 };
 double		newSphere_a::radius;
 
-
-
-#include "Plane.h"
-struct newPlane_a
-{
-	newPlane_a(Scene &scn) : scene(scn) {}
-	
-	//! \todo throw material or shader not found
-	void operator()(const iterator_t&, const iterator_t&) const
-	{
-		Geometry *g(memory::construct<Plane>(normalize(normal), (float)offset));
-		g->setColor(GraphicStateStack::current._color);
-		g->setOpacity(GraphicStateStack::current._opacity);
-		g->setShader(scene.shaderManager.instanciate(GraphicStateStack::current.surfaceShader));
-		g->setShaderParams(GraphicStateStack::current.shaderParams);
-		scene.addGeometry(g);
-
-		// Reset fields to allow for defaults
-		normal = Vector3(0);
-		offset = 0;
-	}
-
-	Scene			&	scene;
-	static Vector3		normal;
-	static double		offset;
-};
-Vector3		newPlane_a::normal;
-double		newPlane_a::offset;
-
-
-
-#include "Disk.h"
+#include "../scene/disk.h"
 struct newDisk_a
 {
 	newDisk_a(Scene &scn) : scene(scn) {}
@@ -400,7 +399,7 @@ struct newDisk_a
 	//! \todo throw material or shader not found
 	void operator()(const iterator_t&, const iterator_t&) const
 	{
-		/*Geometry *g(memory::construct<Disk>(TransformStack::currentTransform, (float)radius, normalize(normal)));
+		/*Geometry *g = memory::construct<Disk>(TransformStack::currentTransform, (float)radius, normalize(normal));
 		g->setColor(currentColorOpa_a::color);
 		g->setOpacity(currentColorOpa_a::opacity);
 		g->setShader(scene.shaderManager.instanciate(matName));

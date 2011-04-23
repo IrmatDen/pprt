@@ -33,6 +33,7 @@ struct NonAlignedVec3
 	operator Vector3() const	{ return Vector3(x, y, z); }
 	operator Point3() const		{ return Point3(x, y, z); }
 };
+typedef std::vector<NonAlignedVec3> Vec3Array;
 
 #include "parsing_actors.h"
 #include "../parser/type_parsers.h"
@@ -60,6 +61,8 @@ namespace ScnParser
 			int							_int;
 			std::string					_str;
 			std::vector<std::string>	_strVector;
+			NonAlignedVec3				_vec3;
+			Vec3Array					_pointVector;
 			ShaderPath					_shaderPaths;
 
 		public:
@@ -71,6 +74,8 @@ namespace ScnParser
 					quotedString	= confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
 					foldername		= '&' | +(alnum_p | '.' | ":/" | '/' | '_' | '-');
 					foldersArray	= "[\"" >> list_p(foldername[push_back_a(_strVector)], ':') >> "\"]";
+					vec3			= vec3_p [assign_a(_vec3)];
+					vec3Array		= "[" >> list_p(vec3 [push_back_a(_pointVector, _vec3)], ' ') >> "]";
 					singleBoolArray	= "[" >> bool_p [assign_a(_bool)] >> "]";
 
 				// Comment definition
@@ -155,16 +160,15 @@ namespace ScnParser
 					transformEnd	= str_p("TransformEnd")		[transformEnd_a()];
 
 				// Geometry definitions
-					geometries =	sphere
-								|	plane
+					geometries =	polygon
+								|	sphere
 								|	disk;
+
+					polygon =	(	"Polygon" >> +blank_p >> "\"P\"" >> +blank_p >> vec3Array [assign_a(newPolygon_a::points, _pointVector)]
+								) [newPolygon_a(self.scene)];
 
 					sphere	=	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)]
 								) [newSphere_a(self.scene)];
-
-					plane	= 	(	"Plane" >> +blank_p >>	vec3_p[assign_a(newPlane_a::normal)] >> +blank_p >>
-															real_p[assign_a(newPlane_a::offset)]
-								) [newPlane_a(self.scene)];
 
 					disk	= 	(	"Disk" >> +blank_p >> real_p[assign_a(newDisk_a::radius)]	>> +blank_p >>
 														  vec3_p[assign_a(newDisk_a::pos)]		>> +blank_p >>
@@ -189,7 +193,7 @@ namespace ScnParser
 
 			// General types
 			rule<ScannerT> ending;
-			rule<ScannerT> quotedString, foldername, foldersArray, singleBoolArray;
+			rule<ScannerT> quotedString, foldername, foldersArray, singleBoolArray, vec3, vec3Array;
 			rule<ScannerT> comment;
 
 			// Specific elements
@@ -201,7 +205,7 @@ namespace ScnParser
 			rule<ScannerT> graphicsState, attributeBegin, attributeEnd, color, opacity, shaderParams, surface;
 			rule<ScannerT> lights, pointLight;
 			rule<ScannerT> transform, identity, translate, rotate, transformBegin, transformEnd;
-			rule<ScannerT> geometries, sphere, plane, disk;
+			rule<ScannerT> geometries, polygon, sphere, plane, disk;
 
 			// General description
 			rule<ScannerT> element, statement, base_expression;

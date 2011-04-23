@@ -53,7 +53,7 @@ void CompiledShader::trace()
 	r.origin = Point3(execStack.pop<Vector3>());
 	r.setDirection(execStack.pop<Vector3>());
 	
-	r.origin += r.direction() * 0.0001f;
+	r.origin += r.direction() * 0.001f;
 	
 	r.traceDepth = currentDepth;
 

@@ -12,6 +12,7 @@
 #define addps				_mm_add_ps
 #define subps				_mm_sub_ps
 #define mulps				_mm_mul_ps
+#define divps				_mm_div_ps
 #define dotps(a,b)			_mm_dp_ps((a), (b), 0x71)
 #define sqrtps				_mm_sqrt_ps
 
@@ -46,14 +47,26 @@ namespace sse
 	static const __m128
 		plus_inf	= set1ps(flt_plus_inf),
 		minus_inf	= set1ps(-flt_plus_inf),
-		all_one		= set1ps(1.f);
+		all_one		= set1ps(1.f),
+		half		= set1ps(0.5f);
 
 	// From: http://markplusplus.wordpress.com/2007/03/14/fast-sse-select-operation/
-	inline __m128
-	fast_vecsel(const __m128& a, const __m128& b, const __m128& mask)
+	inline __m128 fast_vecsel(const __m128& a, const __m128& b, const __m128& mask)
 	{
 		// (((b ^ a) & mask)^a)
 		return xorps(a, andps(mask, xorps(b, a)));
+	}
+
+	inline __m128 negate(const __m128 &a)
+	{
+		return subps(all_zero(), a);
+	}
+
+	inline void unsafe_swap(__m128 &a, __m128 &b)
+	{
+		xorps(a, b);
+		xorps(b, a);
+		xorps(a, b);
 	}
 }
 

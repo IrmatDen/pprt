@@ -21,7 +21,7 @@ public:
 private:
 	struct _MM_ALIGN16 BVHNode
 	{
-		static const int MaxObjPerLeaf = 1;
+		static const int MaxObjPerLeaf = 4;
 
 		BVHNode() : isLeaf(false), left(0), right(0)	{}
 		~BVHNode()

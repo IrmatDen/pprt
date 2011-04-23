@@ -23,4 +23,13 @@ private:
 	Vector3	dir;
 };
 
+inline Ray operator*(const Matrix4 &xform, const Ray &r)
+{
+	Ray ret(r);
+	ret.origin = Point3((xform * r.origin).get128());
+	ret.setDirection(Vector3((xform * r.direction()).get128()));
+
+	return ret;
+}
+
 #endif

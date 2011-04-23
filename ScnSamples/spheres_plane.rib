@@ -15,7 +15,7 @@ WorldBegin
 	PointLight -4 0 -10 0.25 0.25 0.25
 
 	AttributeBegin
-		Translate 0 -1.25 -1
+		Translate 0 -1.5 -1
 		Opacity 0.25 0.25 0.25
 		Surface "mix_sample"
 		Sphere 1
@@ -27,10 +27,10 @@ WorldBegin
 		Translate -2 0.75 4
 		Sphere 0.75
 		
-		Translate 4 -1.25 -1
+		Translate 4 -1.75 -1
 		Sphere 0.75
 	AttributeEnd
 
 	Surface "plastic"
-	Polygon "P" [-6 -2.5 -8 -6 -2.5 8 6 -2.5 8 6 -2.5 -8]
+	Polygon "P" [-6 -2.5 -8   -6 -2.5 8   6 -2.5 8   6 -2.5 -8]
 WorldEnd

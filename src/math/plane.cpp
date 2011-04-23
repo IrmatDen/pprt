@@ -14,9 +14,27 @@ Plane::Plane()
 {
 }
 
+// From Geometric Tools for Computer Graphics (Schneider/Eberly)
 bool Plane::intersection(const Ray &ray, float &dist, Point3 &intersection) const
 {
-	dist = (d - dot(Vector3(ray.origin), n)) / (dot(ray.direction(), n));
+	const float denominator = dot(ray.direction(), n);
+	const float dotNO		= dot(Vector3(ray.origin), n);
+
+	// Check if ray is parallel
+	if (abs(denominator) < 0.001f)
+	{
+		// Check if ray's origin lies on the plane
+		if (dotNO < 0.001f)
+		{
+			dist = 0.f;
+			intersection = ray.origin;
+			return true;
+		}
+		else
+			return false;
+	}
+
+	dist = -(dotNO + d) / denominator;
 	if (dist < 0)
 		return false;
 

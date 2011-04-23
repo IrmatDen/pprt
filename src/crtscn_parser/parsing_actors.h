@@ -147,7 +147,7 @@ struct attributeEnd_a
 {
 	void operator()(const iterator_t &s, const iterator_t &e) const
 	{
-		transformBegin_a()(s, e);
+		transformEnd_a()(s, e);
 
 		GraphicStateStack::current = GraphicStateStack::stateStack.top();
 		GraphicStateStack::stateStack.pop();

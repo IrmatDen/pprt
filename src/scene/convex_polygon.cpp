@@ -23,7 +23,6 @@ void ConvexPolygon::setPoints(size_t pointsCount, Point3 *pointArray)
 
 	//! \todo Search valid points instead of assuming the first 3 are...
 	polyPlane = Plane::fromPoints(points[0], points[1], points[2]);
-	polyPlane.d = -polyPlane.d;
 }
 
 ConvexPolygon::~ConvexPolygon()
@@ -47,12 +46,15 @@ void ConvexPolygon::buildAABB()
 // Published in JGT Vol. 7, Nr 1, 2002
 bool ConvexPolygon::hit(const Ray &ray, float &t, IntersectionInfo &ii) const
 {
+	Ray localRay(worldToObject * ray);
+
 	float dist;
-	if (!polyPlane.intersection(ray, dist, ii.point) || dist > t || !aabb.hit(ray, dist))
+	if (!polyPlane.intersection(localRay, dist, ii.point) || dist > t || !aabb.hit(ray, dist))
 		return false;
 
 	t = dist;
-	ii.normal = polyPlane.n;
+	ii.point	= Point3((objectToWorld * ii.point).get128());
+	ii.normal	= polyPlane.n;
 
 	return true;
 }

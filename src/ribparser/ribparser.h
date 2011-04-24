@@ -154,7 +154,7 @@ namespace RibParser
                         ;
 
                 // Options (RiSpec 3.2, §4.1.4)
-                    option = "Option" >> +blank_p >> (searchpath | usethreads);
+                    option = "Option" >> +blank_p >> (searchpath | usethreads | maxtracedepth);
 
                     searchpath  = "\"searchpath\""  >> +blank_p >> spShader [clear_a(_strVector)];
                     spShader    = "\"shader\""      >> +blank_p >> foldersArray [assign_a(_shaderPaths, _strVector)];
@@ -163,6 +163,16 @@ namespace RibParser
                         =	"\"usethreads\""
                             >> +blank_p
                             >> singleBoolArray [bind(&Scene::enableThreading, &self.scene, boost::cref(_bool))]
+                        ;
+                    maxtracedepth
+                        =	"\"maxtracedepth\""
+                            >> +blank_p
+                            >>  (   int_p [bind(&Scene::setMaxTraceDetph)(var(self.scene), arg1)]
+                                |   (   "["
+                                        >> int_p [bind(&Scene::setMaxTraceDetph)(var(self.scene), arg1)]
+                                        >> "]"
+                                    )
+                                )
                         ;
 							  
 
@@ -282,7 +292,7 @@ namespace RibParser
 
 			// Specific elements
 			rule<ScannerT> worldBegin, worldEnd;
-			rule<ScannerT> option, searchpath, spShader, usethreads;
+			rule<ScannerT> option, searchpath, spShader, usethreads, maxtracedepth;
 			rule<ScannerT> camera, format, projection, perspProj, orthoProj, clipping;
 			rule<ScannerT> displays, pixelSamples, display;
 			rule<ScannerT> scene, background;

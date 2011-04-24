@@ -32,7 +32,7 @@ Scene::Scene()
 		rt_objects(nullptr), rt_lights(nullptr),
 		bvhRoot(nullptr),
 		imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr),
-		threadingEnabled(true), xInvSamples(1.f), yInvSamples(1.f)
+		threadingEnabled(true), xInvSamples(1.f), yInvSamples(1.f), maxTraceDetph(8)
 {
 	shaderManager.setScene(*this);
 }
@@ -248,7 +248,7 @@ Color Scene::trace(const Ray &eye, bool &hitSomething, Color &Oi) const
 
 Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 {
-	if (ray.traceDepth == 8)
+	if (ray.traceDepth == maxTraceDetph)
 	{
 		hitSomething = false;
 		return Color(all_zero());

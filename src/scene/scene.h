@@ -56,6 +56,8 @@ public:
 	void		setYPixelSamples(double ys);
 	float		getYPixelSteps() const						{ return yInvSamples; }
 
+    void        setMaxTraceDetph(int n)                     { maxTraceDetph = n; }
+
 	void		setBackground(const Color &bg)				{ background = bg; }
 
 	void		addGeometry(Geometry* obj)					{ objects.push_back(obj); }
@@ -95,7 +97,8 @@ private:
 
 	Color			background;
 
-	float			xInvSamples, yInvSamples;
+	float	xInvSamples, yInvSamples;
+    int     maxTraceDetph;
 
 	Camera			cam;
 

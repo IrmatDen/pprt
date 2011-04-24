@@ -89,6 +89,7 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 	float *weights	= reinterpret_cast<float*>(barCoordProvider.local()->ordered_malloc(nVertices));
 	float weightSum	= 0.f;
 
+	bool shouldNormalizeWeights = true;
 	for (size_t pIdx = 0; pIdx != nVertices; pIdx++)
 	{
 		const size_t prev	= (pIdx + nVertices - 1) % nVertices;
@@ -98,6 +99,20 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 		const Vector3 PToCurrent = pointInPlane - vertices[pIdx].pos;
 		const Vector3 nextToCurrent	= vertices[next].pos - vertices[pIdx].pos;
 		const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
+		const float ntcSqrdLen	= lengthSqr(nextToCurrent);
+		if (area <= 0.001f * ntcSqrdLen)
+		{
+			// Reset all weights and interpolate between this vertex and the next
+			for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+				weights[wIdx] = 0.f;
+
+			const float w = lengthSqr(PToCurrent) / ntcSqrdLen;
+			weights[pIdx] = 1.f - w;
+			weights[next] = w;
+
+			shouldNormalizeWeights = false;
+			break;
+		}
 
 		const float cot1		= cotangeant(pointInPlane, vertices[pIdx].pos, vertices[prev].pos);
 		const float cot2		= cotangeant(pointInPlane, vertices[pIdx].pos, vertices[next].pos);
@@ -107,8 +122,11 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 	}
 	
 	// Normalize weights
-	for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-		weights[wIdx] /= weightSum;
+	if (shouldNormalizeWeights)
+	{
+		for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+			weights[wIdx] /= weightSum;
+	}
 
 	barCoordProvider.local()->ordered_free(weights, nVertices);
 

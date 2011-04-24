@@ -75,7 +75,8 @@ namespace RibParser
 
 					projection	=	"Projection" >> +blank_p >> (perspProj | orthoProj);
 					perspProj	=	str_p("\"perspective\"") [assign_a(CameraSettings::projType)] >>
-									!(+blank_p >> "\"fov\"" >> +blank_p >> real_p [assign_a(CameraSettings::fov)]);
+									!(+blank_p >> "\"fov\"" >> +blank_p >>
+									real_p [assign_a(CameraSettings::fov)]);
 					orthoProj	=	str_p("\"orthographic\"") [assign_a(CameraSettings::projType)];
 
 					clipping	=	"Clipping" >> +blank_p >>
@@ -83,7 +84,11 @@ namespace RibParser
 									real_p	[assign_a(CameraSettings::yon)];
 
 				// Displays definitions (RiSpec 3.2, §4.1.2)
-					displays =	display;
+					displays =	pixelSamples | display;
+
+					pixelSamples =	"PixelSamples" >> +blank_p >>
+									real_p	[bind(&Scene::setXPixelSamples)(var(self.scene), arg1)] >> +blank_p >>
+									real_p	[bind(&Scene::setYPixelSamples)(var(self.scene), arg1)];
 
 					display =	"Display" >> +blank_p >>
 								quotedString	[bind(&Scene::setDisplayName, &self.scene, boost::cref(_str))]	>> +blank_p >>	// name
@@ -180,7 +185,7 @@ namespace RibParser
 			rule<ScannerT> worldBegin, worldEnd;
 			rule<ScannerT> option, searchpath, spShader, usethreads;
 			rule<ScannerT> camera, format, projection, perspProj, orthoProj, clipping;
-			rule<ScannerT> displays, display;
+			rule<ScannerT> displays, pixelSamples, display;
 			rule<ScannerT> scene, background;
 			rule<ScannerT> graphicsState, attributeBegin, attributeEnd, color, opacity, shaderParams, surface;
 			rule<ScannerT> lights, pointLight;

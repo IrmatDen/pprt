@@ -124,8 +124,9 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 	// Normalize weights
 	if (shouldNormalizeWeights)
 	{
+		const float invWeightSum = 1.f / weightSum;
 		for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-			weights[wIdx] /= weightSum;
+			weights[wIdx] *= invWeightSum;
 	}
 
 	barCoordProvider.local()->ordered_free(weights, nVertices);

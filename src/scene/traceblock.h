@@ -45,17 +45,22 @@ void TraceBlock<PixelStoreT>::operator()(const tbb::blocked_range2d<int> &r) con
 			Color alphaPix(all_zero());
 			bool hitSomething;
 
-			for (float fragx = (float)x; fragx < x + 1.0f; fragx += 0.5f)
+			const float
+				xSteps = scn->getXPixelSteps(),
+				ySteps = scn->getYPixelSteps(),
+				sampleW = xSteps * ySteps;
+
+			for (float fragx = (float)x; fragx < x + 1.0f; fragx += xSteps)
 			{
-				for (float fragy = (float)y; fragy < y + 1.0f; fragy += 0.5f)
+				for (float fragy = (float)y; fragy < y + 1.0f; fragy += ySteps)
 				{
 					scn->camera().project(fragx, fragy, ray);
 
 					Color alphaFrag, outFrag;
 					outFrag = scn->trace(ray, hitSomething, alphaFrag);
 
-					outPix += outFrag * 0.25f;
-					alphaPix += alphaFrag * 0.25f;
+					outPix += outFrag * sampleW;
+					alphaPix += alphaFrag * sampleW;
 				}
 			}
 

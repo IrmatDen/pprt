@@ -32,7 +32,7 @@ Scene::Scene()
 		rt_objects(nullptr), rt_lights(nullptr),
 		bvhRoot(nullptr),
 		imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr),
-		threadingEnabled(true)
+		threadingEnabled(true), xInvSamples(1.f), yInvSamples(1.f)
 {
 	shaderManager.setScene(*this);
 }
@@ -90,6 +90,21 @@ bool Scene::reloadSceneFile()
 	return parseRes;
 }
 
+void Scene::enableThreading(bool enable)
+{
+	threadingEnabled = enable;
+}
+
+void Scene::setXPixelSamples(double xs)
+{
+	xInvSamples = static_cast<float>(1.0 / max(1.0, xs));
+}
+
+void Scene::setYPixelSamples(double ys)
+{
+	xInvSamples = static_cast<float>(1.0 / max(1.0, ys));
+}
+
 Camera& Scene::camera()
 {
 	return cam;
@@ -108,11 +123,6 @@ void Scene::prepare()
 	
 	bvhRoot = memory::construct<BVH>();
 	bvhRoot->build(objects);
-}
-
-void Scene::enableThreading(bool enable)
-{
-	threadingEnabled = enable;
 }
 
 void Scene::render()

@@ -49,12 +49,19 @@ public:
 
 	void		enableThreading(bool enable);
 
-	Camera&		camera();
+	// double to keep boost.spirit happy
+	void		setXPixelSamples(double xs);
+	float		getXPixelSteps() const						{ return xInvSamples; }
+	// double to keep boost.spirit happy
+	void		setYPixelSamples(double ys);
+	float		getYPixelSteps() const						{ return yInvSamples; }
 
 	void		setBackground(const Color &bg)				{ background = bg; }
 
 	void		addGeometry(Geometry* obj)					{ objects.push_back(obj); }
 	void		addLight(Light* l)							{ lights.push_back(l); }
+
+	Camera&		camera();
 
 	void		prepare();
 
@@ -87,6 +94,8 @@ private:
 	__int64		renderBeginTime;
 
 	Color			background;
+
+	float			xInvSamples, yInvSamples;
 
 	Camera			cam;
 

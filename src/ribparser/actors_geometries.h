@@ -14,7 +14,7 @@ struct DataStream
 {
     static Vec3Array Ps;
     static Vec3Array Ns;
-    static Vec3Array Css;
+    static Vec3Array Css, Oss;
 };
 
 struct resetGeomStreams_a

@@ -53,6 +53,7 @@ bool Sphere::hit(const Ray &ray, IntersectionInfo &ii) const
 	ii.normal	= Vector3(localHitP) * invr;
 
     ii.cs = color;
+    ii.os = opacity;
 	
 	const float invPi = 1.f / 3.141592654f;
 	ii.s = ::asinf(ii.normal.getX()) * invPi + 0.5f;

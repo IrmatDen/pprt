@@ -17,12 +17,14 @@ using namespace std;
 Vec3Array DataStream::Ps;
 Vec3Array DataStream::Ns;
 Vec3Array DataStream::Css;
+Vec3Array DataStream::Oss;
 
 void resetGeomStreams_a::operator()(const iterator_t&, const iterator_t&) const
 {
     DataStream::Ps.swap(Vec3Array());
     DataStream::Ns.swap(Vec3Array());
     DataStream::Css.swap(Vec3Array());
+    DataStream::Oss.swap(Vec3Array());
 }
 
 //-----------------------------------------------------
@@ -45,6 +47,7 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
 	poly->setPoints(npoints, pointArray);
 	memory::deallocate(pointArray);
 
+    // Apply per-vertex normals?
     if (DataStream::Ns.size() > 0)
     {
         if (DataStream::Ns.size() != npoints)
@@ -60,7 +63,8 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
 	        memory::deallocate(nArray);
         }
     }
-
+    
+    // Apply per-vertex colors?
     if (DataStream::Css.size() > 0)
     {
         if (DataStream::Css.size() != npoints)
@@ -73,6 +77,23 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
 	        Color *cArray = memory::allocate<Color>(npoints);
 	        copy(DataStream::Css.begin(), DataStream::Css.end(), cArray);
             poly->setPointsColors(cArray);
+	        memory::deallocate(cArray);
+        }
+    }
+    
+    // Apply per-vertex opacities?
+    if (DataStream::Oss.size() > 0)
+    {
+        if (DataStream::Oss.size() != npoints)
+        {
+            cout << "Os & Points count mismatch in Polygon declaration." << endl;
+            return;
+        }
+        else
+        {
+	        Color *cArray = memory::allocate<Color>(npoints);
+	        copy(DataStream::Oss.begin(), DataStream::Oss.end(), cArray);
+            poly->setPointsOpacities(cArray);
 	        memory::deallocate(cArray);
         }
     }

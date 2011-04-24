@@ -17,6 +17,8 @@ public:
 	void setNormals(Vector3 *ns);
     //! Colors count is assumed to be equal to vertices' count specified in setPoints
 	void setPointsColors(Color *cs);
+    //! Opacity count is assumed to be equal to vertices' count specified in setPoints
+	void setPointsOpacities(Color *os);
 
 	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
 

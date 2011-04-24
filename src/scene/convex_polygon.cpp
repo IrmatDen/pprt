@@ -8,7 +8,7 @@ struct ConvexPolygon::Vertex
 {
 	Point3	pos;
     Vector3 n;
-    Color   cs;
+    Color   cs, os;
 
 	Vector3	edgeNormal;	//!< Edge normal is defined to be the normal of the edge between this point & the next
 };
@@ -45,6 +45,7 @@ void ConvexPolygon::setPoints(size_t pointsCount, Point3 *pointArray)
             vertices[vIdx].pos  = p;
             vertices[vIdx].n    = polyPlane.n;
             vertices[vIdx].cs   = color;
+            vertices[vIdx].os   = opacity;
             vIdx++;
         } );
 
@@ -69,6 +70,12 @@ void ConvexPolygon::setPointsColors(Color *cs)
 {
     for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
         vertices[vIdx].cs = cs[vIdx];
+}
+
+void ConvexPolygon::setPointsOpacities(Color *os)
+{
+    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+        vertices[vIdx].os = os[vIdx];
 }
 
 void ConvexPolygon::buildAABB()
@@ -154,6 +161,7 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
     {
 		 ii.normal  += vertices[vIdx].n * weights[vIdx];
          ii.cs      += vertices[vIdx].cs * weights[vIdx];
+         ii.os      += vertices[vIdx].os * weights[vIdx];
     }
 
 	barCoordProvider.local()->ordered_free(weights, nVertices);

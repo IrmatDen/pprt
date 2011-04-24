@@ -93,6 +93,11 @@ namespace RibParser
                             >> +blank_p
                             >> vec3Array [assign_a(DataStream::Css, _pointVector)]
                         ;
+                    opacityStream
+                        =   str_p("\"Os\"") [clear_a(DataStream::Oss)]
+                            >> +blank_p
+                            >> vec3Array [assign_a(DataStream::Oss, _pointVector)]
+                        ;
 
                 // Attibutes (RiSpec 3.2, §4)
                     worldBegin	= str_p("WorldBegin") [worldBegin_a(self.scene)];
@@ -229,7 +234,7 @@ namespace RibParser
 
                     polygon
                         =	(	str_p("Polygon") [resetGeomStreams_a()]
-                                >> *( separation >> ( pointStream | normalStream | colorStream ) )
+                                >> *( separation >> ( pointStream | normalStream | colorStream | opacityStream ) )
                             ) [newPolygon_a(self.scene)]
                         ;
 
@@ -273,7 +278,7 @@ namespace RibParser
 			rule<ScannerT> comment;
 
 			// Data streams (P, N, Cs...)
-			rule<ScannerT> pointStream, normalStream, colorStream;
+			rule<ScannerT> pointStream, normalStream, colorStream, opacityStream;
 
 			// Specific elements
 			rule<ScannerT> worldBegin, worldEnd;

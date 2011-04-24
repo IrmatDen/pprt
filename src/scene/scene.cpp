@@ -277,6 +277,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 
 	CompiledShader shader(nearestObj->getShader(), true);
 	shader.setCurrentDepth(ray.traceDepth);
+    shader.setRTVarValueByIndex(CompiledShader::Cs, info.cs);
 	shader.setRTVarValueByIndex(CompiledShader::P, Vector3(info.point));
 	shader.setRTVarValueByIndex(CompiledShader::N, info.normal);
 	shader.setRTVarValueByIndex(CompiledShader::Ng, info.normal);

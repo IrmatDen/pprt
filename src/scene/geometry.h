@@ -16,6 +16,7 @@ struct IntersectionInfo
 {
 	Point3	point;
 	Vector3	normal;
+    Color   cs, os;
 	float	s, t;
 };
 

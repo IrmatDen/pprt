@@ -7,10 +7,23 @@
 #include "../scene/disk.h"
 #include "../scene/scene.h"
 
+#include <iostream>
+
+using namespace std;
+
 //-----------------------------------------------
 // Data streams
 
-Vec3Array PointStream::Ps;
+Vec3Array DataStream::Ps;
+Vec3Array DataStream::Ns;
+Vec3Array DataStream::Css;
+
+void resetGeomStreams_a::operator()(const iterator_t&, const iterator_t&) const
+{
+    DataStream::Ps.swap(Vec3Array());
+    DataStream::Ns.swap(Vec3Array());
+    DataStream::Css.swap(Vec3Array());
+}
 
 //-----------------------------------------------------
 // Convex polygon
@@ -24,12 +37,45 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
 {
 	ConvexPolygon *poly = memory::construct<ConvexPolygon>(TransformStack::currentTransform);
 
-	const size_t npoints = PointStream::Ps.size();
+	const size_t npoints = DataStream::Ps.size();
 
 	//! \todo Check that we have at least 3 points
 	Point3 *pointArray = memory::allocate<Point3>(npoints);
-	std::copy(PointStream::Ps.begin(), PointStream::Ps.end(), pointArray);
+	copy(DataStream::Ps.begin(), DataStream::Ps.end(), pointArray);
 	poly->setPoints(npoints, pointArray);
+	memory::deallocate(pointArray);
+
+    if (DataStream::Ns.size() > 0)
+    {
+        if (DataStream::Ns.size() != npoints)
+        {
+            cout << "Normal & Points count mismatch in Polygon declaration." << endl;
+            return;
+        }
+        else
+        {
+	        Vector3 *nArray = memory::allocate<Vector3>(npoints);
+	        copy(DataStream::Ns.begin(), DataStream::Ns.end(), nArray);
+	        poly->setNormals(nArray);
+	        memory::deallocate(nArray);
+        }
+    }
+
+    if (DataStream::Css.size() > 0)
+    {
+        if (DataStream::Css.size() != npoints)
+        {
+            cout << "Cs & Points count mismatch in Polygon declaration." << endl;
+            return;
+        }
+        else
+        {
+	        Color *cArray = memory::allocate<Color>(npoints);
+	        copy(DataStream::Css.begin(), DataStream::Css.end(), cArray);
+            poly->setPointsColors(cArray);
+	        memory::deallocate(cArray);
+        }
+    }
 
 	GraphicStateStack::current.applyToGeometry(&scene, poly);
 

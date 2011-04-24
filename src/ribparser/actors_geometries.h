@@ -10,9 +10,16 @@ class Scene;
 //-----------------------------------------------
 // Data streams
 
-struct PointStream
+struct DataStream
 {
-	static Vec3Array Ps;
+    static Vec3Array Ps;
+    static Vec3Array Ns;
+    static Vec3Array Css;
+};
+
+struct resetGeomStreams_a
+{
+	void operator()(const iterator_t&, const iterator_t&) const;
 };
 
 //-----------------------------------------------

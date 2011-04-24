@@ -12,8 +12,11 @@ public:
 	ConvexPolygon(const Matrix4 &obj2world);
 	~ConvexPolygon();
 
-	// Point array ownership is transferred to the polygon.
 	void setPoints(size_t pointsCount, Point3 *pointArray);
+    //! Normals count is assumed to be equal to vertices' count specified in setPoints
+	void setNormals(Vector3 *ns);
+    //! Colors count is assumed to be equal to vertices' count specified in setPoints
+	void setPointsColors(Color *cs);
 
 	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
 

@@ -46,14 +46,13 @@ WorldBegin
 
 	Surface "reflect_sample" "reflectStrengh" 0.35
 	# floor
-	Polygon "P" [-2.5 -2.5 -8
-				 -12  -2.5  16
-				  12  -2.5  16
-				  2.5 -2.5 -8]
+	Polygon "P"  [-2.5 -2.5 -8   -12  -2.5  16   12  -2.5  16   2.5 -2.5 -8]
 	# left
 	Polygon "P" [-2.5 -2.5 -8   -2.5  5 -8   -12 5 16   -12 -2.5 16]
 	# right
 	Polygon "P" [2.5 -2.5 -8   12 -2.5 16   12 5 16   2.5  5 -8]
+	Surface "constant"
 	# back
 	Polygon "P" [-12 -2.5 16   -12  0 16   -8 5 16   8 5 16   12 0 16   12 -2.5 16]
+			"Cs" [1 0 0    0 1 0   0 0 1   1 0 1   1 1 0   0 1 1]
 WorldEnd

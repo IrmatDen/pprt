@@ -50,7 +50,8 @@ namespace RibParser
 				: _shaderPaths(self.scene)
 			{
                 // Generic rules
-                    ending = *blank_p >> !comment >> eol_p; 
+                    ending = *blank_p >> !comment >> eol_p;
+                    separation = ( *blank_p >> !( ending >> *blank_p ) );
                     quotedString = confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
 
                     foldername
@@ -67,7 +68,7 @@ namespace RibParser
                     vec3 = vec3_p [assign_a(_vec3)];
                     vec3Array
                         =   str_p("[") [clear_a(_pointVector)]
-                            >> (vec3 [push_back_a(_pointVector, _vec3)]) % ( *blank_p >> !( ending >> *blank_p ) )
+                            >> (vec3 [push_back_a(_pointVector, _vec3)]) % separation
                             >> "]"
                         ;
 
@@ -78,9 +79,19 @@ namespace RibParser
 
                 // Data streams (P, N, Cs...)
                     pointStream
-                        =   str_p("\"P\"") [clear_a(PointStream::Ps)]
+                        =   str_p("\"P\"") [clear_a(DataStream::Ps)]
                             >> +blank_p
-                            >> vec3Array [assign_a(PointStream::Ps, _pointVector)]
+                            >> vec3Array [assign_a(DataStream::Ps, _pointVector)]
+                        ;
+                    normalStream
+                        =   str_p("\"N\"") [clear_a(DataStream::Ns)]
+                            >> +blank_p
+                            >> vec3Array [assign_a(DataStream::Ns, _pointVector)]
+                        ;
+                    colorStream
+                        =   str_p("\"Cs\"") [clear_a(DataStream::Css)]
+                            >> +blank_p
+                            >> vec3Array [assign_a(DataStream::Css, _pointVector)]
                         ;
 
                 // Attibutes (RiSpec 3.2, §4)
@@ -217,9 +228,8 @@ namespace RibParser
                                 |	disk;
 
                     polygon
-                        =	(	"Polygon"
-                                >> +blank_p
-                                >> pointStream
+                        =	(	str_p("Polygon") [resetGeomStreams_a()]
+                                >> *( separation >> ( pointStream | normalStream | colorStream ) )
                             ) [newPolygon_a(self.scene)]
                         ;
 
@@ -258,12 +268,12 @@ namespace RibParser
 			const rule<ScannerT>& start() const	{ return base_expression; }
 
 			// General types
-			rule<ScannerT> ending;
+			rule<ScannerT> separation, ending;
 			rule<ScannerT> quotedString, foldername, foldersArray, singleBoolArray, vec3, vec3Array;
 			rule<ScannerT> comment;
 
 			// Data streams (P, N, Cs...)
-			rule<ScannerT> pointStream;
+			rule<ScannerT> pointStream, normalStream, colorStream;
 
 			// Specific elements
 			rule<ScannerT> worldBegin, worldEnd;

@@ -75,6 +75,14 @@ GraphicState::GraphicState()
 {
 }
 
+void GraphicState::applyToGeometry(Scene *scene, Geometry *g) const
+{
+	g->setColor(_color);
+	g->setOpacity(_opacity);
+	g->setShader(scene->shaderManager.instanciate(surfaceShader));
+	g->setShaderParams(shaderParams);
+}
+
 //---------------------------------------------
 // GraphicStateStack
 

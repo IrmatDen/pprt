@@ -2,7 +2,7 @@ Option "searchpath" "shader" ["./samples_shaders:&"]
 Option "usethreads" [1]
 
 Display "spheres_plane.png" "framebuffer" "rgba"
-PixelSamples 8 8
+#PixelSamples 8 8
 
 Format 800 600 1
 Projection "perspective" "fov" 45

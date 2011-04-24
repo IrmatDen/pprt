@@ -10,6 +10,7 @@
 #include <string>
 
 class Scene;
+class Geometry;
 
 struct shaderParams_a
 {
@@ -31,6 +32,8 @@ struct worldBegin_a
 struct GraphicState
 {
 	GraphicState();
+
+	void applyToGeometry(Scene *scene, Geometry *g) const;
 
 	Color	_color;
 	Color	_opacity;

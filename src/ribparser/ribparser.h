@@ -49,129 +49,210 @@ namespace RibParser
 			definition(RibSyntax const &self)
 				: _shaderPaths(self.scene)
 			{
-				// Generic rules
-					ending			= *blank_p >> !comment >> eol_p; 
-					quotedString	= confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
-					foldername		= '&' | +(alnum_p | '.' | ":/" | '/' | '_' | '-');
-					foldersArray	= "[\"" >> list_p(foldername[push_back_a(_strVector)], ':') >> "\"]";
-					vec3			= vec3_p [assign_a(_vec3)];
-					vec3Array		= str_p("[") [clear_a(_pointVector)] >> (vec3 [push_back_a(_pointVector, _vec3)]) % (*blank_p >> !(ending >> *blank_p)) >> "]";
-					singleBoolArray	= "[" >> bool_p [assign_a(_bool)] >> "]";
+                // Generic rules
+                    ending = *blank_p >> !comment >> eol_p; 
+                    quotedString = confix_p( '"', (*(anychar_p & ~ch_p('"'))) [assign_a(_str)], '"');
 
-				// Comment definition
-					comment = ('#' >> *(anychar_p - eol_p));
+                    foldername
+                        = '&'
+                        | +( alnum_p | '.' | ":/" | '/' | '_' | '-' )
+                        ;
 
-				// Attibutes (RiSpec 3.2, §4)
-					worldBegin	= str_p("WorldBegin") [worldBegin_a(self.scene)];
-					worldEnd	= str_p("WorldEnd");
+                    foldersArray
+                        =   "[\""
+                            >> list_p( foldername [push_back_a(_strVector)], ':' )
+                            >> "\"]"
+                        ;
 
-				// Camera definitions (RiSpec 3.2, §4.1.1)
-					camera =	format | projection | clipping;
+                    vec3 = vec3_p [assign_a(_vec3)];
+                    vec3Array
+                        =   str_p("[") [clear_a(_pointVector)]
+                            >> (vec3 [push_back_a(_pointVector, _vec3)]) % ( *blank_p >> !( ending >> *blank_p ) )
+                            >> "]"
+                        ;
 
-					format		=	"Format" >> +blank_p >>
-									int_p	[assign_a(CameraSettings::resX)]	>> +blank_p >>		// width
-									int_p	[assign_a(CameraSettings::resY)]	>> +blank_p >>		// height
-									real_p	[assign_a(CameraSettings::pix_aspectRatio)];			// pixel aspect ratio
+                    singleBoolArray	= "[" >> bool_p [assign_a(_bool)] >> "]";
 
-					projection	=	"Projection" >> +blank_p >> (perspProj | orthoProj);
-					perspProj	=	str_p("\"perspective\"") [assign_a(CameraSettings::projType)] >>
-									!(+blank_p >> "\"fov\"" >> +blank_p >>
-									real_p [assign_a(CameraSettings::fov)]);
-					orthoProj	=	str_p("\"orthographic\"") [assign_a(CameraSettings::projType)];
+                // Comment definition
+                    comment = ('#' >> *(anychar_p - eol_p));
 
-					clipping	=	"Clipping" >> +blank_p >>
-									real_p	[assign_a(CameraSettings::hither)] >> +blank_p >>
-									real_p	[assign_a(CameraSettings::yon)];
+                // Data streams (P, N, Cs...)
+                    pointStream
+                        =   str_p("\"P\"") [clear_a(PointStream::Ps)]
+                            >> +blank_p
+                            >> vec3Array [assign_a(PointStream::Ps, _pointVector)]
+                        ;
 
-				// Displays definitions (RiSpec 3.2, §4.1.2)
-					displays =	pixelSamples | display;
+                // Attibutes (RiSpec 3.2, §4)
+                    worldBegin	= str_p("WorldBegin") [worldBegin_a(self.scene)];
+                    worldEnd	= str_p("WorldEnd");
 
-					pixelSamples =	"PixelSamples" >> +blank_p >>
-									real_p	[bind(&Scene::setXPixelSamples)(var(self.scene), arg1)] >> +blank_p >>
-									real_p	[bind(&Scene::setYPixelSamples)(var(self.scene), arg1)];
+                // Camera definitions (RiSpec 3.2, §4.1.1)
+                    camera =	format | projection | clipping;
 
-					display =	"Display" >> +blank_p >>
-								quotedString	[bind(&Scene::setDisplayName, &self.scene, boost::cref(_str))]	>> +blank_p >>	// name
-								quotedString	[displayType_a(self.scene)] >> +blank_p >>										// type
-								quotedString;																					// mode
+                    format
+                        =   "Format"
+                            >> +blank_p
+                            >> int_p [assign_a(CameraSettings::resX)]
+                            >> +blank_p
+                            >> int_p [assign_a(CameraSettings::resY)]
+                            >> +blank_p
+                            >> real_p [assign_a(CameraSettings::pix_aspectRatio)]
+                        ;
 
-				// Options (RiSpec 3.2, §4.1.4)
-					option = "Option" >> +blank_p >> (searchpath | usethreads);
+                    projection = "Projection" >> +blank_p >> (perspProj | orthoProj);
+                    perspProj
+                        =   str_p("\"perspective\"") [assign_a(CameraSettings::projType)]
+                            >> !(   +blank_p
+                                    >> "\"fov\""
+                                    >> +blank_p
+                                    >> real_p [assign_a(CameraSettings::fov)]
+                                )
+                        ;
+                    orthoProj =	str_p("\"orthographic\"") [assign_a(CameraSettings::projType)];
 
-					searchpath = "\"searchpath\"" >> +blank_p >> (spShader)[clear_a(_strVector)];
-					spShader = "\"shader\"" >> +blank_p >> foldersArray[assign_a(_shaderPaths, _strVector)];
+                    clipping
+                        =   "Clipping" >> +blank_p
+                            >> real_p [assign_a(CameraSettings::hither)] >> +blank_p
+                            >> real_p [assign_a(CameraSettings::yon)];
 
-					usethreads = "\"usethreads\"" >> +blank_p >> singleBoolArray[bind(&Scene::enableThreading, &self.scene, boost::cref(_bool))];
+                // Displays definitions (RiSpec 3.2, §4.1.2)
+                    displays =	pixelSamples | display;
+
+                    pixelSamples
+                        =	"PixelSamples"
+                            >> +blank_p
+                            >> real_p [bind(&Scene::setXPixelSamples)(var(self.scene), arg1)]
+                            >> +blank_p
+                            >> real_p [bind(&Scene::setYPixelSamples)(var(self.scene), arg1)]
+                        ;
+
+                    display
+                        =	"Display"
+                            >> +blank_p
+                            >> quotedString	[bind(&Scene::setDisplayName, &self.scene, boost::cref(_str))]
+                            >> +blank_p
+                            >> quotedString	[displayType_a(self.scene)]
+                            >> +blank_p
+                            >> quotedString
+                        ;
+
+                // Options (RiSpec 3.2, §4.1.4)
+                    option = "Option" >> +blank_p >> (searchpath | usethreads);
+
+                    searchpath  = "\"searchpath\""  >> +blank_p >> spShader [clear_a(_strVector)];
+                    spShader    = "\"shader\""      >> +blank_p >> foldersArray [assign_a(_shaderPaths, _strVector)];
+
+                    usethreads
+                        =	"\"usethreads\""
+                            >> +blank_p
+                            >> singleBoolArray [bind(&Scene::enableThreading, &self.scene, boost::cref(_bool))
+                        ;
 							  
 
-				// Scene definition
-					scene	= background;
+                // Scene definition
+                    scene = background;
 
-					background = "Background" >> +blank_p >> color_p[bind(&Scene::setBackground)(var(self.scene), arg1)];
+                    background
+                        =	"Background"
+                            >> +blank_p
+                            >> color_p [bind(&Scene::setBackground)(var(self.scene), arg1)]
+                        ;
 
-				// Graphics state
-					graphicsState = attributeBegin | attributeEnd | color | opacity | surface;
+                // Graphics state
+                    graphicsState = attributeBegin | attributeEnd | color | opacity | surface;
 
-					attributeBegin	= str_p("AttributeBegin")	[attributeBegin_a()];
-					attributeEnd	= str_p("AttributeEnd")		[attributeEnd_a()];
+                    attributeBegin	= str_p("AttributeBegin")	[attributeBegin_a()];
+                    attributeEnd	= str_p("AttributeEnd")		[attributeEnd_a()];
 					
-					color	= ("Color"		>> +blank_p >> color_p[assign_a(GraphicStateStack::current._color)]);
-					opacity	= ("Opacity"	>> +blank_p >> color_p[assign_a(GraphicStateStack::current._opacity)]);
+                    color	= "Color"		>> +blank_p >> color_p [assign_a(GraphicStateStack::current._color)];
+                    opacity	= "Opacity"	>> +blank_p >> color_p [assign_a(GraphicStateStack::current._opacity)];
 					
-					shaderParams =	(	quotedString [assign_a(shaderParams_a::paramName, _str)] >> +blank_p >>
-										(color_p[shaderParams_a()] | real_p[shaderParams_a()])
-									) % blank_p;
-					surface	=	"Surface" >> +blank_p >>
-								quotedString [assign_a(GraphicStateStack::current.surfaceShader, _str)] >>
-								!(+blank_p >> shaderParams [activateCurrentShaderParams_a()]);
+                    shaderParams
+                        =	(	quotedString [assign_a(shaderParams_a::paramName, _str)]
+                                >> +blank_p
+                                >> (color_p [shaderParams_a()] | real_p [shaderParams_a()])
+                            ) % blank_p
+                        ;
+                    surface
+                        =	"Surface"
+                            >> +blank_p
+                            >> quotedString [assign_a(GraphicStateStack::current.surfaceShader, _str)]
+                            >> !( +blank_p >> shaderParams [activateCurrentShaderParams_a()] )
+                        ;
 
-				// Lights definitions
-					lights = pointLight;
-					pointLight = ("PointLight" >> +blank_p	>> vec3_p[assign_a(newPointLight_a::pos)] >> +blank_p
-															>> color_p[assign_a(newPointLight_a::color)]
-								 )[newPointLight_a(self.scene)];
+                // Lights definitions
+                    lights = pointLight;
+
+                    pointLight
+                        =	(	"PointLight"
+                                >> +blank_p
+                                >> vec3_p [assign_a(newPointLight_a::pos)]
+                                >> +blank_p
+                                >> color_p[assign_a(newPointLight_a::color)]
+                            ) [newPointLight_a(self.scene)]
+                        ;
 				
-				// Transformations (RiSpec 3.2, §4.3)
-					transform	= identity | translate | rotate
-								| transformBegin | transformEnd;
+                // Transformations (RiSpec 3.2, §4.3)
+                    transform	= identity | translate | rotate
+                                | transformBegin | transformEnd;
 
-					identity	=	str_p("Identity") [identity_a()];
-					translate	=	"Translate" >> +blank_p >> vec3_p[translate_a()];
-					rotate		=	("Rotate"	>> +blank_p >> real_p [assign_a(rotate_a::angleDegrees)]
-												>> +blank_p >> vec3_p [assign_a(rotate_a::axis)]
-									) [rotate_a()];
+                    identity	=	str_p("Identity") [identity_a()];
+                    translate	=	"Translate" >> +blank_p >> vec3_p[translate_a()];
+                    rotate
+                        =	(	"Rotate"
+                                >> +blank_p
+                                >> real_p [assign_a(rotate_a::angleDegrees)]
+                                >> +blank_p
+                                >> vec3_p [assign_a(rotate_a::axis)]
+                            ) [rotate_a()]
+                        ;
 
-					transformBegin	= str_p("TransformBegin")	[transformBegin_a()];
-					transformEnd	= str_p("TransformEnd")		[transformEnd_a()];
+                    transformBegin	= str_p("TransformBegin")	[transformBegin_a()];
+                    transformEnd	= str_p("TransformEnd")		[transformEnd_a()];
 
-				// Geometry definitions
-					geometries =	polygon
-								|	sphere
-								|	disk;
+                // Geometry definitions
+                    geometries  =   polygon
+                                |	sphere
+                                |	disk;
 
-					polygon =	(	"Polygon" >> +blank_p >> "\"P\"" >> +blank_p >> vec3Array [assign_a(newPolygon_a::points, _pointVector)]
-								) [newPolygon_a(self.scene)];
+                    polygon
+                        =	(	"Polygon"
+                                >> +blank_p
+                                >> pointStream
+                            ) [newPolygon_a(self.scene)]
+                        ;
 
-					sphere	=	(	"Sphere" >> +blank_p >> real_p[assign_a(newSphere_a::radius)]
-								) [newSphere_a(self.scene)];
+                    sphere
+                        =	(	"Sphere"
+                                >> +blank_p
+                                >> real_p[assign_a(newSphere_a::radius)]
+                            ) [newSphere_a(self.scene)]
+                        ;
 
-					disk	= 	(	"Disk" >> +blank_p >> real_p[assign_a(newDisk_a::radius)]	>> +blank_p >>
-														  vec3_p[assign_a(newDisk_a::pos)]		>> +blank_p >>
-														  vec3_p[assign_a(newDisk_a::normal)]	>> +blank_p
-								) [newDisk_a(self.scene)];
+                    disk
+                        = 	(	"Disk"
+                                >> +blank_p
+                                >> real_p [assign_a(newDisk_a::radius)]
+                                >> +blank_p
+                                >> vec3_p [assign_a(newDisk_a::normal)]
+                                >> +blank_p
+                            ) [newDisk_a(self.scene)]
+                        ;
 				
-				// Grammar line definition & root.
-					element =	  option
-								| camera
-								| displays
-								| scene
-								| lights
-								| graphicsState
-								| transform
-								| worldBegin | worldEnd
-								| geometries;
-					statement = *blank_p >> !element >> ending >> *blank_p;
-					base_expression = *statement;
+                // Grammar line definition & root.
+                element =   option
+                        |   camera
+                        |   displays
+                        |   scene
+                        |   lights
+                        |   graphicsState
+                        |   transform
+                        |   worldBegin | worldEnd
+                        |   geometries;
+
+                statement = *blank_p >> !element >> ending >> *blank_p;
+                base_expression = *statement;
 			}
 
 			const rule<ScannerT>& start() const	{ return base_expression; }
@@ -180,6 +261,9 @@ namespace RibParser
 			rule<ScannerT> ending;
 			rule<ScannerT> quotedString, foldername, foldersArray, singleBoolArray, vec3, vec3Array;
 			rule<ScannerT> comment;
+
+			// Data streams (P, N, Cs...)
+			rule<ScannerT> pointStream;
 
 			// Specific elements
 			rule<ScannerT> worldBegin, worldEnd;

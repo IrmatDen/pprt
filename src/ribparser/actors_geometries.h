@@ -3,7 +3,20 @@
 
 #include "parser_typedefs.h"
 
+#include <vector>
+
 class Scene;
+
+//-----------------------------------------------
+// Data streams
+
+struct PointStream
+{
+	static Vec3Array Ps;
+};
+
+//-----------------------------------------------
+// Geometric objects
 
 struct newPolygon_a
 {
@@ -12,8 +25,6 @@ struct newPolygon_a
 	void operator()(const iterator_t&, const iterator_t&) const;
 
 	Scene &scene;
-	
-	static Vec3Array	points;
 };
 
 struct newSphere_a
@@ -37,9 +48,7 @@ struct newDisk_a
 	Scene &scene;
 
 	static double		radius;
-	static Point3		pos;
 	static Vector3		normal;
-	static std::string	matName;
 };
 
 #endif

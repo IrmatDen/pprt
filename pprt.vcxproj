@@ -197,6 +197,11 @@
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\math\plane.cpp" />
+    <ClCompile Include="src\ribparser\actors_geometries.cpp" />
+    <ClCompile Include="src\ribparser\actors_graphicstate.cpp" />
+    <ClCompile Include="src\ribparser\actors_options.cpp" />
+    <ClCompile Include="src\ribparser\actors_transform.cpp" />
+    <ClCompile Include="src\ribparser\ribparser.cpp" />
     <ClCompile Include="src\scene\aabb.cpp" />
     <ClCompile Include="src\scene\bvh.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
@@ -231,10 +236,15 @@
     <ClInclude Include="src\aligned_vector.h" />
     <ClInclude Include="src\math\plane.h" />
     <ClInclude Include="src\memory.h" />
-    <ClInclude Include="src\crtscn_parser\parsing_actors.h" />
-    <ClInclude Include="src\crtscn_parser\scnparser.h" />
-    <ClInclude Include="src\parser\type_parsers.h" />
     <ClInclude Include="src\pprt_math.h" />
+    <ClInclude Include="src\ribparser\actors_geometries.h" />
+    <ClInclude Include="src\ribparser\actors_graphicstate.h" />
+    <ClInclude Include="src\ribparser\actors_options.h" />
+    <ClInclude Include="src\ribparser\actors_transform.h" />
+    <ClInclude Include="src\ribparser\parser_typedefs.h" />
+    <ClInclude Include="src\ribparser\parsing_actors.h" />
+    <ClInclude Include="src\ribparser\ribparser.h" />
+    <ClInclude Include="src\ribparser\type_parsers.h" />
     <ClInclude Include="src\scene\aabb.h" />
     <ClInclude Include="src\scene\bvh.h" />
     <ClInclude Include="src\scene\camera.h" />

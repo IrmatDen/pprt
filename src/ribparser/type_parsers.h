@@ -1,8 +1,7 @@
 #ifndef PPRT_TYPE_PARSERS_H
 #define PPRT_TYPE_PARSERS_H
 
-// IMPORTANT: this file can't be used alone, it's only to be included in scnparser.h which
-// contains the good includes and typedefs!
+#include <boost/spirit/include/classic_functor_parser.hpp>
 
 #include <cmath>
 #include <limits>
@@ -178,7 +177,7 @@ struct bool_parser
 		return len;
 	}
 };
-functor_parser<bool_parser> bool_p;
+extern boost::spirit::classic::functor_parser<bool_parser> bool_p;
 
 //! Build a Color out of the scanner
 struct color_parser
@@ -223,7 +222,7 @@ struct color_parser
 		return len;
 	}
 };
-functor_parser<color_parser> color_p;
+extern boost::spirit::classic::functor_parser<color_parser> color_p;
 
 //! Build a Vec3 out of the scanner
 struct vec3_parser
@@ -268,6 +267,6 @@ struct vec3_parser
 		return len;
 	}
 };
-functor_parser<vec3_parser> vec3_p;
+extern boost::spirit::classic::functor_parser<vec3_parser> vec3_p;
 
 #endif

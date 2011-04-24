@@ -5,6 +5,12 @@
 
 using namespace Vectormath::Aos;
 
+template <typename T>
+inline float deg2rad(T deg)
+{
+	return static_cast<float>(deg * 0.01745329252);
+}
+
 __forceinline float cotangeant(const Point3 &a, const Point3 &b, const Point3 &c)
 {
 	const Vector3 ba(a - b);

@@ -1,56 +1,36 @@
-#ifndef PPRT_SCNPARSER_H
-#define PPRT_SCNPARSER_H
+#ifndef PPRT_RIBPARSER_H
+#define PPRT_RIBPARSER_H
 
-#include "scene.h"
+#include "../scene/scene.h"
 
-#include "../memory.h"
+#include "parser_typedefs.h"
+#include "parsing_actors.h"
+#include "type_parsers.h"
 
-#include <boost/spirit.hpp>
-#include <boost/spirit/phoenix.hpp>
-#include <boost/spirit/actor/clear_actor.hpp>
-#include <boost/filesystem.hpp>
+#include <boost/spirit/include/classic.hpp>
+#include <boost/spirit/include/phoenix1.hpp>
+#include <boost/spirit/include/classic_clear_actor.hpp>
 
-#include <algorithm>
-#include <iostream>
-#include <iterator>
 #include <string>
 #include <vector>
 
-using namespace boost::spirit;
+using namespace boost::spirit::classic;
 using namespace phoenix;
 
-typedef char						char_t;
-typedef file_iterator<char_t>		iterator_t;
-typedef scanner<iterator_t>			scanner_t;
-typedef rule<scanner_t>				rule_t;
+typedef scanner<iterator_t>	scanner_t;
+typedef rule<scanner_t>		rule_t;
 
-struct NonAlignedVec3
+namespace RibParser
 {
-	NonAlignedVec3() {}
-	NonAlignedVec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z) {}
-	float x, y, z;
-
-	operator Vector3() const	{ return Vector3(x, y, z); }
-	operator Point3() const		{ return Point3(x, y, z); }
-};
-typedef std::vector<NonAlignedVec3> Vec3Array;
-
-#include "parsing_actors.h"
-#include "../parser/type_parsers.h"
-
-namespace ScnParser
-{
-	//------------------------------------------------------
-	// Scn syntax
-	struct ScnSyntax : public grammar<ScnSyntax>
+	struct RibSyntax : public grammar<RibSyntax>
 	{
 	private:
 		// Scene to load the file into.
 		Scene &scene;
 
 	public:
-		ScnSyntax(Scene &scn) : scene(scn)		{}
-		virtual ~ScnSyntax()					{}
+		RibSyntax(Scene &scn) : scene(scn)		{}
+		virtual ~RibSyntax()					{}
 
 		template <typename ScannerT>
 		struct definition
@@ -66,7 +46,7 @@ namespace ScnParser
 			ShaderPath					_shaderPaths;
 
 		public:
-			definition(ScnSyntax const &self)
+			definition(RibSyntax const &self)
 				: _shaderPaths(self.scene)
 			{
 				// Generic rules
@@ -217,37 +197,12 @@ namespace ScnParser
 	class Parser
 	{
 	public:
-		Parser(Scene &scn)
-			:scene(scn), syntax(scene)
-		{
-		}
-
-		bool parseFile(const std::string &filename)
-		{
-			iterator_t fileBegin(filename);
-			if (!fileBegin)
-			{
-				std::cerr << "Can't open " << filename << std::endl;
-				return false;
-			}
-			iterator_t fileEnd = fileBegin.make_end();
-
-			parse_info<iterator_t> info = parse(fileBegin, fileEnd, syntax);
-
-			if (info.full)
-				return true;
-
-			std::cout << "Parse error on line:" << std::endl;
-			iterator_t end_error_line = std::find(info.stop, fileEnd, '\n');
-			std::ostream_iterator<char_t> out_it(std::cout, "");
-			std::copy(info.stop, end_error_line, out_it);
-			std::cout << std::endl;
-			return false;
-		}
+		Parser(Scene &scn);
+		bool parseFile(const std::string &filename);
 
 	private:
 		Scene		&scene;
-		ScnSyntax	syntax;
+		RibSyntax	syntax;
 	};
 }
 

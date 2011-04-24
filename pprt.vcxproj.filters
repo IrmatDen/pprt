@@ -5,30 +5,12 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Header Files\Parser">
-      <UniqueIdentifier>{119bf986-e503-4472-8633-b76e73b77eb5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Scene">
-      <UniqueIdentifier>{07f305b0-ffba-4093-a6f1-793cb0cfbdf1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ScnParser">
-      <UniqueIdentifier>{a026de18-6c04-481a-a2c0-0d373af0d6ef}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\ShaderVM">
-      <UniqueIdentifier>{1ffa625f-b750-4fa0-8b81-fe592e1d4a26}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\shader_compiler">
       <UniqueIdentifier>{550c9cc4-2bc6-4f19-b9b8-427ae3b44f3b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Source Files\Scene">
-      <UniqueIdentifier>{5bcd626a-fc3f-4885-b730-cb56afb92e88}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\ShaderVM">
-      <UniqueIdentifier>{d2d941ad-7940-4e00-85db-9c47f0b3174c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\shader_compiler">
       <UniqueIdentifier>{93a0116d-fe16-404f-9acf-38f4637f7518}</UniqueIdentifier>
@@ -45,52 +27,70 @@
     <Filter Include="Source Files\math">
       <UniqueIdentifier>{a7e29fb6-8ae4-4305-8d06-1f8b8a95d78e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ribparser">
+      <UniqueIdentifier>{119bf986-e503-4472-8633-b76e73b77eb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\scene">
+      <UniqueIdentifier>{07f305b0-ffba-4093-a6f1-793cb0cfbdf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\shadervm">
+      <UniqueIdentifier>{1ffa625f-b750-4fa0-8b81-fe592e1d4a26}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\scene">
+      <UniqueIdentifier>{5bcd626a-fc3f-4885-b730-cb56afb92e88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\shadervm">
+      <UniqueIdentifier>{d2d941ad-7940-4e00-85db-9c47f0b3174c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ribparser">
+      <UniqueIdentifier>{b42fabeb-91ca-4e8c-a571-fdacf041cb7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\aabb.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\bvh.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\camera.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\disk.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\geometry.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\scene.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\sphere.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="src\shadervm\color_fun.cpp">
-      <Filter>Source Files\ShaderVM</Filter>
+      <Filter>Source Files\shadervm</Filter>
     </ClCompile>
     <ClCompile Include="src\shadervm\compiled_shader.cpp">
-      <Filter>Source Files\ShaderVM</Filter>
+      <Filter>Source Files\shadervm</Filter>
     </ClCompile>
     <ClCompile Include="src\shadervm\geometric_fun.cpp">
-      <Filter>Source Files\ShaderVM</Filter>
+      <Filter>Source Files\shadervm</Filter>
     </ClCompile>
     <ClCompile Include="src\shadervm\math_fun.cpp">
-      <Filter>Source Files\ShaderVM</Filter>
+      <Filter>Source Files\shadervm</Filter>
     </ClCompile>
     <ClCompile Include="src\shadervm\shader_manager.cpp">
-      <Filter>Source Files\ShaderVM</Filter>
+      <Filter>Source Files\shadervm</Filter>
     </ClCompile>
     <ClCompile Include="src\shadervm\shading_lighting_fun.cpp">
-      <Filter>Source Files\ShaderVM</Filter>
+      <Filter>Source Files\shadervm</Filter>
     </ClCompile>
     <ClCompile Include="src\shadervm\type_ctor.cpp">
-      <Filter>Source Files\ShaderVM</Filter>
+      <Filter>Source Files\shadervm</Filter>
     </ClCompile>
     <ClCompile Include="src\shader_compiler\mnemonic_gen_visitor.cpp">
       <Filter>Source Files\shader_compiler</Filter>
@@ -108,69 +108,75 @@
       <Filter>Source Files\shader_compiler</Filter>
     </ClCompile>
     <ClCompile Include="src\shadervm\vmstack.cpp">
-      <Filter>Source Files\ShaderVM</Filter>
+      <Filter>Source Files\shadervm</Filter>
     </ClCompile>
     <ClCompile Include="src\scene\convex_polygon.cpp">
-      <Filter>Source Files\Scene</Filter>
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
     <ClCompile Include="src\math\plane.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
+    <ClCompile Include="src\ribparser\actors_geometries.cpp">
+      <Filter>Source Files\ribparser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ribparser\actors_transform.cpp">
+      <Filter>Source Files\ribparser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ribparser\actors_options.cpp">
+      <Filter>Source Files\ribparser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ribparser\actors_graphicstate.cpp">
+      <Filter>Source Files\ribparser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ribparser\ribparser.cpp">
+      <Filter>Source Files\ribparser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\crtscn_parser\parsing_actors.h">
-      <Filter>Header Files\ScnParser</Filter>
-    </ClInclude>
-    <ClInclude Include="src\crtscn_parser\scnparser.h">
-      <Filter>Header Files\ScnParser</Filter>
-    </ClInclude>
-    <ClInclude Include="src\parser\type_parsers.h">
-      <Filter>Header Files\Parser</Filter>
-    </ClInclude>
     <ClInclude Include="src\scene\aabb.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\bvh.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\camera.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\color.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\disk.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\geometry.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\light.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\ray.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\scene.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\sphere.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\shadervm\compiled_shader.h">
-      <Filter>Header Files\ShaderVM</Filter>
+      <Filter>Header Files\shadervm</Filter>
     </ClInclude>
     <ClInclude Include="src\shadervm\shader_manager.h">
-      <Filter>Header Files\ShaderVM</Filter>
+      <Filter>Header Files\shadervm</Filter>
     </ClInclude>
     <ClInclude Include="src\shadervm\shader_param.h">
-      <Filter>Header Files\ShaderVM</Filter>
+      <Filter>Header Files\shadervm</Filter>
     </ClInclude>
     <ClInclude Include="src\shadervm\symtab.h">
-      <Filter>Header Files\ShaderVM</Filter>
+      <Filter>Header Files\shadervm</Filter>
     </ClInclude>
     <ClInclude Include="src\shadervm\varvalue.h">
-      <Filter>Header Files\ShaderVM</Filter>
+      <Filter>Header Files\shadervm</Filter>
     </ClInclude>
     <ClInclude Include="src\shader_compiler\CRTSL_grammar_constants.h">
       <Filter>Header Files\shader_compiler</Filter>
@@ -197,16 +203,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\shadervm\vmstack.h">
-      <Filter>Header Files\ShaderVM</Filter>
+      <Filter>Header Files\shadervm</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\pixel_store.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\framebuffer.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\traceblock.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\aligned_vector.h">
       <Filter>Header Files</Filter>
@@ -218,10 +224,34 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scene\convex_polygon.h">
-      <Filter>Header Files\Scene</Filter>
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
     <ClInclude Include="src\math\plane.h">
       <Filter>Header Files\math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribparser\type_parsers.h">
+      <Filter>Header Files\ribparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribparser\parsing_actors.h">
+      <Filter>Header Files\ribparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribparser\ribparser.h">
+      <Filter>Header Files\ribparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribparser\parser_typedefs.h">
+      <Filter>Header Files\ribparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribparser\actors_geometries.h">
+      <Filter>Header Files\ribparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribparser\actors_transform.h">
+      <Filter>Header Files\ribparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribparser\actors_options.h">
+      <Filter>Header Files\ribparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ribparser\actors_graphicstate.h">
+      <Filter>Header Files\ribparser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

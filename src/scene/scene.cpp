@@ -3,7 +3,7 @@
 #include "framebuffer.h"
 #include "traceblock.h"
 
-#include "../crtscn_parser/scnparser.h"
+#include "../ribparser/ribparser.h"
 #include "../memory.h"
 
 #include <limits>
@@ -71,7 +71,7 @@ bool Scene::reloadSceneFile()
 {
 	clear();
 
-	ScnParser::Parser scnParser(*this);
+	RibParser::Parser scnParser(*this);
 	bool parseRes = scnParser.parseFile(sceneFileName);
 	
 	if (parseRes)

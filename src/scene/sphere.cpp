@@ -9,24 +9,28 @@ bool Sphere::hit(const Ray &ray, IntersectionInfo &ii) const
 	const Vector3 localRayOriginAsVec(localRayOrigin);
 	const Vector3 localRayDir	((worldToObject * ray.direction()).get128());
 
-	const float a = dot(localRayDir, localRayDir);
-	const float b = 2 * dot(localRayDir, localRayOriginAsVec);
-	const float c = dot(localRayOriginAsVec, localRayOriginAsVec) - r*r;
+	const __m128 a = dotps(localRayDir.get128(), localRayDir.get128());
+	const __m128 b = mulps(set1ps(2), dotps(localRayDir.get128(), localRayOriginAsVec.get128()));
+	const __m128 rv = set1ps(r);
+	const __m128 c = subps(dotps(localRayOriginAsVec.get128(), localRayOriginAsVec.get128()), mulps(rv, rv));
 	
 	// Solve quadratic
-	const float d = b*b - 4 * a * c;
+	const float ar = a.m128_f32[0];
+	const float br = b.m128_f32[0];
+	const float cr = c.m128_f32[0];
+	const float d = (subps(mulps(b,b), mulps(set1ps(4), mulps(a, c)))).m128_f32[0];
 	if (d < 0)
 		return false;
 	
 	const float sqrtD = sqrt(d);
 	float q;
-	if (b < 0)
-		q = -0.5f * (b - sqrtD);
+	if (br < 0)
+		q = -0.5f * (br - sqrtD);
 	else
-		q = -0.5f * (b + sqrtD);
+		q = -0.5f * (br + sqrtD);
 
-	float t0	= q / a;
-	float t1	= c / q;
+	float t0	= q / ar;
+	float t1	= cr / q;
 	if (t0 > t1)
 		std::swap(t0, t1);
 

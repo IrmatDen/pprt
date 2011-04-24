@@ -44,7 +44,10 @@ WorldBegin
 
 	Surface "reflect_sample" "reflectStrengh" 0.25
 	# floor
-	Polygon "P" [-2.5 -2.5 -8   -12 -2.5 16   12 -2.5 16   2.5 -2.5 -8]
+	Polygon "P" [-2.5 -2.5 -8
+				 -12  -2.5  16
+				  12  -2.5  16
+				  2.5 -2.5 -8]
 	# left
 	Polygon "P" [-2.5 -2.5 -8   -2.5  5 -8   -12 5 16   -12 -2.5 16]
 	# right

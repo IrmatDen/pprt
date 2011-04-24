@@ -75,7 +75,7 @@ namespace ScnParser
 					foldername		= '&' | +(alnum_p | '.' | ":/" | '/' | '_' | '-');
 					foldersArray	= "[\"" >> list_p(foldername[push_back_a(_strVector)], ':') >> "\"]";
 					vec3			= vec3_p [assign_a(_vec3)];
-					vec3Array		= str_p("[") [clear_a(_pointVector)] >> list_p(vec3 [push_back_a(_pointVector, _vec3)], ' ') >> "]";
+					vec3Array		= str_p("[") [clear_a(_pointVector)] >> (vec3 [push_back_a(_pointVector, _vec3)]) % (*blank_p >> !(ending >> *blank_p)) >> "]";
 					singleBoolArray	= "[" >> bool_p [assign_a(_bool)] >> "]";
 
 				// Comment definition

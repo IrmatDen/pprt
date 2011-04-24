@@ -7,6 +7,7 @@ using namespace std;
 struct ConvexPolygon::Vertex
 {
 	Point3	pos;
+    Vector3 n;
 	Vector3	edgeNormal;	//!< Edge normal is defined to be the normal of the edge between this point & the next
 };
 
@@ -25,16 +26,16 @@ void ConvexPolygon::setPoints(size_t pointsCount, Point3 *pointArray)
 	nVertices	= pointsCount;
 	vertices	= memory::allocate<Vertex>(nVertices);
 
-	// Copy vertices' positions
-	size_t vIdx = 0;
-	for_each(pointArray, pointArray + nVertices,
-		[&] (const Point3 &p) { vertices[vIdx++].pos = p; } );
-
-	buildAABB();
-
 	// Get supporting plane
 	//! \todo Search valid points instead of assuming the first 3 are...
 	polyPlane = Plane::fromPoints(pointArray[0], pointArray[1], pointArray[2]);
+
+	// Copy vertices' positions
+	size_t vIdx = 0;
+	for_each(pointArray, pointArray + nVertices,
+        [&] (const Point3 &p) { vertices[vIdx].pos = p; vertices[vIdx].n = polyPlane.n; vIdx++; } );
+
+	buildAABB();
 	
 	// Compute edges' normal
 	for (vIdx = 0; vIdx != nVertices; vIdx++)
@@ -90,14 +91,14 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 	float weightSum	= 0.f;
 
 	bool shouldNormalizeWeights = true;
-	for (size_t pIdx = 0; pIdx != nVertices; pIdx++)
+	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	{
-		const size_t prev	= (pIdx + nVertices - 1) % nVertices;
-		const size_t next	= (pIdx + 1) % nVertices;
+		const size_t prev	= (vIdx + nVertices - 1) % nVertices;
+		const size_t next	= (vIdx + 1) % nVertices;
 
 		// Determine if point is almost on an edge
-		const Vector3 PToCurrent = pointInPlane - vertices[pIdx].pos;
-		const Vector3 nextToCurrent	= vertices[next].pos - vertices[pIdx].pos;
+		const Vector3 PToCurrent = pointInPlane - vertices[vIdx].pos;
+		const Vector3 nextToCurrent	= vertices[next].pos - vertices[vIdx].pos;
 		const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
 		const float ntcSqrdLen	= lengthSqr(nextToCurrent);
 		if (area <= 0.001f * ntcSqrdLen)
@@ -107,18 +108,18 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 				weights[wIdx] = 0.f;
 
 			const float w = lengthSqr(PToCurrent) / ntcSqrdLen;
-			weights[pIdx] = 1.f - w;
+			weights[vIdx] = 1.f - w;
 			weights[next] = w;
 
 			shouldNormalizeWeights = false;
 			break;
 		}
 
-		const float cot1		= cotangeant(pointInPlane, vertices[pIdx].pos, vertices[prev].pos);
-		const float cot2		= cotangeant(pointInPlane, vertices[pIdx].pos, vertices[next].pos);
-		const float distSqrd	= lengthSqr(pointInPlane - vertices[pIdx].pos);
-		weights[pIdx]			= (cot1 + cot2) / distSqrd;
-		weightSum				+= weights[pIdx];
+		const float cot1		= cotangeant(pointInPlane, vertices[vIdx].pos, vertices[prev].pos);
+		const float cot2		= cotangeant(pointInPlane, vertices[vIdx].pos, vertices[next].pos);
+		const float distSqrd	= lengthSqr(pointInPlane - vertices[vIdx].pos);
+		weights[vIdx]			= (cot1 + cot2) / distSqrd;
+		weightSum				+= weights[vIdx];
 	}
 	
 	// Normalize weights
@@ -129,12 +130,17 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 			weights[wIdx] *= invWeightSum;
 	}
 
+    ii.normal = Vector3(0.f);
+	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+    {
+		 ii.normal += vertices[vIdx].n * weights[vIdx];
+    }
+
 	barCoordProvider.local()->ordered_free(weights, nVertices);
 
 	// Fill intersection info
 	ray.maxT	= dist;
 	ii.point	= Point3((objectToWorld * pointInPlane).get128());
-	ii.normal	= polyPlane.n;
 
 	return true;
 }

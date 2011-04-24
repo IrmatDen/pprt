@@ -146,7 +146,7 @@ namespace RibParser
                     usethreads
                         =	"\"usethreads\""
                             >> +blank_p
-                            >> singleBoolArray [bind(&Scene::enableThreading, &self.scene, boost::cref(_bool))
+                            >> singleBoolArray [bind(&Scene::enableThreading, &self.scene, boost::cref(_bool))]
                         ;
 							  
 

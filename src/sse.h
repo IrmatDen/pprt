@@ -36,7 +36,7 @@
 
 #define shuffleps_mask(x,y,z,w)		((x)|((y)<<2)|((z)<<4)|((w)<<6))
 #define shuffleps(ps1,ps2,x,y,z,w)	_mm_shuffle_ps((ps1),(ps2),shuffleps_mask(x,y,z,w))
-#define shuffle1ps(ps1,x,y,z,w)		shuffleps(ps1,x,y,z,w)
+#define shuffle1ps(ps1,x,y,z,w)		shuffleps(ps1, ps1,x,y,z,w)
 
 #define all_zero()			_mm_setzero_ps()
 

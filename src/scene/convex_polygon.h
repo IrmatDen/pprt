@@ -27,7 +27,7 @@ private:
 	Point3	*	points;
 
 	// TLS for barycentric coordinates
-	memory::TLPool	barCoordProvider;
+	mutable memory::TLPool	barCoordProvider;
 };
 
 #endif

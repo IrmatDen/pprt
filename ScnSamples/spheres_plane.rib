@@ -43,5 +43,5 @@ WorldBegin
 	AttributeEnd
 
 	Surface "plastic"
-	Polygon "P" [0 -2.5 -8   -12 -2.5 16   12 -2.5 16]
+	Polygon "P" [0 -2.5 -8   -8 -2.5 16   8 -2.5 16]
 WorldEnd

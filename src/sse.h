@@ -7,6 +7,7 @@
 
 #define set1ps(v)			_mm_set1_ps((v))
 #define loadps(mem)			_mm_load_ps((const float * const)(mem))
+#define storeps(ss, mem)	_mm_store_ps((float * const)(mem),(ss))
 #define storess(ss,mem)		_mm_store_ss((float * const)(mem),(ss))
 
 #define addps				_mm_add_ps

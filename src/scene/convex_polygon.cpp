@@ -66,9 +66,9 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 {
 	Ray localRay(worldToObject * ray);
 
-	float dist, bbMin;
+	float dist;
 	Point3 pointInPlane;
-	if (!polyPlane.intersection(localRay, dist, pointInPlane) || dist > ray.maxT || !aabb.hit(ray, bbMin, dist))
+	if (!polyPlane.intersection(localRay, dist, pointInPlane) || dist > ray.maxT)
 		return false;
 
 	// Test point-in-polygon (lazy mode)

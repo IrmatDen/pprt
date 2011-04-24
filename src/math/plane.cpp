@@ -18,13 +18,13 @@ Plane::Plane()
 bool Plane::intersection(const Ray &ray, float &dist, Point3 &intersection) const
 {
 	const float denominator = dot(ray.direction(), n);
-	const float dotNO		= dot(Vector3(ray.origin), n);
+	const float dotNOd		= dot(Vector3(ray.origin), n) + d;
 
 	// Check if ray is parallel
 	if (abs(denominator) < 0.001f)
 	{
 		// Check if ray's origin lies on the plane
-		if (dotNO < 0.001f)
+		if (dotNOd < 0.001f)
 		{
 			dist = 0.f;
 			intersection = ray.origin;
@@ -34,7 +34,7 @@ bool Plane::intersection(const Ray &ray, float &dist, Point3 &intersection) cons
 			return false;
 	}
 
-	dist = -(dotNO + d) / denominator;
+	dist = -(dotNOd) / denominator;
 	if (dist < 0)
 		return false;
 

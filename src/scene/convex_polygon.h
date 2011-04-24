@@ -18,13 +18,16 @@ public:
 	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
 
 private:
+	struct Vertex;
+
+private:
 	void buildAABB();
 
 private:
 	Plane		polyPlane;
 
-	size_t		nPoints;
-	Point3	*	points;
+	size_t		nVertices;
+	Vertex	*	vertices;
 
 	// TLS for barycentric coordinates
 	mutable memory::TLPool	barCoordProvider;

@@ -359,6 +359,8 @@ struct newPolygon_a
 		poly->setShaderParams(GraphicStateStack::current.shaderParams);
 
 		scene.addGeometry(poly);
+
+		points.swap(Vec3Array());
 	}
 
 	Scene		&scene;

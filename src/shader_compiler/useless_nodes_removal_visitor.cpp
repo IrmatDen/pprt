@@ -7,9 +7,17 @@
 
 using namespace std;
 
-void UselessNodesRemovalVisitor::visit(TermNode &node)
-{
-}
+DEFINE_VISIT_EMPTY_NODE(UselessNodesRemovalVisitor, TermNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, ShaderRootNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, BlockNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, VarDefNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, StmtNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, ReturnStmtNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, AsgnExprNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, NegateExprNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, TypeCtorNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, ProcCallNode)
+DEFINE_VISIT_CHILDREN_NODE(UselessNodesRemovalVisitor, ProcArgsNode)
 
 void UselessNodesRemovalVisitor::visit(FileRootNode &node)
 {
@@ -31,11 +39,6 @@ void UselessNodesRemovalVisitor::visit(FileRootNode &node)
 	deleteUselessNodes();
 }
 
-void UselessNodesRemovalVisitor::visit(ShaderRootNode &node)
-{
-	visitChildrenOf(node);
-}
-
 void UselessNodesRemovalVisitor::visit(FormalsNode &node)
 {
 	visitChildrenOf(node);
@@ -54,11 +57,6 @@ void UselessNodesRemovalVisitor::visit(FormalsNode &node)
 	}
 }
 
-void UselessNodesRemovalVisitor::visit(BlockNode &node)
-{
-	visitChildrenOf(node);
-}
-
 void UselessNodesRemovalVisitor::visit(VarDeclBlockNode &node)
 {
 	visitChildrenOf(node);
@@ -75,11 +73,6 @@ void UselessNodesRemovalVisitor::visit(VarDeclBlockNode &node)
 			node.getChildren()->erase(node.getChildren()->begin() + 1);
 		}
 	}
-}
-
-void UselessNodesRemovalVisitor::visit(VarDefNode &node)
-{
-	visitChildrenOf(node);
 }
 
 void UselessNodesRemovalVisitor::visit(VarDefMultExprNode &node)
@@ -138,16 +131,6 @@ void UselessNodesRemovalVisitor::visit(StmtListNode &node)
 	}
 }
 
-void UselessNodesRemovalVisitor::visit(StmtNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void UselessNodesRemovalVisitor::visit(ReturnStmtNode &node)
-{
-	visitChildrenOf(node);
-}
-
 void UselessNodesRemovalVisitor::visit(ExprNode &node)
 {
 	visitChildrenOf(node);
@@ -175,11 +158,6 @@ void UselessNodesRemovalVisitor::visit(PrimNode &node)
 		updateParentChildren(node, *(SLNode*)children[0]);
 		children.erase(children.begin());
 	}
-}
-
-void UselessNodesRemovalVisitor::visit(AsgnExprNode &node)
-{
-	visitChildrenOf(node);
 }
 
 void UselessNodesRemovalVisitor::visit(AddExprNode &node)
@@ -240,26 +218,6 @@ void UselessNodesRemovalVisitor::visit(DotExprNode &node)
 		updateParentChildren(node, *(SLNode*)children[0]);
 		children.erase(children.begin());
 	}
-}
-
-void UselessNodesRemovalVisitor::visit(NegateExprNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void UselessNodesRemovalVisitor::visit(TypeCtorNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void UselessNodesRemovalVisitor::visit(ProcCallNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void UselessNodesRemovalVisitor::visit(ProcArgsNode &node)
-{
-	visitChildrenOf(node);
 }
 
 void UselessNodesRemovalVisitor::visit(ProcArgsListNode &node)

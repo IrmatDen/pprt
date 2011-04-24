@@ -29,14 +29,18 @@ MnemonicGenVisitor::~MnemonicGenVisitor()
 	memory::destroy(shader);
 }
 
-void MnemonicGenVisitor::visit(TermNode &node)
-{
-}
-
-void MnemonicGenVisitor::visit(FileRootNode &node)
-{
-	visitChildrenOf(node);
-}
+DEFINE_VISIT_EMPTY_NODE(MnemonicGenVisitor, TermNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, FileRootNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, FormalsNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, BlockNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, VarDeclBlockNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, VarDefNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, VarDefMultExprNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, StmtListNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, StmtNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, ExprNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, PrimNode)
+DEFINE_VISIT_CHILDREN_NODE(MnemonicGenVisitor, ProcArgsNode)
 
 void MnemonicGenVisitor::visit(ShaderRootNode &node)
 {
@@ -53,31 +57,6 @@ void MnemonicGenVisitor::visit(ShaderRootNode &node)
 	visitChildrenOf(node);
 
 	shaderMgr.addShader(*shader);
-}
-
-void MnemonicGenVisitor::visit(FormalsNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void MnemonicGenVisitor::visit(BlockNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void MnemonicGenVisitor::visit(VarDeclBlockNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void MnemonicGenVisitor::visit(VarDefNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void MnemonicGenVisitor::visit(VarDefMultExprNode &node)
-{
-	visitChildrenOf(node);
 }
 
 void MnemonicGenVisitor::visit(VarDefExprNode &node)
@@ -135,9 +114,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 		{
 			vector<ASTNode*> &typeCtorChildren = *initializer->getChildren();
 			wstring ctorName = typeCtorChildren[0]->getImage();
-#ifdef _DEBUG
 			assert(ctorName == type);
-#endif
 
 			vector<ASTNode*> &args = *typeCtorChildren[1]->getChildren();
 
@@ -199,9 +176,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 				}
 				else if (type == L"real")
 				{
-#ifdef _DEBUG
 					assert(args.size() == 1);
-#endif
 					v.content = lexical_cast<float>(wstringToString(args[0]->getImage()));
 				}
 			}
@@ -242,16 +217,6 @@ void MnemonicGenVisitor::visit(VarInitNode &node)
 	}
 }
 
-void MnemonicGenVisitor::visit(StmtListNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void MnemonicGenVisitor::visit(StmtNode &node)
-{
-	visitChildrenOf(node);
-}
-
 void MnemonicGenVisitor::visit(ReturnStmtNode &node)
 {
 	// If the returned expression is a terminal node, push it; otherwise evaluate it
@@ -268,16 +233,6 @@ void MnemonicGenVisitor::visit(ReturnStmtNode &node)
 	}
 
 	shader->parseInstr("ret");
-}
-
-void MnemonicGenVisitor::visit(ExprNode &node)
-{
-	visitChildrenOf(node);
-}
-
-void MnemonicGenVisitor::visit(PrimNode &node)
-{
-	visitChildrenOf(node);
 }
 
 void MnemonicGenVisitor::visit(MultExprNode &node)
@@ -475,11 +430,6 @@ void MnemonicGenVisitor::visit(ProcCallNode &node)
 	shader->parseInstr(instr);
 }
 
-void MnemonicGenVisitor::visit(ProcArgsNode &node)
-{
-	visitChildrenOf(node);
-}
-
 void MnemonicGenVisitor::visit(ProcArgsListNode &node)
 {
 	vector<ASTNode*> &children = *node.getChildren();
@@ -488,21 +438,6 @@ void MnemonicGenVisitor::visit(ProcArgsListNode &node)
 		ASTNode *c = *it;
 		if (c->getChildren()->size() == 0)
 		{
-			/*// initializer is a terminal, check if it's a constant, if so, use it to initialize the var
-			try
-			{
-				float value = lexical_cast<float>(wstringToString(initializer->getImage()));
-				if (type == L"color")
-					v.content = Color((float)value);
-				else if (type == L"real")
-					v.content = value;
-
-				initializationHandled = true;
-			}
-			catch (bad_lexical_cast &)
-			{
-				// if it's not a float, then it probably is a var, and so initialization is deferred at runtime.
-			}*/
 			string instr("push ");
 			instr += wstringToString(c->getImage());
 			shader->parseInstr(instr);

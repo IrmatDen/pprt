@@ -25,6 +25,7 @@
 #define xorps(v1,v2)		_mm_xor_ps((v1),(v2))
 #define orps(v1,v2)			_mm_or_ps((v1),(v2))
 #define andps(v1,v2)		_mm_and_ps((v1),(v2))
+#define cmpeqps(v1,v2)      _mm_cmpeq_ps((v1),(v2))
 #define cmpltps(v1,v2)		_mm_cmplt_ps((v1),(v2))
 #define cmpgtps(v1,v2)		_mm_cmpgt_ps((v1),(v2))
 #define cmpgeps(v1,v2)		_mm_cmpge_ps((v1),(v2))
@@ -40,6 +41,7 @@
 #define shuffle1ps(ps1,x,y,z,w)		shuffleps(ps1, ps1,x,y,z,w)
 
 #define all_zero()			_mm_setzero_ps()
+#define all_bits_set()      cmpeqps(all_zero(), all_zero())
 
 namespace sse
 {

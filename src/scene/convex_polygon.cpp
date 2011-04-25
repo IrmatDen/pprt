@@ -9,9 +9,246 @@ struct ConvexPolygon::Vertex
 	Point3	pos;
     Vector3 n;
     Color   cs, os;
-
-	Vector3	edgeNormal;	//!< Edge normal is defined to be the normal of the edge between this point & the next
 };
+
+struct ConvexPolygon::Face
+{
+    ConvexPolygon *owner;
+
+    size_t  nVertices;
+    size_t  *verticesIndex;
+
+    Plane   plane;
+    Vector3 *edgeNormals;
+
+    void build(const ConvexPolygon::MeshCreationData &data, size_t currentIndex)
+    {
+        nVertices = data.vertexPerFaces[currentIndex];
+        verticesIndex = memory::allocate<size_t>(nVertices);
+
+        size_t vIdx = 0;
+        for_each(verticesIndex, verticesIndex + nVertices, [&] (size_t &v) { v = data.faces[currentIndex][vIdx++]; } );
+
+	    // Get supporting plane
+	    //! \todo Search valid points instead of assuming the first 3 are...
+        plane = Plane::fromPoints(getVertexAt(verticesIndex[0]).pos,
+                                  getVertexAt(verticesIndex[1]).pos,
+                                  getVertexAt(verticesIndex[2]).pos);
+
+        // Generate each edges normals & generate default vertex normals
+        edgeNormals = memory::allocate<Vector3>(nVertices);
+	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+	    {
+		    const size_t next			= (vIdx + 1) % nVertices;
+		    const Vector3 nextToCurrent	= getVertexAt(verticesIndex[next]).pos - getVertexAt(verticesIndex[vIdx]).pos;
+            edgeNormals[vIdx]           = cross(normalize(nextToCurrent), plane.n);
+
+            //! \todo average already existing normal (if any)
+            getVertexAt(verticesIndex[vIdx]).n = plane.n;
+        }
+    }
+
+    inline ConvexPolygon::Vertex& getVertexAt(size_t idx)
+    {
+        return owner->vertices[verticesIndex[idx]];
+    }
+
+    bool hit(const Ray &ray, IntersectionInfo &ii)
+    {
+	    float dist;
+        Point3 pointInPlane;
+        if (!plane.intersection(ray, dist, pointInPlane) || dist > ray.maxT)
+		    return false;
+
+	    // Test point-in-polygon (lazy mode)
+	    size_t insideCount = 0;
+	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+	    {
+		    const Vector3 PToCurrent = pointInPlane - getVertexAt(verticesIndex[vIdx]).pos;
+		    if (dot(edgeNormals[vIdx], PToCurrent) < 0.f)
+			    insideCount++;
+	    }
+	    if (insideCount < nVertices)
+		    return false;
+
+        ////// SUBSUBSUBSUBSUBSUB-OPTIMAL! do refinement once closest poly is found!
+
+	    // Compute barycentric coordinates based on
+	    // "Generalized Barycentric Coordinates on Irregular Polygons"
+	    // by Meyer et al. (2002)
+	    // Published in JGT Vol. 7, Nr 1, 2002
+	    float *weights	= reinterpret_cast<float*>(owner->barCoordProvider.local()->ordered_malloc(nVertices));
+	    float weightSum	= 0.f;
+
+	    bool shouldNormalizeWeights = true;
+	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+	    {
+		    const size_t prev	= (vIdx + nVertices - 1) % nVertices;
+		    const size_t next	= (vIdx + 1) % nVertices;
+
+		    // Determine if point is almost on an edge
+		    const Vector3 PToCurrent = pointInPlane - getVertexAt(verticesIndex[vIdx]).pos;
+		    const Vector3 nextToCurrent	= getVertexAt(verticesIndex[next]).pos - getVertexAt(verticesIndex[vIdx]).pos;
+		    const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
+		    const float ntcSqrdLen	= lengthSqr(nextToCurrent);
+		    if (area <= 0.000001f * ntcSqrdLen)
+		    {
+			    // Reset all weights and interpolate between this vertex and the next
+			    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+				    weights[wIdx] = 0.f;
+
+			    const float w = lengthSqr(PToCurrent) / ntcSqrdLen;
+			    weights[vIdx] = 1.f - w;
+			    weights[next] = w;
+
+			    shouldNormalizeWeights = false;
+			    break;
+		    }
+
+		    const float cot1		= cotangeant(pointInPlane, getVertexAt(verticesIndex[vIdx]).pos, getVertexAt(verticesIndex[prev]).pos);
+		    const float cot2		= cotangeant(pointInPlane, getVertexAt(verticesIndex[vIdx]).pos, getVertexAt(verticesIndex[next]).pos);
+		    const float distSqrd	= lengthSqr(pointInPlane - getVertexAt(verticesIndex[vIdx]).pos);
+		    weights[vIdx]			= (cot1 + cot2) / distSqrd;
+		    weightSum				+= weights[vIdx];
+	    }
+	
+	    // Normalize weights
+	    if (shouldNormalizeWeights)
+	    {
+		    const float invWeightSum = 1.f / weightSum;
+		    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+			    weights[wIdx] *= invWeightSum;
+	    }
+        
+        ii.point    = pointInPlane;
+        ii.normal   = Vector3(0.f);
+        ii.cs       = Color(0.f);
+	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+        {
+		        ii.normal  += getVertexAt(verticesIndex[vIdx]).n * weights[vIdx];
+                ii.cs      += getVertexAt(verticesIndex[vIdx]).cs * weights[vIdx];
+                ii.os      += getVertexAt(verticesIndex[vIdx]).os * weights[vIdx];
+        }
+
+	    owner->barCoordProvider.local()->ordered_free(weights, nVertices);
+
+        ray.maxT = dist;
+        return true;
+    }
+};
+
+//----------------------------------------------------------------------
+// MeshCreationData
+
+ConvexPolygon::MeshCreationData::MeshCreationData(size_t nVertices, size_t nFaces, ComponentSet components)
+    :   vertexCount(nVertices), comps(components), facesCount(nFaces),
+        points(nullptr), normals(nullptr),
+        cs(nullptr), os(nullptr),
+        currAddedFace(0), vertexPerFaces(nullptr), faces(nullptr)
+{
+    if (vertexCount > 0 && facesCount > 0)
+    {
+        points = memory::allocate<Point3>(vertexCount);
+
+        vertexPerFaces  = memory::allocate<size_t>(facesCount);
+        faces           = memory::allocate<size_t*>(facesCount);
+
+        if (comps.test(HasNormals))
+            normals = memory::allocate<Vector3>(vertexCount);
+
+        if (comps.test(HasColors))
+            cs = memory::allocate<Color>(vertexCount);
+
+        if (comps.test(HasOpacities))
+            os = memory::allocate<Color>(vertexCount);
+    }
+}
+
+ConvexPolygon::MeshCreationData::~MeshCreationData()
+{
+    if (vertexCount > 0 && facesCount > 0)
+    {
+        memory::deallocate<Point3>(points);
+        
+        memory::deallocate<size_t>(vertexPerFaces);
+        for_each(faces, faces + facesCount, &memory::deallocate<size_t>);
+        memory::deallocate<size_t*>(faces);
+
+        if (comps.test(HasNormals))
+            memory::deallocate<Vector3>(normals);
+
+        if (comps.test(HasColors))
+            memory::deallocate<Color>(cs);
+
+        if (comps.test(HasOpacities))
+            memory::deallocate<Color>(os);
+    }
+}
+
+void ConvexPolygon::MeshCreationData::addFace(size_t faceSize, size_t *verticesIdx)
+{
+    vertexPerFaces[currAddedFace] = faceSize;
+    
+    faces[currAddedFace] = memory::allocate<size_t>(faceSize);
+    for (size_t idx = 0; idx != faceSize; idx++)
+        faces[currAddedFace][idx] = verticesIdx[idx];
+
+    currAddedFace++;
+}
+
+//----------------------------------------------------------------------
+// ConvexPolygon
+
+ConvexPolygon* ConvexPolygon::create(const Matrix4 &obj2world, const MeshCreationData &data)
+{
+    if (data.vertexCount == 0)
+        return nullptr;
+
+    ConvexPolygon *result(memory::construct<ConvexPolygon>(obj2world));
+
+    result->nVertices	= data.vertexCount;
+	result->vertices	= memory::allocate<Vertex>(result->nVertices);
+
+	// Copy vertices' positions
+	size_t vIdx = 0;
+	for_each(data.points, data.points + result->nVertices,
+        [&] (const Point3 &p)
+        {
+            result->vertices[vIdx].pos  = p;
+            result->vertices[vIdx].cs   = result->color;
+            result->vertices[vIdx].os   = result->opacity;
+            vIdx++;
+        } );
+
+	result->buildAABB();
+
+    // Build faces infos
+    result->nFaces = data.facesCount;
+    result->faces = memory::allocate<Face>(result->nFaces);
+    size_t idx = 0;
+    for_each(result->faces, result->faces + result->nFaces,
+        [&] (Face &f)
+        {
+            f.owner = result;
+            f.build(data, idx);
+            idx++;
+        } );
+	
+	// Copy additional per-vertex data
+	for (vIdx = 0; vIdx != result->nVertices; vIdx++)
+	{
+        if (data.normals != nullptr)
+            result->vertices[vIdx].n = normalize(data.normals[vIdx]);
+
+        if (data.cs != nullptr)
+            result->vertices[vIdx].cs = data.cs[vIdx];
+
+        if (data.os != nullptr)
+            result->vertices[vIdx].os = data.os[vIdx];
+	}
+
+    return result;
+}
 
 ConvexPolygon::ConvexPolygon()
 	: barCoordProvider(&memory::PoolCreator<float, 1>::create)
@@ -26,56 +263,7 @@ ConvexPolygon::ConvexPolygon(const Matrix4 &obj2world)
 ConvexPolygon::~ConvexPolygon()
 {
 	memory::deallocate(vertices);
-}
-
-void ConvexPolygon::setPoints(size_t pointsCount, Point3 *pointArray)
-{
-	nVertices	= pointsCount;
-	vertices	= memory::allocate<Vertex>(nVertices);
-
-	// Get supporting plane
-	//! \todo Search valid points instead of assuming the first 3 are...
-	polyPlane = Plane::fromPoints(pointArray[0], pointArray[1], pointArray[2]);
-
-	// Copy vertices' positions
-	size_t vIdx = 0;
-	for_each(pointArray, pointArray + nVertices,
-        [&] (const Point3 &p)
-        {
-            vertices[vIdx].pos  = p;
-            vertices[vIdx].n    = polyPlane.n;
-            vertices[vIdx].cs   = color;
-            vertices[vIdx].os   = opacity;
-            vIdx++;
-        } );
-
-	buildAABB();
-	
-	// Compute edges' normal
-	for (vIdx = 0; vIdx != nVertices; vIdx++)
-	{
-		const size_t next			= (vIdx + 1) % nVertices;
-		const Vector3 nextToCurrent	= vertices[next].pos - vertices[vIdx].pos;
-		vertices[vIdx].edgeNormal	= cross(normalize(nextToCurrent), polyPlane.n);
-	}
-}
-
-void ConvexPolygon::setNormals(Vector3 *ns)
-{
-    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-        vertices[vIdx].n = normalize(ns[vIdx]);
-}
-
-void ConvexPolygon::setPointsColors(Color *cs)
-{
-    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-        vertices[vIdx].cs = cs[vIdx];
-}
-
-void ConvexPolygon::setPointsOpacities(Color *os)
-{
-    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-        vertices[vIdx].os = os[vIdx];
+	memory::deallocate(faces);
 }
 
 void ConvexPolygon::buildAABB()
@@ -92,83 +280,14 @@ bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
 {
 	Ray localRay(worldToObject * ray);
 
-	float dist;
-	Point3 pointInPlane;
-	if (!polyPlane.intersection(localRay, dist, pointInPlane) || dist > ray.maxT)
-		return false;
-
-	// Test point-in-polygon (lazy mode)
-	size_t insideCount = 0;
-	for (size_t pIdx = 0; pIdx != nVertices; pIdx++)
-	{
-		const Vector3 PToCurrent = pointInPlane - vertices[pIdx].pos;
-		if (dot(vertices[pIdx].edgeNormal, PToCurrent) < 0.f)
-			insideCount++;
-	}
-	if (insideCount < nVertices)
-		return false;
-
-	// Compute barycentric coordinates based on
-	// "Generalized Barycentric Coordinates on Irregular Polygons"
-	// by Meyer et al. (2002)
-	// Published in JGT Vol. 7, Nr 1, 2002
-	float *weights	= reinterpret_cast<float*>(barCoordProvider.local()->ordered_malloc(nVertices));
-	float weightSum	= 0.f;
-
-	bool shouldNormalizeWeights = true;
-	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-	{
-		const size_t prev	= (vIdx + nVertices - 1) % nVertices;
-		const size_t next	= (vIdx + 1) % nVertices;
-
-		// Determine if point is almost on an edge
-		const Vector3 PToCurrent = pointInPlane - vertices[vIdx].pos;
-		const Vector3 nextToCurrent	= vertices[next].pos - vertices[vIdx].pos;
-		const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
-		const float ntcSqrdLen	= lengthSqr(nextToCurrent);
-		if (area <= 0.000001f * ntcSqrdLen)
-		{
-			// Reset all weights and interpolate between this vertex and the next
-			for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-				weights[wIdx] = 0.f;
-
-			const float w = lengthSqr(PToCurrent) / ntcSqrdLen;
-			weights[vIdx] = 1.f - w;
-			weights[next] = w;
-
-			shouldNormalizeWeights = false;
-			break;
-		}
-
-		const float cot1		= cotangeant(pointInPlane, vertices[vIdx].pos, vertices[prev].pos);
-		const float cot2		= cotangeant(pointInPlane, vertices[vIdx].pos, vertices[next].pos);
-		const float distSqrd	= lengthSqr(pointInPlane - vertices[vIdx].pos);
-		weights[vIdx]			= (cot1 + cot2) / distSqrd;
-		weightSum				+= weights[vIdx];
-	}
-	
-	// Normalize weights
-	if (shouldNormalizeWeights)
-	{
-		const float invWeightSum = 1.f / weightSum;
-		for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-			weights[wIdx] *= invWeightSum;
-	}
-
-    ii.normal   = Vector3(0.f);
-    ii.cs       = Color(0.f);
-	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-    {
-		 ii.normal  += vertices[vIdx].n * weights[vIdx];
-         ii.cs      += vertices[vIdx].cs * weights[vIdx];
-         ii.os      += vertices[vIdx].os * weights[vIdx];
-    }
-
-	barCoordProvider.local()->ordered_free(weights, nVertices);
+    // Get closest face
+    bool hitAFace = false;
+    for (size_t faceIndex = 0; faceIndex != nFaces; faceIndex++)
+        hitAFace |= faces[faceIndex].hit(localRay, ii);
 
 	// Fill intersection info
-	ray.maxT	= dist;
-	ii.point	= Point3((objectToWorld * pointInPlane).get128());
+    if (hitAFace)
+	    ii.point = Point3((objectToWorld * ii.point).get128());
 
-	return true;
+	return hitAFace;
 }

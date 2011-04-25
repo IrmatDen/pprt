@@ -37,70 +37,54 @@ newPolygon_a::newPolygon_a(Scene &scn)
 
 void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
 {
-	ConvexPolygon *poly = memory::construct<ConvexPolygon>(TransformStack::currentTransform);
-
 	const size_t npoints = DataStream::Ps.size();
 
-	//! \todo Check that we have at least 3 points
-	Point3 *pointArray = memory::allocate<Point3>(npoints);
-	copy(DataStream::Ps.begin(), DataStream::Ps.end(), pointArray);
-	poly->setPoints(npoints, pointArray);
-	memory::deallocate(pointArray);
-
-    // Apply per-vertex normals?
+    // Setup mesh flags
+    ConvexPolygon::MeshCreationData::ComponentSet format;
     if (DataStream::Ns.size() > 0)
     {
         if (DataStream::Ns.size() != npoints)
-        {
-            cout << "Normal & Points count mismatch in Polygon declaration." << endl;
-            return;
-        }
+            cout << "Normal & Points count mismatch in Polygon declaration. Using default normals" << endl;
         else
-        {
-	        Vector3 *nArray = memory::allocate<Vector3>(npoints);
-	        copy(DataStream::Ns.begin(), DataStream::Ns.end(), nArray);
-	        poly->setNormals(nArray);
-	        memory::deallocate(nArray);
-        }
+            format.set(ConvexPolygon::MeshCreationData::HasNormals);
     }
-    
-    // Apply per-vertex colors?
     if (DataStream::Css.size() > 0)
     {
         if (DataStream::Css.size() != npoints)
-        {
-            cout << "Cs & Points count mismatch in Polygon declaration." << endl;
-            return;
-        }
+            cout << "Cs & Points count mismatch in Polygon declaration. Using default color." << endl;
         else
-        {
-	        Color *cArray = memory::allocate<Color>(npoints);
-	        copy(DataStream::Css.begin(), DataStream::Css.end(), cArray);
-            poly->setPointsColors(cArray);
-	        memory::deallocate(cArray);
-        }
+            format.set(ConvexPolygon::MeshCreationData::HasColors);
     }
-    
-    // Apply per-vertex opacities?
     if (DataStream::Oss.size() > 0)
     {
         if (DataStream::Oss.size() != npoints)
-        {
-            cout << "Os & Points count mismatch in Polygon declaration." << endl;
-            return;
-        }
+            cout << "Os & Points count mismatch in Polygon declaration. Using default opacity." << endl;
         else
-        {
-	        Color *cArray = memory::allocate<Color>(npoints);
-	        copy(DataStream::Oss.begin(), DataStream::Oss.end(), cArray);
-            poly->setPointsOpacities(cArray);
-	        memory::deallocate(cArray);
-        }
+            format.set(ConvexPolygon::MeshCreationData::HasOpacities);
     }
 
-	GraphicStateStack::current.applyToGeometry(&scene, poly);
+    // Set mesh data
+    ConvexPolygon::MeshCreationData data(npoints, 1, format);
+    copy(DataStream::Ps.begin(), DataStream::Ps.end(), data.points);
+    
+    if (format.test(ConvexPolygon::MeshCreationData::HasNormals))
+        copy(DataStream::Ns.begin(), DataStream::Ns.end(), data.normals);
+    
+    if (format.test(ConvexPolygon::MeshCreationData::HasColors))
+        copy(DataStream::Css.begin(), DataStream::Css.end(), data.cs);
 
-	scene.addGeometry(poly);
+    if (format.test(ConvexPolygon::MeshCreationData::HasOpacities))
+        copy(DataStream::Oss.begin(), DataStream::Oss.end(), data.os);
+
+    size_t *pointsIdx = new size_t[npoints];
+    size_t idx = 0;
+    generate(pointsIdx, pointsIdx + npoints, [&] () -> size_t { return idx++; } );
+    data.addFace(npoints, pointsIdx);
+
+    // Build mesh
+	Geometry *g = ConvexPolygon::create(TransformStack::currentTransform, data);
+	GraphicStateStack::current.applyToGeometry(&scene, g);
+	scene.addGeometry(g);
 }
 
 //-----------------------------------------------------

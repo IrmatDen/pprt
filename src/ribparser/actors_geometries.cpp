@@ -7,7 +7,9 @@
 #include "../scene/disk.h"
 #include "../scene/scene.h"
 
+#include <algorithm>
 #include <iostream>
+#include <numeric>
 
 using namespace std;
 
@@ -37,7 +39,13 @@ newPolygon_a::newPolygon_a(Scene &scn)
 
 void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
 {
+    // Pre-check
 	const size_t npoints = DataStream::Ps.size();
+    if (npoints < 3)
+    {
+        cout << "Can't create a polygon without at least 3 positions." << endl;
+        return;
+    }
 
     // Setup mesh flags
     Mesh::MeshCreationData::ComponentSet format;
@@ -80,6 +88,99 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
     size_t idx = 0;
     generate(pointsIdx, pointsIdx + npoints, [&] () -> size_t { return idx++; } );
     data.addFace(npoints, pointsIdx);
+    delete [] pointsIdx;
+
+    // Build mesh
+	Geometry *g = Mesh::create(TransformStack::currentTransform, data);
+	GraphicStateStack::current.applyToGeometry(&scene, g);
+	scene.addGeometry(g);
+}
+
+//-----------------------------------------------------
+// Convex polygon
+
+IntArray newPointsPolygons_a::vertexPerFaces;
+IntArray newPointsPolygons_a::faceDescriptions;
+
+newPointsPolygons_a::newPointsPolygons_a(Scene &scn)
+	: scene(scn)
+{
+}
+
+void newPointsPolygons_a::operator()(const iterator_t&, const iterator_t&) const
+{
+    // Pre-check
+	const size_t nfaces = vertexPerFaces.size();
+    if (nfaces < 1)
+    {
+        cout << "Can't create a PointsPolygons without at least 1 face." << endl;
+        return;
+    }
+
+    const size_t expectedNumVertexIds = accumulate(vertexPerFaces.begin(), vertexPerFaces.end(), 0);
+    if (expectedNumVertexIds != faceDescriptions.size())
+    {
+        cout << "Not enought vertex ids. Expected " << expectedNumVertexIds << ", got: " << faceDescriptions.size() << endl;
+        return;
+    }
+
+	const size_t npoints = DataStream::Ps.size();
+    if (npoints < 3)
+    {
+        cout << "Can't create a Polygon without at least 3 positions." << endl;
+        return;
+    }
+
+    // Setup mesh flags
+    Mesh::MeshCreationData::ComponentSet format;
+    if (DataStream::Ns.size() > 0)
+    {
+        if (DataStream::Ns.size() != npoints)
+            cout << "Normal & Points count mismatch in Polygon declaration. Using default normals" << endl;
+        else
+            format.set(Mesh::MeshCreationData::HasNormals);
+    }
+    if (DataStream::Css.size() > 0)
+    {
+        if (DataStream::Css.size() != npoints)
+            cout << "Cs & Points count mismatch in Polygon declaration. Using default color." << endl;
+        else
+            format.set(Mesh::MeshCreationData::HasColors);
+    }
+    if (DataStream::Oss.size() > 0)
+    {
+        if (DataStream::Oss.size() != npoints)
+            cout << "Os & Points count mismatch in Polygon declaration. Using default opacity." << endl;
+        else
+            format.set(Mesh::MeshCreationData::HasOpacities);
+    }
+
+    // Set mesh data
+    Mesh::MeshCreationData data(npoints, nfaces, format);
+    copy(DataStream::Ps.begin(), DataStream::Ps.end(), data.points);
+    
+    if (format.test(Mesh::MeshCreationData::HasNormals))
+        copy(DataStream::Ns.begin(), DataStream::Ns.end(), data.normals);
+    
+    if (format.test(Mesh::MeshCreationData::HasColors))
+        copy(DataStream::Css.begin(), DataStream::Css.end(), data.cs);
+
+    if (format.test(Mesh::MeshCreationData::HasOpacities))
+        copy(DataStream::Oss.begin(), DataStream::Oss.end(), data.os);
+
+    // Generate faces
+    const size_t maxFaceDescSize = *max_element(vertexPerFaces.begin(), vertexPerFaces.end());
+    size_t *pointsIdx = new size_t[maxFaceDescSize];
+    IntArray::const_iterator currFaceDescIt = faceDescriptions.begin();
+    for (IntArray::const_iterator vertexInFaceit = vertexPerFaces.begin();
+        vertexInFaceit != vertexPerFaces.end();
+        ++vertexInFaceit)
+    {
+        generate(pointsIdx, pointsIdx + *vertexInFaceit,
+            [&] () -> size_t { int n = *currFaceDescIt; ++currFaceDescIt; return n; } );
+        data.addFace(*vertexInFaceit, pointsIdx);
+    }
+    delete [] pointsIdx;
 
     // Build mesh
 	Geometry *g = Mesh::create(TransformStack::currentTransform, data);

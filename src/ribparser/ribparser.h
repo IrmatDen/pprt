@@ -38,11 +38,17 @@ namespace RibParser
 		private:
 			// Temporary parsing data
 			bool						_bool;
+
 			int							_int;
+            IntArray                    _intVector;
+
 			std::string					_str;
+
 			std::vector<std::string>	_strVector;
+
 			NonAlignedVec3				_vec3;
 			Vec3Array					_pointVector;
+
 			ShaderPath					_shaderPaths;
 
 		public:
@@ -74,28 +80,34 @@ namespace RibParser
 
                     singleBoolArray	= "[" >> bool_p [assign_a(_bool)] >> "]";
 
+                    intArray
+                        =   str_p("[") [clear_a(_intVector)]
+                            >> (int_p [push_back_a(_intVector)]) % separation
+                            >> "]"
+                        ;
+
                 // Comment definition
                     comment = ('#' >> *(anychar_p - eol_p));
 
                 // Data streams (P, N, Cs...)
                     pointStream
                         =   str_p("\"P\"") [clear_a(DataStream::Ps)]
-                            >> +blank_p
+                            >> separation
                             >> vec3Array [assign_a(DataStream::Ps, _pointVector)]
                         ;
                     normalStream
                         =   str_p("\"N\"") [clear_a(DataStream::Ns)]
-                            >> +blank_p
+                            >> separation
                             >> vec3Array [assign_a(DataStream::Ns, _pointVector)]
                         ;
                     colorStream
                         =   str_p("\"Cs\"") [clear_a(DataStream::Css)]
-                            >> +blank_p
+                            >> separation
                             >> vec3Array [assign_a(DataStream::Css, _pointVector)]
                         ;
                     opacityStream
                         =   str_p("\"Os\"") [clear_a(DataStream::Oss)]
-                            >> +blank_p
+                            >> separation
                             >> vec3Array [assign_a(DataStream::Oss, _pointVector)]
                         ;
 
@@ -239,6 +251,7 @@ namespace RibParser
 
                 // Geometry definitions
                     geometries  =   polygon
+                                |   pointsPolygons
                                 |	sphere
                                 |	disk;
 
@@ -248,10 +261,20 @@ namespace RibParser
                             ) [newPolygon_a(self.scene)]
                         ;
 
+                    pointsPolygons
+                        =	(	str_p("PointsPolygons") [resetGeomStreams_a()]
+                                >> separation
+                                >> intArray [assign_a(newPointsPolygons_a::vertexPerFaces, _intVector)]
+                                >> separation
+                                >> intArray [assign_a(newPointsPolygons_a::faceDescriptions, _intVector)]
+                                >> *( separation >> ( pointStream | normalStream | colorStream | opacityStream ) )
+                            ) [newPointsPolygons_a(self.scene)]
+                        ;
+
                     sphere
                         =	(	"Sphere"
                                 >> +blank_p
-                                >> real_p[assign_a(newSphere_a::radius)]
+                                >> real_p [assign_a(newSphere_a::radius)]
                             ) [newSphere_a(self.scene)]
                         ;
 
@@ -284,7 +307,11 @@ namespace RibParser
 
 			// General types
 			rule<ScannerT> separation, ending;
-			rule<ScannerT> quotedString, foldername, foldersArray, singleBoolArray, vec3, vec3Array;
+			rule<ScannerT> quotedString,
+                           foldername, foldersArray,
+                           intArray,
+                           singleBoolArray,
+                           vec3, vec3Array;
 			rule<ScannerT> comment;
 
 			// Data streams (P, N, Cs...)
@@ -299,7 +326,9 @@ namespace RibParser
 			rule<ScannerT> graphicsState, attributeBegin, attributeEnd, color, opacity, shaderParams, surface;
 			rule<ScannerT> lights, pointLight;
 			rule<ScannerT> transform, identity, translate, rotate, transformBegin, transformEnd;
-			rule<ScannerT> geometries, polygon, sphere, plane, disk;
+			rule<ScannerT> geometries,
+                           polygon, pointsPolygons,
+                           sphere, plane, disk;
 
 			// General description
 			rule<ScannerT> element, statement, base_expression;

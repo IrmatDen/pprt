@@ -34,6 +34,18 @@ struct newPolygon_a
 	Scene &scene;
 };
 
+struct newPointsPolygons_a
+{
+	newPointsPolygons_a(Scene &scn);
+
+	void operator()(const iterator_t&, const iterator_t&) const;
+
+	Scene &scene;
+
+    static IntArray vertexPerFaces;
+    static IntArray faceDescriptions;
+};
+
 struct newSphere_a
 {
 	newSphere_a(Scene &scn);

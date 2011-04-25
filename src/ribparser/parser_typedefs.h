@@ -21,4 +21,6 @@ struct NonAlignedVec3
 };
 typedef std::vector<NonAlignedVec3> Vec3Array;
 
+typedef std::vector<int> IntArray;
+
 #endif

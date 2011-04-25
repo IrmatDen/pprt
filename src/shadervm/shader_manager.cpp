@@ -114,7 +114,12 @@ CompiledShader ShaderManager::instanciate(const std::string &shaderName) const
 	if (it != shaders.end())
 		return it->second.cloneWithCodePtr(cit->second, it->second.getCode().size());
 
-	cout << "\"" << shaderName << "\" can't be found" << endl;
-
+	cout << "Shader named \"" << shaderName << "\" can't be found, defaulting to matte" << endl;
+	it = shaders.find("matte");
+	cit = shadersCodes.find("matte");
+	if (it != shaders.end())
+		return it->second.cloneWithCodePtr(cit->second, it->second.getCode().size());
+    
+	cout << "\"matte\" shader can't be found, hide your eyes from an invasion of magenta" << endl;
 	return CompiledShader();
 }

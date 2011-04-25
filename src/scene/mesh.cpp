@@ -31,17 +31,17 @@ struct Mesh::Face
 
 	    // Get supporting plane
 	    //! \todo Search valid points instead of assuming the first 3 are...
-        plane = Plane::fromPoints(getVertexAt(verticesIndex[0]).pos,
-                                  getVertexAt(verticesIndex[1]).pos,
-                                  getVertexAt(verticesIndex[2]).pos);
+        plane = Plane::fromPoints(getVertexAt(0).pos,
+                                  getVertexAt(1).pos,
+                                  getVertexAt(2).pos);
 
         // Generate each edges normals & generate default vertex normals
         edgeNormals = memory::allocate<Vector3>(nVertices);
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	    {
 		    const size_t next			= (vIdx + 1) % nVertices;
-            Vertex &currentVertex       = getVertexAt(verticesIndex[vIdx]);
-            const Vertex &nextVertex    = getVertexAt(verticesIndex[next]);
+            Vertex &currentVertex       = getVertexAt(vIdx);
+            const Vertex &nextVertex    = getVertexAt(next);
 
 		    const Vector3 nextToCurrent	= nextVertex.pos - currentVertex.pos;
             edgeNormals[vIdx]           = cross(normalize(nextToCurrent), plane.n);
@@ -69,7 +69,7 @@ struct Mesh::Face
 	    size_t insideCount = 0;
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	    {
-		    const Vector3 PToCurrent = pointInPlane - getVertexAt(verticesIndex[vIdx]).pos;
+		    const Vector3 PToCurrent = pointInPlane - getVertexAt(vIdx).pos;
 		    if (dot(edgeNormals[vIdx], PToCurrent) < 0.f)
 			    insideCount++;
 	    }
@@ -92,8 +92,8 @@ struct Mesh::Face
 		    const size_t next	= (vIdx + 1) % nVertices;
 
 		    // Determine if point is almost on an edge
-		    const Vector3 PToCurrent = pointInPlane - getVertexAt(verticesIndex[vIdx]).pos;
-		    const Vector3 nextToCurrent	= getVertexAt(verticesIndex[next]).pos - getVertexAt(verticesIndex[vIdx]).pos;
+		    const Vector3 PToCurrent = pointInPlane - getVertexAt(vIdx).pos;
+		    const Vector3 nextToCurrent	= getVertexAt(next).pos - getVertexAt(vIdx).pos;
 		    const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
 		    const float ntcSqrdLen	= lengthSqr(nextToCurrent);
 		    if (area <= 0.000001f * ntcSqrdLen)
@@ -110,9 +110,9 @@ struct Mesh::Face
 			    break;
 		    }
 
-		    const float cot1		= cotangeant(pointInPlane, getVertexAt(verticesIndex[vIdx]).pos, getVertexAt(verticesIndex[prev]).pos);
-		    const float cot2		= cotangeant(pointInPlane, getVertexAt(verticesIndex[vIdx]).pos, getVertexAt(verticesIndex[next]).pos);
-		    const float distSqrd	= lengthSqr(pointInPlane - getVertexAt(verticesIndex[vIdx]).pos);
+		    const float cot1		= cotangeant(pointInPlane, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
+		    const float cot2		= cotangeant(pointInPlane, getVertexAt(vIdx).pos, getVertexAt(next).pos);
+		    const float distSqrd	= lengthSqr(pointInPlane - getVertexAt(vIdx).pos);
 		    weights[vIdx]			= (cot1 + cot2) / distSqrd;
 		    weightSum				+= weights[vIdx];
 	    }
@@ -125,19 +125,25 @@ struct Mesh::Face
 			    weights[wIdx] *= invWeightSum;
 	    }
         
-        ii.point    = pointInPlane;
         ii.normal   = Vector3(0.f);
         ii.cs       = Color(0.f);
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
         {
-		        ii.normal  += getVertexAt(verticesIndex[vIdx]).n * weights[vIdx];
-                ii.cs      += getVertexAt(verticesIndex[vIdx]).cs * weights[vIdx];
-                ii.os      += getVertexAt(verticesIndex[vIdx]).os * weights[vIdx];
+		        ii.normal  += getVertexAt(vIdx).n * weights[vIdx];
+                ii.cs      += getVertexAt(vIdx).cs * weights[vIdx];
+                ii.os      += getVertexAt(vIdx).os * weights[vIdx];
         }
+        ii.normal = normalize(ii.normal);
+        /*if (dotps(ii.normal.get128(), (-ray.direction()).get128()).m128_f32[0] < 0.f)
+        {
+	        owner->barCoordProvider.local()->ordered_free(weights, nVertices);
+            return false;
+        }*/
+
+        ii.point = pointInPlane;
+        ray.maxT = dist;
 
 	    owner->barCoordProvider.local()->ordered_free(weights, nVertices);
-
-        ray.maxT = dist;
         return true;
     }
 };

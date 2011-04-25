@@ -46,7 +46,7 @@ namespace tools
 
 	//! Extract a float from a scanner
 	template<typename ScannerT, typename floatT>
-	int	scanFloat(ScannerT const &scan, floatT &out, float bounding = false,
+	int	scanFloat(ScannerT const &scan, floatT &out, bool bounding = false,
 				  float minBound = 0, float maxBound = 0)
 	{
 		if (scan.at_end())
@@ -55,31 +55,28 @@ namespace tools
 		int matchedLen = 0;
 		int matched;
 		bool negative;
+        bool fractionalExpected = false;
 
 		// Scan integer part
 		int int_part;
 		matched = scanNumber(scan, int_part, &negative);
 		if (matched == -1)
-			return -1;
-		matchedLen += matched;
-		out = float(int_part);
+        {
+            if (!scan.at_end() && *scan == '.')
+            {
+                out = 0;
+                fractionalExpected = true;  // Disallow '.' alone to be counted as a 0
 
-		// Check if we reached a separator (comma)
-		if (scan.at_end())
-			return -1;
-		if (*scan == ',')
-		{
-			// Check min/max boundary
-			if (bounding && (out < minBound || out > maxBound))
-				return -1;
-
-			++scan;
-			++matchedLen;
-			if (negative)
-				out = -out;
-
-			return matchedLen;
-		}
+                // Do NOT advance scan & matched length, let parsing continue w/o too much conditions
+            }
+            else
+                return -1;
+        }
+        else
+        {
+		    matchedLen += matched;
+		    out = float(int_part);
+        }
 
 		// Check if dot is here, if not, assume the float is made only of its integer part.
 		if (scan.at_end())
@@ -88,6 +85,9 @@ namespace tools
 		char ch = *scan;
 		if (ch != '.')
 		{
+            if (fractionalExpected)
+                return -1;
+
 			// Check min/max boundary
 			if (bounding && (out < minBound || out > maxBound))
 				return -1;
@@ -202,7 +202,7 @@ struct color_parser
 		float res[3];
 		for (int i = 0; i < 3; i++)
 		{
-			matched = tools::scanFloat(scan, res[i], 0, 1);
+			matched = tools::scanFloat(scan, res[i], false);
 			if (matched == -1)
 				return -1;
 			len += matched;
@@ -247,7 +247,7 @@ struct vec3_parser
 		float res[3];
 		for (int i = 0; i < 3; i++)
 		{
-			matched = tools::scanFloat(scan, res[i], 0, 1);
+			matched = tools::scanFloat(scan, res[i], false);
 			if (matched == -1)
 				return -1;
 			len += matched;

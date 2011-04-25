@@ -1,5 +1,5 @@
-#ifndef PPRT_POLYGON_H
-#define PPRT_POLYGON_H
+#ifndef PPRT_MESH_H
+#define PPRT_MESH_H
 
 #include "geometry.h"
 #include "../memory.h"

@@ -207,7 +207,7 @@
     <ClCompile Include="src\scene\camera.cpp" />
     <ClCompile Include="src\scene\disk.cpp" />
     <ClCompile Include="src\scene\geometry.cpp" />
-    <ClCompile Include="src\scene\convex_polygon.cpp" />
+    <ClCompile Include="src\scene\mesh.cpp" />
     <ClCompile Include="src\scene\scene.cpp" />
     <ClCompile Include="src\scene\sphere.cpp" />
     <ClCompile Include="src\shadervm\color_fun.cpp" />
@@ -253,8 +253,8 @@
     <ClInclude Include="src\scene\framebuffer.h" />
     <ClInclude Include="src\scene\geometry.h" />
     <ClInclude Include="src\scene\light.h" />
+    <ClInclude Include="src\scene\mesh.h" />
     <ClInclude Include="src\scene\pixel_store.h" />
-    <ClInclude Include="src\scene\convex_polygon.h" />
     <ClInclude Include="src\scene\ray.h" />
     <ClInclude Include="src\scene\scene.h" />
     <ClInclude Include="src\scene\sphere.h" />

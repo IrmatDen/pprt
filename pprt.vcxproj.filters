@@ -110,9 +110,6 @@
     <ClCompile Include="src\shadervm\vmstack.cpp">
       <Filter>Source Files\shadervm</Filter>
     </ClCompile>
-    <ClCompile Include="src\scene\convex_polygon.cpp">
-      <Filter>Source Files\scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\math\plane.cpp">
       <Filter>Source Files\math</Filter>
     </ClCompile>
@@ -130,6 +127,9 @@
     </ClCompile>
     <ClCompile Include="src\ribparser\ribparser.cpp">
       <Filter>Source Files\ribparser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scene\mesh.cpp">
+      <Filter>Source Files\scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -223,9 +223,6 @@
     <ClInclude Include="src\pprt_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\scene\convex_polygon.h">
-      <Filter>Header Files\scene</Filter>
-    </ClInclude>
     <ClInclude Include="src\math\plane.h">
       <Filter>Header Files\math</Filter>
     </ClInclude>
@@ -252,6 +249,9 @@
     </ClInclude>
     <ClInclude Include="src\ribparser\actors_graphicstate.h">
       <Filter>Header Files\ribparser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scene\mesh.h">
+      <Filter>Header Files\scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

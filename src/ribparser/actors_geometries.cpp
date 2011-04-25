@@ -2,7 +2,7 @@
 #include "actors_transform.h"
 #include "actors_graphicstate.h"
 
-#include "../scene/convex_polygon.h"
+#include "../scene/mesh.h"
 #include "../scene/sphere.h"
 #include "../scene/disk.h"
 #include "../scene/scene.h"

@@ -1,6 +1,7 @@
 #include "mesh.h"
 
 #include <algorithm>
+#include <limits>
 
 using namespace std;
 
@@ -76,8 +77,14 @@ struct Mesh::Face
 	    if (insideCount < nVertices)
 		    return false;
 
-        ////// SUBSUBSUBSUBSUBSUB-OPTIMAL! do refinement once closest poly is found!
+        ii.point = pointInPlane;
+        ray.maxT = dist;
+        
+        return true;
+    }
 
+    void refineHit(IntersectionInfo &ii)
+    {
 	    // Compute barycentric coordinates based on
 	    // "Generalized Barycentric Coordinates on Irregular Polygons"
 	    // by Meyer et al. (2002)
@@ -85,45 +92,22 @@ struct Mesh::Face
 	    float *weights	= reinterpret_cast<float*>(owner->barCoordProvider.local()->ordered_malloc(nVertices));
 	    float weightSum	= 0.f;
 
-	    bool shouldNormalizeWeights = true;
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	    {
 		    const size_t prev	= (vIdx + nVertices - 1) % nVertices;
 		    const size_t next	= (vIdx + 1) % nVertices;
 
-		    // Determine if point is almost on an edge
-		    const Vector3 PToCurrent = pointInPlane - getVertexAt(vIdx).pos;
-		    const Vector3 nextToCurrent	= getVertexAt(next).pos - getVertexAt(vIdx).pos;
-		    const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
-		    const float ntcSqrdLen	= lengthSqr(nextToCurrent);
-		    if (area <= 0.000001f * ntcSqrdLen)
-		    {
-			    // Reset all weights and interpolate between this vertex and the next
-			    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-				    weights[wIdx] = 0.f;
-
-			    const float w = lengthSqr(PToCurrent) / ntcSqrdLen;
-			    weights[vIdx] = 1.f - w;
-			    weights[next] = w;
-
-			    shouldNormalizeWeights = false;
-			    break;
-		    }
-
-		    const float cot1		= cotangeant(pointInPlane, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
-		    const float cot2		= cotangeant(pointInPlane, getVertexAt(vIdx).pos, getVertexAt(next).pos);
-		    const float distSqrd	= lengthSqr(pointInPlane - getVertexAt(vIdx).pos);
+		    const float cot1		= cotangeant(ii.point, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
+		    const float cot2		= cotangeant(ii.point, getVertexAt(vIdx).pos, getVertexAt(next).pos);
+		    const float distSqrd	= lengthSqr(ii.point - getVertexAt(vIdx).pos);
 		    weights[vIdx]			= (cot1 + cot2) / distSqrd;
 		    weightSum				+= weights[vIdx];
 	    }
 	
 	    // Normalize weights
-	    if (shouldNormalizeWeights)
-	    {
-		    const float invWeightSum = 1.f / weightSum;
-		    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-			    weights[wIdx] *= invWeightSum;
-	    }
+		const float invWeightSum = 1.f / weightSum;
+		for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+			weights[wIdx] *= invWeightSum;
         
         ii.normal   = Vector3(0.f);
         ii.cs       = Color(0.f);
@@ -140,11 +124,7 @@ struct Mesh::Face
             return false;
         }*/
 
-        ii.point = pointInPlane;
-        ray.maxT = dist;
-
 	    owner->barCoordProvider.local()->ordered_free(weights, nVertices);
-        return true;
     }
 };
 
@@ -293,13 +273,18 @@ bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
 	Ray localRay(worldToObject * ray);
 
     // Get closest face
-    bool hitAFace = false;
+    Face *closestFace = nullptr;
     for (size_t faceIndex = 0; faceIndex != nFaces; faceIndex++)
-        hitAFace |= faces[faceIndex].hit(localRay, ii);
+    {
+        if (faces[faceIndex].hit(localRay, ii))
+            closestFace = &faces[faceIndex];
+    }
 
 	// Fill intersection info
-    if (hitAFace)
-	    ii.point = Point3((objectToWorld * ii.point).get128());
+    if (closestFace == nullptr)
+        return false;
 
-	return hitAFace;
+    closestFace->refineHit(ii);
+	ii.point = Point3((objectToWorld * ii.point).get128());
+	return true;
 }

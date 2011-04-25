@@ -40,11 +40,16 @@ struct ConvexPolygon::Face
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	    {
 		    const size_t next			= (vIdx + 1) % nVertices;
-		    const Vector3 nextToCurrent	= getVertexAt(verticesIndex[next]).pos - getVertexAt(verticesIndex[vIdx]).pos;
+            Vertex &currentVertex       = getVertexAt(verticesIndex[vIdx]);
+            const Vertex &nextVertex    = getVertexAt(verticesIndex[next]);
+
+		    const Vector3 nextToCurrent	= nextVertex.pos - currentVertex.pos;
             edgeNormals[vIdx]           = cross(normalize(nextToCurrent), plane.n);
 
-            //! \todo average already existing normal (if any)
-            getVertexAt(verticesIndex[vIdx]).n = plane.n;
+            if (lengthSqr(currentVertex.n) < 0.001)
+                currentVertex.n = plane.n;
+            else
+                currentVertex.n = normalize(plane.n + currentVertex.n);
         }
     }
 
@@ -215,6 +220,7 @@ ConvexPolygon* ConvexPolygon::create(const Matrix4 &obj2world, const MeshCreatio
         [&] (const Point3 &p)
         {
             result->vertices[vIdx].pos  = p;
+            result->vertices[vIdx].n    = Vector3(all_zero());
             result->vertices[vIdx].cs   = result->color;
             result->vertices[vIdx].os   = result->opacity;
             vIdx++;

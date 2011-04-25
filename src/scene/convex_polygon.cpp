@@ -4,16 +4,16 @@
 
 using namespace std;
 
-struct ConvexPolygon::Vertex
+struct Mesh::Vertex
 {
 	Point3	pos;
     Vector3 n;
     Color   cs, os;
 };
 
-struct ConvexPolygon::Face
+struct Mesh::Face
 {
-    ConvexPolygon *owner;
+    Mesh *owner;
 
     size_t  nVertices;
     size_t  *verticesIndex;
@@ -21,7 +21,7 @@ struct ConvexPolygon::Face
     Plane   plane;
     Vector3 *edgeNormals;
 
-    void build(const ConvexPolygon::MeshCreationData &data, size_t currentIndex)
+    void build(const Mesh::MeshCreationData &data, size_t currentIndex)
     {
         nVertices = data.vertexPerFaces[currentIndex];
         verticesIndex = memory::allocate<size_t>(nVertices);
@@ -53,7 +53,7 @@ struct ConvexPolygon::Face
         }
     }
 
-    inline ConvexPolygon::Vertex& getVertexAt(size_t idx)
+    inline Mesh::Vertex& getVertexAt(size_t idx)
     {
         return owner->vertices[verticesIndex[idx]];
     }
@@ -145,7 +145,7 @@ struct ConvexPolygon::Face
 //----------------------------------------------------------------------
 // MeshCreationData
 
-ConvexPolygon::MeshCreationData::MeshCreationData(size_t nVertices, size_t nFaces, ComponentSet components)
+Mesh::MeshCreationData::MeshCreationData(size_t nVertices, size_t nFaces, ComponentSet components)
     :   vertexCount(nVertices), comps(components), facesCount(nFaces),
         points(nullptr), normals(nullptr),
         cs(nullptr), os(nullptr),
@@ -169,7 +169,7 @@ ConvexPolygon::MeshCreationData::MeshCreationData(size_t nVertices, size_t nFace
     }
 }
 
-ConvexPolygon::MeshCreationData::~MeshCreationData()
+Mesh::MeshCreationData::~MeshCreationData()
 {
     if (vertexCount > 0 && facesCount > 0)
     {
@@ -190,7 +190,7 @@ ConvexPolygon::MeshCreationData::~MeshCreationData()
     }
 }
 
-void ConvexPolygon::MeshCreationData::addFace(size_t faceSize, size_t *verticesIdx)
+void Mesh::MeshCreationData::addFace(size_t faceSize, size_t *verticesIdx)
 {
     vertexPerFaces[currAddedFace] = faceSize;
     
@@ -202,14 +202,14 @@ void ConvexPolygon::MeshCreationData::addFace(size_t faceSize, size_t *verticesI
 }
 
 //----------------------------------------------------------------------
-// ConvexPolygon
+// Mesh
 
-ConvexPolygon* ConvexPolygon::create(const Matrix4 &obj2world, const MeshCreationData &data)
+Mesh* Mesh::create(const Matrix4 &obj2world, const MeshCreationData &data)
 {
     if (data.vertexCount == 0)
         return nullptr;
 
-    ConvexPolygon *result(memory::construct<ConvexPolygon>(obj2world));
+    Mesh *result(memory::construct<Mesh>(obj2world));
 
     result->nVertices	= data.vertexCount;
 	result->vertices	= memory::allocate<Vertex>(result->nVertices);
@@ -256,23 +256,23 @@ ConvexPolygon* ConvexPolygon::create(const Matrix4 &obj2world, const MeshCreatio
     return result;
 }
 
-ConvexPolygon::ConvexPolygon()
+Mesh::Mesh()
 	: barCoordProvider(&memory::PoolCreator<float, 1>::create)
 {
 }
 
-ConvexPolygon::ConvexPolygon(const Matrix4 &obj2world)
+Mesh::Mesh(const Matrix4 &obj2world)
 	: Geometry(obj2world), barCoordProvider(&memory::PoolCreator<float, 1>::create)
 {
 }
 
-ConvexPolygon::~ConvexPolygon()
+Mesh::~Mesh()
 {
 	memory::deallocate(vertices);
 	memory::deallocate(faces);
 }
 
-void ConvexPolygon::buildAABB()
+void Mesh::buildAABB()
 {
 	for_each(vertices, vertices + nVertices,
 		[&] (const Vertex &v)
@@ -282,7 +282,7 @@ void ConvexPolygon::buildAABB()
 		} );
 }
 
-bool ConvexPolygon::hit(const Ray &ray, IntersectionInfo &ii) const
+bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
 {
 	Ray localRay(worldToObject * ray);
 

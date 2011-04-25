@@ -40,40 +40,40 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
 	const size_t npoints = DataStream::Ps.size();
 
     // Setup mesh flags
-    ConvexPolygon::MeshCreationData::ComponentSet format;
+    Mesh::MeshCreationData::ComponentSet format;
     if (DataStream::Ns.size() > 0)
     {
         if (DataStream::Ns.size() != npoints)
             cout << "Normal & Points count mismatch in Polygon declaration. Using default normals" << endl;
         else
-            format.set(ConvexPolygon::MeshCreationData::HasNormals);
+            format.set(Mesh::MeshCreationData::HasNormals);
     }
     if (DataStream::Css.size() > 0)
     {
         if (DataStream::Css.size() != npoints)
             cout << "Cs & Points count mismatch in Polygon declaration. Using default color." << endl;
         else
-            format.set(ConvexPolygon::MeshCreationData::HasColors);
+            format.set(Mesh::MeshCreationData::HasColors);
     }
     if (DataStream::Oss.size() > 0)
     {
         if (DataStream::Oss.size() != npoints)
             cout << "Os & Points count mismatch in Polygon declaration. Using default opacity." << endl;
         else
-            format.set(ConvexPolygon::MeshCreationData::HasOpacities);
+            format.set(Mesh::MeshCreationData::HasOpacities);
     }
 
     // Set mesh data
-    ConvexPolygon::MeshCreationData data(npoints, 1, format);
+    Mesh::MeshCreationData data(npoints, 1, format);
     copy(DataStream::Ps.begin(), DataStream::Ps.end(), data.points);
     
-    if (format.test(ConvexPolygon::MeshCreationData::HasNormals))
+    if (format.test(Mesh::MeshCreationData::HasNormals))
         copy(DataStream::Ns.begin(), DataStream::Ns.end(), data.normals);
     
-    if (format.test(ConvexPolygon::MeshCreationData::HasColors))
+    if (format.test(Mesh::MeshCreationData::HasColors))
         copy(DataStream::Css.begin(), DataStream::Css.end(), data.cs);
 
-    if (format.test(ConvexPolygon::MeshCreationData::HasOpacities))
+    if (format.test(Mesh::MeshCreationData::HasOpacities))
         copy(DataStream::Oss.begin(), DataStream::Oss.end(), data.os);
 
     size_t *pointsIdx = new size_t[npoints];
@@ -82,7 +82,7 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
     data.addFace(npoints, pointsIdx);
 
     // Build mesh
-	Geometry *g = ConvexPolygon::create(TransformStack::currentTransform, data);
+	Geometry *g = Mesh::create(TransformStack::currentTransform, data);
 	GraphicStateStack::current.applyToGeometry(&scene, g);
 	scene.addGeometry(g);
 }

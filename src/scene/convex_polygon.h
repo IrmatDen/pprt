@@ -7,7 +7,7 @@
 
 #include <bitset>
 
-class _MM_ALIGN16 ConvexPolygon : public Geometry
+class _MM_ALIGN16 Mesh : public Geometry
 {
 public:
     struct MeshCreationData
@@ -32,7 +32,7 @@ public:
         Color   *os;
 
     private:
-        friend class ConvexPolygon;
+        friend class Mesh;
 
         MeshCreationData()      { ; }
 
@@ -46,12 +46,12 @@ public:
     };
 
 public:
-    static ConvexPolygon* create(const Matrix4 &obj2world, const MeshCreationData &data);
+    static Mesh* create(const Matrix4 &obj2world, const MeshCreationData &data);
 
 public:
-	ConvexPolygon();
-	ConvexPolygon(const Matrix4 &obj2world);
-	~ConvexPolygon();
+	Mesh();
+	Mesh(const Matrix4 &obj2world);
+	~Mesh();
 
 	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
 

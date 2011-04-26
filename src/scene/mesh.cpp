@@ -50,7 +50,7 @@ struct Mesh::Face
             if (lengthSqr(currentVertex.n) < 0.001)
                 currentVertex.n = plane.n;
             else
-                currentVertex.n = normalize(plane.n + currentVertex.n);
+                currentVertex.n += plane.n;
         }
     }
 
@@ -71,7 +71,7 @@ struct Mesh::Face
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	    {
 		    const Vector3 PToCurrent = pointInPlane - getVertexAt(vIdx).pos;
-		    if (dot(edgeNormals[vIdx], PToCurrent) < 0.f)
+		    if (dot(edgeNormals[vIdx], PToCurrent) < 0.001f)
 			    insideCount++;
 	    }
 	    if (insideCount < nVertices)
@@ -91,11 +91,31 @@ struct Mesh::Face
 	    // Published in JGT Vol. 7, Nr 1, 2002
 	    float *weights	= reinterpret_cast<float*>(owner->barCoordProvider.local()->ordered_malloc(nVertices));
 	    float weightSum	= 0.f;
-
+        bool shouldNormalizeWeights = true;
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	    {
 		    const size_t prev	= (vIdx + nVertices - 1) % nVertices;
 		    const size_t next	= (vIdx + 1) % nVertices;
+ 
+		    // Determine if point is almost on an edge
+		    /* FIXME something's wrong with this method
+            const Vector3 PToCurrent = ii.point - getVertexAt(vIdx).pos;
+		    const Vector3 nextToCurrent	= getVertexAt(next).pos - getVertexAt(vIdx).pos;
+		    const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
+		    const float ntcSqrdLen	= lengthSqr(nextToCurrent);
+		    if (area <= numeric_limits<float>::epsilon() * ntcSqrdLen)
+		    {
+			    // Reset all weights and interpolate between this vertex and the next
+			    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+				    weights[wIdx] = 0.f;
+
+			    const float w = lengthSqr(PToCurrent) / ntcSqrdLen;
+			    weights[vIdx] = 1.f - w;
+			    weights[next] = w;
+
+			    shouldNormalizeWeights = false;
+			    break;
+		    }*/
 
 		    const float cot1		= cotangeant(ii.point, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
 		    const float cot2		= cotangeant(ii.point, getVertexAt(vIdx).pos, getVertexAt(next).pos);
@@ -105,18 +125,24 @@ struct Mesh::Face
 	    }
 	
 	    // Normalize weights
-		const float invWeightSum = 1.f / weightSum;
-		for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-			weights[wIdx] *= invWeightSum;
+        if (shouldNormalizeWeights)
+        {
+		    const float invWeightSum = 1.f / weightSum;
+		    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+			    weights[wIdx] *= invWeightSum;
+        }
         
         ii.normal   = Vector3(0.f);
         ii.cs       = Color(0.f);
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
         {
+            if (owner->vertexFormat.test(Mesh::HasNormals))
 		        ii.normal  += getVertexAt(vIdx).n * weights[vIdx];
-                ii.cs      += getVertexAt(vIdx).cs * weights[vIdx];
-                ii.os      += getVertexAt(vIdx).os * weights[vIdx];
+            ii.cs      += getVertexAt(vIdx).cs * weights[vIdx];
+            ii.os      += getVertexAt(vIdx).os * weights[vIdx];
         }
+        if (!owner->vertexFormat.test(Mesh::HasNormals))
+            ii.normal = plane.n;
         ii.normal = normalize(ii.normal);
         /*if (dotps(ii.normal.get128(), (-ray.direction()).get128()).m128_f32[0] < 0.f)
         {
@@ -132,7 +158,7 @@ struct Mesh::Face
 // MeshCreationData
 
 Mesh::MeshCreationData::MeshCreationData(size_t nVertices, size_t nFaces, ComponentSet components)
-    :   vertexCount(nVertices), comps(components), facesCount(nFaces),
+    :   vertexCount(nVertices), vertexFormat(components), facesCount(nFaces),
         points(nullptr), normals(nullptr),
         cs(nullptr), os(nullptr),
         currAddedFace(0), vertexPerFaces(nullptr), faces(nullptr)
@@ -144,13 +170,13 @@ Mesh::MeshCreationData::MeshCreationData(size_t nVertices, size_t nFaces, Compon
         vertexPerFaces  = memory::allocate<size_t>(facesCount);
         faces           = memory::allocate<size_t*>(facesCount);
 
-        if (comps.test(HasNormals))
+        if (vertexFormat.test(HasNormals))
             normals = memory::allocate<Vector3>(vertexCount);
 
-        if (comps.test(HasColors))
+        if (vertexFormat.test(HasColors))
             cs = memory::allocate<Color>(vertexCount);
 
-        if (comps.test(HasOpacities))
+        if (vertexFormat.test(HasOpacities))
             os = memory::allocate<Color>(vertexCount);
     }
 }
@@ -165,13 +191,13 @@ Mesh::MeshCreationData::~MeshCreationData()
         for_each(faces, faces + facesCount, &memory::deallocate<size_t>);
         memory::deallocate<size_t*>(faces);
 
-        if (comps.test(HasNormals))
+        if (vertexFormat.test(HasNormals))
             memory::deallocate<Vector3>(normals);
 
-        if (comps.test(HasColors))
+        if (vertexFormat.test(HasColors))
             memory::deallocate<Color>(cs);
 
-        if (comps.test(HasOpacities))
+        if (vertexFormat.test(HasOpacities))
             memory::deallocate<Color>(os);
     }
 }
@@ -196,6 +222,8 @@ Mesh* Mesh::create(const Matrix4 &obj2world, const MeshCreationData &data)
         return nullptr;
 
     Mesh *result(memory::construct<Mesh>(obj2world));
+
+    result->vertexFormat = data.vertexFormat;
 
     result->nVertices	= data.vertexCount;
 	result->vertices	= memory::allocate<Vertex>(result->nVertices);
@@ -225,12 +253,14 @@ Mesh* Mesh::create(const Matrix4 &obj2world, const MeshCreationData &data)
             f.build(data, idx);
             idx++;
         } );
-	
-	// Copy additional per-vertex data
+
+    // Finalize default per-vertex normals & copy additional per-vertex data
 	for (vIdx = 0; vIdx != result->nVertices; vIdx++)
 	{
         if (data.normals != nullptr)
             result->vertices[vIdx].n = normalize(data.normals[vIdx]);
+        else
+            result->vertices[vIdx].n = normalize(result->vertices[vIdx].n * 0.333333334f);
 
         if (data.cs != nullptr)
             result->vertices[vIdx].cs = data.cs[vIdx];

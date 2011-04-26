@@ -14,7 +14,7 @@ surface surfaceNormals()
 surface viewI()
 {
 	Oi = Os;
-	Ci = Os * (normalize(I) + 1) * 0.5;
+	Ci = Os * (I + 1) * 0.5;
 }
 
 surface diffuse_sample()

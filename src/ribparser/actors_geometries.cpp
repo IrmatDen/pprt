@@ -13,6 +13,67 @@
 
 using namespace std;
 
+// Helpers (mainly setting up vertex formats & copying streams
+// Not included in DataStream class to try not to grow the
+// already awfuls compile time (spirit is nice, but still, meh...)
+namespace
+{
+    bool prePolygonCheck()
+    {
+        if (DataStream::Ps.size() < 3)
+        {
+            cout << "Can't create a polygon without at least 3 positions." << endl;
+            return false;
+        }
+
+        return true;
+    }
+
+    Mesh::ComponentSet getVertexFormatForCurrentDataStream()
+    {
+	    const size_t npoints = DataStream::Ps.size();
+
+        Mesh::ComponentSet format;
+        if (DataStream::Ns.size() > 0)
+        {
+            if (DataStream::Ns.size() != npoints)
+                cout << "Normal & Points count mismatch in Polygon declaration. Using geometry normals" << endl;
+            else
+                format.set(Mesh::HasNormals);
+        }
+        if (DataStream::Css.size() > 0)
+        {
+            if (DataStream::Css.size() != npoints)
+                cout << "Cs & Points count mismatch in Polygon declaration. Using global color." << endl;
+            else
+                format.set(Mesh::HasColors);
+        }
+        if (DataStream::Oss.size() > 0)
+        {
+            if (DataStream::Oss.size() != npoints)
+                cout << "Os & Points count mismatch in Polygon declaration. Using global opacity." << endl;
+            else
+                format.set(Mesh::HasOpacities);
+        }
+
+        return format;
+    }
+
+    void applyDataStream(Mesh::MeshCreationData &data)
+    {
+        copy(DataStream::Ps.begin(), DataStream::Ps.end(), data.points);
+    
+        if (data.vertexFormat.test(Mesh::HasNormals))
+            copy(DataStream::Ns.begin(), DataStream::Ns.end(), data.normals);
+    
+        if (data.vertexFormat.test(Mesh::HasColors))
+            copy(DataStream::Css.begin(), DataStream::Css.end(), data.cs);
+
+        if (data.vertexFormat.test(Mesh::HasOpacities))
+            copy(DataStream::Oss.begin(), DataStream::Oss.end(), data.os);
+    }
+}
+
 //-----------------------------------------------
 // Data streams
 
@@ -41,49 +102,15 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
 {
     // Pre-check
 	const size_t npoints = DataStream::Ps.size();
-    if (npoints < 3)
-    {
-        cout << "Can't create a polygon without at least 3 positions." << endl;
+    if (!prePolygonCheck())
         return;
-    }
-
-    // Setup mesh flags
-    Mesh::MeshCreationData::ComponentSet format;
-    if (DataStream::Ns.size() > 0)
-    {
-        if (DataStream::Ns.size() != npoints)
-            cout << "Normal & Points count mismatch in Polygon declaration. Using default normals" << endl;
-        else
-            format.set(Mesh::MeshCreationData::HasNormals);
-    }
-    if (DataStream::Css.size() > 0)
-    {
-        if (DataStream::Css.size() != npoints)
-            cout << "Cs & Points count mismatch in Polygon declaration. Using default color." << endl;
-        else
-            format.set(Mesh::MeshCreationData::HasColors);
-    }
-    if (DataStream::Oss.size() > 0)
-    {
-        if (DataStream::Oss.size() != npoints)
-            cout << "Os & Points count mismatch in Polygon declaration. Using default opacity." << endl;
-        else
-            format.set(Mesh::MeshCreationData::HasOpacities);
-    }
 
     // Set mesh data
+    const Mesh::ComponentSet format = getVertexFormatForCurrentDataStream();
     Mesh::MeshCreationData data(npoints, 1, format);
-    copy(DataStream::Ps.begin(), DataStream::Ps.end(), data.points);
-    
-    if (format.test(Mesh::MeshCreationData::HasNormals))
-        copy(DataStream::Ns.begin(), DataStream::Ns.end(), data.normals);
-    
-    if (format.test(Mesh::MeshCreationData::HasColors))
-        copy(DataStream::Css.begin(), DataStream::Css.end(), data.cs);
+    applyDataStream(data);
 
-    if (format.test(Mesh::MeshCreationData::HasOpacities))
-        copy(DataStream::Oss.begin(), DataStream::Oss.end(), data.os);
-
+    // Build our single face
     size_t *pointsIdx = new size_t[npoints];
     size_t idx = 0;
     generate(pointsIdx, pointsIdx + npoints, [&] () -> size_t { return idx++; } );
@@ -110,7 +137,12 @@ newPointsPolygons_a::newPointsPolygons_a(Scene &scn)
 void newPointsPolygons_a::operator()(const iterator_t&, const iterator_t&) const
 {
     // Pre-check
+    if (!prePolygonCheck())
+        return;
+
 	const size_t nfaces = vertexPerFaces.size();
+	const size_t npoints = DataStream::Ps.size();
+
     if (nfaces < 1)
     {
         cout << "Can't create a PointsPolygons without at least 1 face." << endl;
@@ -124,49 +156,11 @@ void newPointsPolygons_a::operator()(const iterator_t&, const iterator_t&) const
         return;
     }
 
-	const size_t npoints = DataStream::Ps.size();
-    if (npoints < 3)
-    {
-        cout << "Can't create a Polygon without at least 3 positions." << endl;
-        return;
-    }
-
-    // Setup mesh flags
-    Mesh::MeshCreationData::ComponentSet format;
-    if (DataStream::Ns.size() > 0)
-    {
-        if (DataStream::Ns.size() != npoints)
-            cout << "Normal & Points count mismatch in Polygon declaration. Using default normals" << endl;
-        else
-            format.set(Mesh::MeshCreationData::HasNormals);
-    }
-    if (DataStream::Css.size() > 0)
-    {
-        if (DataStream::Css.size() != npoints)
-            cout << "Cs & Points count mismatch in Polygon declaration. Using default color." << endl;
-        else
-            format.set(Mesh::MeshCreationData::HasColors);
-    }
-    if (DataStream::Oss.size() > 0)
-    {
-        if (DataStream::Oss.size() != npoints)
-            cout << "Os & Points count mismatch in Polygon declaration. Using default opacity." << endl;
-        else
-            format.set(Mesh::MeshCreationData::HasOpacities);
-    }
-
+    
     // Set mesh data
+    const Mesh::ComponentSet format = getVertexFormatForCurrentDataStream();
     Mesh::MeshCreationData data(npoints, nfaces, format);
-    copy(DataStream::Ps.begin(), DataStream::Ps.end(), data.points);
-    
-    if (format.test(Mesh::MeshCreationData::HasNormals))
-        copy(DataStream::Ns.begin(), DataStream::Ns.end(), data.normals);
-    
-    if (format.test(Mesh::MeshCreationData::HasColors))
-        copy(DataStream::Css.begin(), DataStream::Css.end(), data.cs);
-
-    if (format.test(Mesh::MeshCreationData::HasOpacities))
-        copy(DataStream::Oss.begin(), DataStream::Oss.end(), data.os);
+    applyDataStream(data);
 
     // Generate faces
     const size_t maxFaceDescSize = *max_element(vertexPerFaces.begin(), vertexPerFaces.end());

@@ -10,21 +10,26 @@
 class _MM_ALIGN16 Mesh : public Geometry
 {
 public:
+    enum Components
+    {
+        HasNormals      = 0,
+        HasColors       = 1,
+        HasOpacities    = 2,
+
+        ComponentsCount 
+    };
+
+    typedef std::bitset<ComponentsCount>  ComponentSet;
+
+public:
     struct MeshCreationData
     {
-        enum Components
-        {
-            HasNormals      = 0,
-            HasColors       = 1,
-            HasOpacities    = 2,
-        };
-
-        typedef std::bitset<3>  ComponentSet;
-
         MeshCreationData(size_t nVertices, size_t nFaces, ComponentSet components);
         ~MeshCreationData();
 
         void addFace(size_t faceSize, size_t *verticesIdx);
+
+        ComponentSet vertexFormat;
 
         Point3  *points;
         Vector3 *normals;
@@ -37,7 +42,6 @@ public:
         MeshCreationData()      { ; }
 
         size_t  vertexCount;
-        ComponentSet comps;
 
         size_t  facesCount;
         size_t  currAddedFace;
@@ -65,6 +69,8 @@ private:
 	void buildAABB();
 
 private:
+    ComponentSet    vertexFormat;
+
 	size_t		nVertices;
 	Vertex	*	vertices;
 

@@ -7,7 +7,7 @@ class _MM_ALIGN16 Sphere : public Geometry
 {
 public:
 	Sphere(float radius = 1) : r(radius),invr(1/r)												{}
-	Sphere(const Matrix4 &obj2world, float radius) : Geometry(obj2world), r(radius),invr(1/r)	{ buildAABB(); }
+	Sphere(Scene *scn, const Matrix4 &obj2world, float radius) : Geometry(scn, obj2world), r(radius),invr(1/r)	{ buildAABB(); }
 
 	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
 

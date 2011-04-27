@@ -277,13 +277,14 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 
 	CompiledShader shader(nearestObj->getShader(), true);
 	shader.setCurrentDepth(ray.traceDepth);
-    shader.setRTVarValueByIndex(CompiledShader::Cs, info.cs);
-	shader.setRTVarValueByIndex(CompiledShader::P, Vector3(info.point));
-	shader.setRTVarValueByIndex(CompiledShader::N, info.normal);
-	shader.setRTVarValueByIndex(CompiledShader::Ng, info.normal);
+    shader.setRTVarValueByIndex(CompiledShader::Cs, info.Cs);
+    shader.setRTVarValueByIndex(CompiledShader::Os, info.Os);
+	shader.setRTVarValueByIndex(CompiledShader::P, Vector3(info.P));
+	shader.setRTVarValueByIndex(CompiledShader::N, info.N);
+	shader.setRTVarValueByIndex(CompiledShader::Ng, info.Ng);
 	shader.setRTVarValueByIndex(CompiledShader::s, info.s);
 	shader.setRTVarValueByIndex(CompiledShader::t, info.t);
-	shader.setRTVarValueByIndex(CompiledShader::I, ray.direction());
+	shader.setRTVarValueByIndex(CompiledShader::I, Vector3((cam.worldToObjectN * ray.direction()).get128()));
 	shader.exec();
 
 	Color Ci, thisOi;
@@ -293,7 +294,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 	if (isOpaque(Oi))
 		return Ci;
 
-	ray.origin = info.point + (ray.direction() * 0.001f);
+	ray.origin = info.P + (ray.direction() * 0.001f);
 	ray.maxT = prevMaxT - ray.maxT;
 
 	bool nextHit;

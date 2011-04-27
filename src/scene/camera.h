@@ -32,6 +32,7 @@ public:
 	Matrix4		CamToWorld, WorldToCam;
 	Matrix4		CamToScreen, WorldToScreen, RasterToCam;
 	Matrix4		ScreenToRaster, RasterToScreen;
+    Matrix4     worldToObjectN;
 	float		nearClip, farClip;
 };
 

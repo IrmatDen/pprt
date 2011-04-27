@@ -1,6 +1,6 @@
 Option "searchpath" "shader" ["./samples_shaders:&"]
 Option "usethreads" [1]
-Option "maxtracedepth" [3]
+Option "maxtracedepth" [4]
 
 Display "spheres_plane.png" "framebuffer" "rgba"
 #PixelSamples 8 8
@@ -9,7 +9,8 @@ Format 800 600 1
 Projection "perspective" "fov" 45
 
 Translate 0 1 10
-# Rotate -5 1 0 0
+Rotate -10 1 0 0
+# Rotate -60 0 1 0
 
 WorldBegin
 	PointLight -4 10 3 0.35 0.65 0.35

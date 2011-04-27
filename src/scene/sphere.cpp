@@ -49,15 +49,17 @@ bool Sphere::hit(const Ray &ray, IntersectionInfo &ii) const
 	// Now that we have a hit fill the intersection info structure
 	const Point3 localHitP(localRayOrigin + ray.maxT * localRayDir);
 
-	ii.point	= Point3((objectToWorld * localHitP).get128());
-	ii.normal	= Vector3(localHitP) * invr;
+	ii.P  = Point3((objectToWorld * localHitP).get128());
+	ii.N  = Vector3(localHitP) * invr;
+	ii.N  = Vector3((worldToObjectN * ii.N).get128());
+    ii.Ng = ii.N;
 
-    ii.cs = color;
-    ii.os = opacity;
+    ii.Cs = color;
+    ii.Os = opacity;
 	
 	const float invPi = 1.f / 3.141592654f;
-	ii.s = ::asinf(ii.normal.getX()) * invPi + 0.5f;
-	ii.t = ::asinf(ii.normal.getY()) * invPi + 0.5f;
+	ii.s = ::asinf(ii.Ng.getX()) * invPi + 0.5f;
+	ii.t = ::asinf(ii.Ng.getY()) * invPi + 0.5f;
 
 	return true;
 }

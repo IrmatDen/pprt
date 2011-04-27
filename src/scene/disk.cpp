@@ -1,7 +1,7 @@
 #include "disk.h"
 
-Disk::Disk(const Matrix4 &obj2world, float radius, const Vector3 &normal)
-: Geometry(obj2world), n(normal), r(radius), rSquared(r*r)
+Disk::Disk(Scene *scn, const Matrix4 &obj2world, float radius, const Vector3 &normal)
+: Geometry(scn, obj2world), n(normal), r(radius), rSquared(r*r)
 {
 	d = dot(n, Vector3(objectToWorld.getTranslation()));
 }

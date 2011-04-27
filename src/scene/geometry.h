@@ -11,12 +11,13 @@
 #include "../shadervm/shader_param.h"
 
 class CompiledShader;
+class Scene;
 
 struct IntersectionInfo
 {
-	Point3	point;
-	Vector3	normal;
-    Color   cs, os;
+	Point3	P;
+	Vector3	N, Ng;
+    Color   Cs, Os;
 	float	s, t;
 };
 
@@ -26,6 +27,8 @@ public:
 	virtual ~Geometry();
 
 	virtual bool			hit(const Ray &ray, IntersectionInfo &ii) const = 0;
+
+    void                    setScene(Scene *scn);
 
 	const AABB&				getAABB() const							{ return aabb; }
 
@@ -44,14 +47,17 @@ public:
 	void					prepareShader();
 
 protected:
-	Geometry() : objectToWorld(Matrix4::identity()), color(0.f), opacity(0.f), shader(0) 			{}
-	Geometry(const Matrix4 &obj2world) : objectToWorld(obj2world), color(1), shader(0)				{ worldToObject = inverse(objectToWorld); }
+	Geometry(Scene *scn = nullptr);
+	Geometry(Scene *scn, const Matrix4 &obj2world);
 
 protected:
+    Scene               *   scene;
+
 	AABB					aabb;
 
 	Matrix4					objectToWorld;
 	Matrix4					worldToObject;
+    Matrix4                 worldToObjectN;
 
 	Color					color;
 	Color					opacity;

@@ -106,7 +106,13 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
         return;
 
     // Set mesh data
-    const Mesh::ComponentSet format = getVertexFormatForCurrentDataStream();
+    const bool isTriangle   = npoints == 3;
+    const bool isQuad       = npoints == 4;
+    const size_t facesCount = isTriangle ? 1 : (isQuad ? 2 : npoints);
+    const size_t pointsAfterTriangulation = isTriangle ? 3 : (isQuad ? 4 : npoints + 1);
+    const Mesh::ComponentSet format  = getVertexFormatForCurrentDataStream();
+
+    //Mesh::MeshCreationData data(pointsAfterTriangulation, facesCount, format);
     Mesh::MeshCreationData data(npoints, 1, format);
     applyDataStream(data);
 
@@ -118,7 +124,7 @@ void newPolygon_a::operator()(const iterator_t&, const iterator_t&) const
     delete [] pointsIdx;
 
     // Build mesh
-	Geometry *g = Mesh::create(TransformStack::currentTransform, data);
+	Geometry *g = Mesh::create(&scene, TransformStack::currentTransform, data);
 	GraphicStateStack::current.applyToGeometry(&scene, g);
 	scene.addGeometry(g);
 }
@@ -177,7 +183,7 @@ void newPointsPolygons_a::operator()(const iterator_t&, const iterator_t&) const
     delete [] pointsIdx;
 
     // Build mesh
-	Geometry *g = Mesh::create(TransformStack::currentTransform, data);
+	Geometry *g = Mesh::create(&scene, TransformStack::currentTransform, data);
 	GraphicStateStack::current.applyToGeometry(&scene, g);
 	scene.addGeometry(g);
 }
@@ -195,7 +201,7 @@ newSphere_a::newSphere_a(Scene &scn)
 //! \todo throw material or shader not found
 void newSphere_a::operator()(const iterator_t&, const iterator_t&) const
 {
-	Geometry *g = memory::construct<Sphere>(TransformStack::currentTransform, (float)radius);
+	Geometry *g = memory::construct<Sphere>(&scene, TransformStack::currentTransform, (float)radius);
 
 	GraphicStateStack::current.applyToGeometry(&scene, g);
 
@@ -220,7 +226,7 @@ newDisk_a::newDisk_a(Scene &scn)
 //! \todo throw material or shader not found
 void newDisk_a::operator()(const iterator_t&, const iterator_t&) const
 {
-	/*Geometry *g = memory::construct<Disk>(TransformStack::currentTransform, (float)radius, normalize(normal));
+	/*Geometry *g = memory::construct<Disk>(&scene, TransformStack::currentTransform, (float)radius, normalize(normal));
 
 	GraphicStateStack::current.applyToGeometry(&scene, g);
 

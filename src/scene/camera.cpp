@@ -43,6 +43,16 @@ void Camera::finalize(CameraModel model, const Matrix4 &worldToCam, float aspect
 	RasterToCam = inverse(CamToScreen) * RasterToScreen;
 	// Revert Z axis in order to look toward +Z
 	RasterToCam.setElem(3, 2, -RasterToCam.getElem(3, 2));
+
+    worldToObjectN = WorldToCam;
+    worldToObjectN.setElem(3, 0, 0.f);
+    worldToObjectN.setElem(3, 1, 0.f);
+    worldToObjectN.setElem(3, 2, 0.f);
+    worldToObjectN.setElem(0, 3, 0.f);
+    worldToObjectN.setElem(1, 3, 0.f);
+    worldToObjectN.setElem(2, 3, 0.f);
+    worldToObjectN.setElem(3, 3, 1.f);
+    worldToObjectN = transpose(inverse(worldToObjectN));
 }
 
 void Camera::project(float x, float y, Ray &r) const

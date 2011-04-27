@@ -27,7 +27,7 @@ public:
         MeshCreationData(size_t nVertices, size_t nFaces, ComponentSet components);
         ~MeshCreationData();
 
-        void addFace(size_t faceSize, size_t *verticesIdx);
+        void addFace(size_t faceSize, const size_t * const verticesIdx);
 
         ComponentSet vertexFormat;
 
@@ -50,11 +50,11 @@ public:
     };
 
 public:
-    static Mesh* create(const Matrix4 &obj2world, const MeshCreationData &data);
+    static Mesh* create(Scene *scn, const Matrix4 &obj2world, const MeshCreationData &data);
 
 public:
 	Mesh();
-	Mesh(const Matrix4 &obj2world);
+	Mesh(Scene *scn, const Matrix4 &obj2world);
 	~Mesh();
 
 	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;

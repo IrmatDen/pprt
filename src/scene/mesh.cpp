@@ -77,7 +77,7 @@ struct Mesh::Face
 	    if (insideCount < nVertices)
 		    return false;
 
-        ii.point = pointInPlane;
+        ii.P = pointInPlane;
         ray.maxT = dist;
         
         return true;
@@ -117,9 +117,9 @@ struct Mesh::Face
 			    break;
 		    }*/
 
-		    const float cot1		= cotangeant(ii.point, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
-		    const float cot2		= cotangeant(ii.point, getVertexAt(vIdx).pos, getVertexAt(next).pos);
-		    const float distSqrd	= lengthSqr(ii.point - getVertexAt(vIdx).pos);
+		    const float cot1		= cotangeant(ii.P, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
+		    const float cot2		= cotangeant(ii.P, getVertexAt(vIdx).pos, getVertexAt(next).pos);
+		    const float distSqrd	= lengthSqr(ii.P - getVertexAt(vIdx).pos);
 		    weights[vIdx]			= (cot1 + cot2) / distSqrd;
 		    weightSum				+= weights[vIdx];
 	    }
@@ -132,18 +132,27 @@ struct Mesh::Face
 			    weights[wIdx] *= invWeightSum;
         }
         
-        ii.normal   = Vector3(0.f);
-        ii.cs       = Color(0.f);
+        ii.N   = Vector3(0.f);
+        ii.Cs  = Color(0.f);
+        ii.Os  = Color(0.f);
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
         {
             if (owner->vertexFormat.test(Mesh::HasNormals))
-		        ii.normal  += getVertexAt(vIdx).n * weights[vIdx];
-            ii.cs      += getVertexAt(vIdx).cs * weights[vIdx];
-            ii.os      += getVertexAt(vIdx).os * weights[vIdx];
+		        ii.N  += getVertexAt(vIdx).n * weights[vIdx];
+            ii.Cs      += getVertexAt(vIdx).cs * weights[vIdx];
+            ii.Os      += getVertexAt(vIdx).os * weights[vIdx];
         }
+        ii.Ng = plane.n;
+
         if (!owner->vertexFormat.test(Mesh::HasNormals))
-            ii.normal = plane.n;
-        ii.normal = normalize(ii.normal);
+            ii.N = ii.Ng;
+        else
+            ii.N = normalize(ii.N);
+
+        if (!owner->vertexFormat.test(Mesh::HasColors))
+            ii.Cs = owner->color;
+        if (!owner->vertexFormat.test(Mesh::HasOpacities))
+            ii.Os = owner->opacity;
         /*if (dotps(ii.normal.get128(), (-ray.direction()).get128()).m128_f32[0] < 0.f)
         {
 	        owner->barCoordProvider.local()->ordered_free(weights, nVertices);
@@ -202,7 +211,7 @@ Mesh::MeshCreationData::~MeshCreationData()
     }
 }
 
-void Mesh::MeshCreationData::addFace(size_t faceSize, size_t *verticesIdx)
+void Mesh::MeshCreationData::addFace(size_t faceSize, const size_t * const verticesIdx)
 {
     vertexPerFaces[currAddedFace] = faceSize;
     
@@ -216,12 +225,12 @@ void Mesh::MeshCreationData::addFace(size_t faceSize, size_t *verticesIdx)
 //----------------------------------------------------------------------
 // Mesh
 
-Mesh* Mesh::create(const Matrix4 &obj2world, const MeshCreationData &data)
+Mesh* Mesh::create(Scene *scn, const Matrix4 &obj2world, const MeshCreationData &data)
 {
     if (data.vertexCount == 0)
         return nullptr;
 
-    Mesh *result(memory::construct<Mesh>(obj2world));
+    Mesh *result(memory::construct<Mesh>(scn, obj2world));
 
     result->vertexFormat = data.vertexFormat;
 
@@ -260,6 +269,7 @@ Mesh* Mesh::create(const Matrix4 &obj2world, const MeshCreationData &data)
         if (data.normals != nullptr)
             result->vertices[vIdx].n = normalize(data.normals[vIdx]);
         else
+            // FIXME shared vertices!
             result->vertices[vIdx].n = normalize(result->vertices[vIdx].n * 0.333333334f);
 
         if (data.cs != nullptr)
@@ -277,8 +287,8 @@ Mesh::Mesh()
 {
 }
 
-Mesh::Mesh(const Matrix4 &obj2world)
-	: Geometry(obj2world), barCoordProvider(&memory::PoolCreator<float, 1>::create)
+Mesh::Mesh(Scene *scn, const Matrix4 &obj2world)
+	: Geometry(scn, obj2world), barCoordProvider(&memory::PoolCreator<float, 1>::create)
 {
 }
 
@@ -315,6 +325,8 @@ bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
         return false;
 
     closestFace->refineHit(ii);
-	ii.point = Point3((objectToWorld * ii.point).get128());
+	ii.P  = Point3((objectToWorld * ii.P).get128());
+	ii.N  = Vector3((worldToObjectN * ii.N).get128());
+	ii.Ng = Vector3((worldToObjectN * ii.Ng).get128());
 	return true;
 }

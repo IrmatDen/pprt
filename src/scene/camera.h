@@ -29,10 +29,9 @@ public:
 	int			xRes, yRes;
 
 	CameraModel	camModel;
-	Matrix4		CamToWorld, WorldToCam;
+	Matrix4		CamToWorld, WorldToCam, WorldToCamN, CamToWorldN;
 	Matrix4		CamToScreen, WorldToScreen, RasterToCam;
 	Matrix4		ScreenToRaster, RasterToScreen;
-    Matrix4     worldToObjectN, objectToWorldN;
 	float		nearClip, farClip;
 };
 

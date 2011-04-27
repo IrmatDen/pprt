@@ -284,7 +284,7 @@ Color Scene::traceNoDepthMod(Ray &ray, bool &hitSomething, Color &Oi) const
 	shader.setRTVarValueByIndex(CompiledShader::Ng, info.Ng);
 	shader.setRTVarValueByIndex(CompiledShader::s, info.s);
 	shader.setRTVarValueByIndex(CompiledShader::t, info.t);
-	shader.setRTVarValueByIndex(CompiledShader::I, Vector3((cam.worldToObjectN * ray.direction()).get128()));
+	shader.setRTVarValueByIndex(CompiledShader::I, Vector3((cam.WorldToCamN * ray.direction()).get128()));
 	shader.exec();
 
 	Color Ci, thisOi;
@@ -316,31 +316,28 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	Vector3 dir = r.direction();
 	const Light **light = (const Light**)rt_lights;
 
-	
-	// Slightly shift the origin to avoid hitting the same object
-	const Point3 p = r.origin + r.direction() * 0.0001f;
-
 	Ray ray(r);
-	ray.origin = p;
 
 	while (*light)
 	{
 		// Check if the current light is occluded
-        // FIXME HACK shouldn't need this matrix mult, should I?
-		Vector3 L2P = Vector3((cam.worldToObjectN * ((*light)->pos - p)).get128());
-		const float t = length(L2P);
-		L2P /= t;
-		const float L2PdotN = dot(L2P, dir);
-		
+        Vector3 worldL2P = (*light)->pos - r.origin;
+		const float maxDist = length(worldL2P);
+        const float invMaxDist = 1.f / maxDist;
+
+		Vector3 camSpaceL2P = Vector3((cam.WorldToCamN * worldL2P).get128());
+		camSpaceL2P *= invMaxDist;
+		const float L2PdotN = dot(camSpaceL2P, dir);
 		if (L2PdotN < 0)
 		{
 			++light;
 			continue;
 		}
 
-		ray.maxT = t;
-        // FIXME HACK Bring back our ray direction in expected world space
-		ray.setDirection(Vector3((cam.objectToWorldN * L2P).get128()));
+		ray.maxT = maxDist;
+		ray.setDirection(worldL2P * invMaxDist);
+	    ray.origin = r.origin + ray.direction() * 0.0001f;
+
 		bool hit;
 		Color opacity(all_zero());
 		Color influencedColor = trace(ray, hit, opacity);
@@ -364,34 +361,29 @@ void Scene::diffuse(const Ray &r, Color &out) const
 void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const
 {
 	const Vector3 &dir = r.direction();
-
 	const Light **light = (const Light**)rt_lights;
 
-	Color visibility, influencedColor;
-	
-	// Slightly shift the origin to avoid hitting the same object
-	const Point3 p = r.origin + dir * 0.0001f;
-
 	Ray ray(r);
-	ray.origin = p;
 
 	while (*light)
 	{
 		// Check if the current light is occluded
-        // FIXME HACK shouldn't need this matrix mult, should I?
-		Vector3 L2P = Vector3((cam.worldToObjectN * ((*light)->pos - p)).get128());
-		const float t = length(L2P);
-		L2P /= t;
-		const float L2PdotN = dot(L2P, dir);
-		
+        Vector3 worldL2P = (*light)->pos - r.origin;
+		const float maxDist = length(worldL2P);
+        const float invMaxDist = 1.f / maxDist;
+
+		Vector3 camSpaceL2P = Vector3((cam.WorldToCamN * worldL2P).get128());
+		camSpaceL2P *= invMaxDist;
+		const float L2PdotN = dot(camSpaceL2P, dir);
 		if (L2PdotN < 0)
 		{
 			++light;
 			continue;
 		}
-        
-        // FIXME HACK Bring back our ray direction in expected world space
-		ray.setDirection(Vector3((cam.objectToWorldN * L2P).get128()));
+
+		ray.maxT = maxDist;
+		ray.setDirection(worldL2P * invMaxDist);
+	    ray.origin = r.origin + ray.direction() * 0.0001f;
 
 		bool hit;
 		Color opacity(all_zero());
@@ -400,7 +392,7 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 
 		if (!hit || minElem(visibility) > 0.001f)
 		{
-			const Vector3 H = normalize(L2P + viewDir);
+			const Vector3 H = normalize(camSpaceL2P + viewDir);
 			const float NdH = dot(dir, H);
 
             //! \note The current roughness modifier (8.f) emulates Aqsis, which emulates BMRT

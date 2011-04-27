@@ -34,6 +34,6 @@ surface plastic(
 	vec3 Nf = faceforward(normalize(N), I);
 	vec3 V = -normalize(I);
 	Oi = Os;
-	Ci = Os * Cs * (Ka * ambient() + Kd * diffuse(Nf) +
+	Ci = Os * (Cs * (Ka * ambient() + Kd * diffuse(Nf)) +
 					specularcolor * Ks * specular(Nf, V, roughness));
 }

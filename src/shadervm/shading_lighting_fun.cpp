@@ -21,7 +21,6 @@ void CompiledShader::diffuse()
 	Color out(0.f);
 	Ray r(Point3(p), n);
 	r.traceDepth = currentDepth;
-	r.origin += r.direction() * 0.0001f;
 	scene->diffuse(r, out);
 	
 	execStack.push(out);
@@ -38,7 +37,6 @@ void CompiledShader::specular()
 
 	Color out(0.f);
 	Ray r(Point3(p), n);
-	r.origin += r.direction() * 0.0001f;
 	r.traceDepth = currentDepth;
 	scene->specular(r, i, roughness, out);
 	
@@ -54,7 +52,7 @@ void CompiledShader::trace()
     
     const Vector3 &dir = execStack.pop<Vector3>();
     // FIXME HACK Bring back our ray direction in expected world space
-    r.setDirection(Vector3((scene->camera().objectToWorldN * dir).get128()));
+    r.setDirection(Vector3((scene->camera().CamToWorldN * dir).get128()));
 	
 	r.origin += r.direction() * 0.001f;
 	

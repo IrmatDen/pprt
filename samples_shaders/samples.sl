@@ -6,7 +6,7 @@ surface my_constant()
 
 surface surfaceNormals()
 {
-	vec3 Nf = faceforward(N, I);
+	vector Nf = faceforward(N, I);
 	Oi = Os;
 	Ci = Os * (Nf + 1) * 0.5;
 }
@@ -23,22 +23,22 @@ surface diffuse_sample()
 	Ci = Os * Cs * diffuse(N);
 }
 
-surface specular_sample(real roughness=0.1;)
+surface specular_sample(float roughness=0.1;)
 {
 	Oi = Os;
 	Ci = Os * Cs * (diffuse(N) * 0.5 + 0.5 * specular(N, -I, roughness));
 }
 
 surface reflect_sample(
-						real Ka = 1;
-						real Kd = 0.5;
-						real Ks = 0.5;
-						real roughness = 0.1;
-						real reflectStrengh = 1;)
+						float Ka = 1;
+						float Kd = 0.5;
+						float Ks = 0.5;
+						float roughness = 0.1;
+						float reflectStrengh = 1;)
 {
-	vec3 Nf = faceforward(N, I);
-	vec3 V = -normalize(I);
-	vec3 r = reflect(I, Nf);
+	vector Nf = faceforward(N, I);
+	vector V = -normalize(I);
+	vector r = reflect(I, Nf);
 	color lighting = Ka * ambient() + Kd * diffuse(Nf) + Ks * specular(Nf, V, roughness);
 	Oi = Os;
 	Ci = Os * Cs * ((1 - reflectStrengh) * lighting + trace(P, r) * reflectStrengh);
@@ -46,35 +46,35 @@ surface reflect_sample(
 }
 
 surface reflect_sample_additive(
-						real Ka = 1;
-						real Kd = 0.5;
-						real Ks = 0.5;
-						real roughness = 0.1;
-						real reflectStrengh = 1;)
+						float Ka = 1;
+						float Kd = 0.5;
+						float Ks = 0.5;
+						float roughness = 0.1;
+						float reflectStrengh = 1;)
 {
-	vec3 Nf = faceforward(N, I);
-	vec3 V = -normalize(I);
-	vec3 r = reflect(I, Nf);
+	vector Nf = faceforward(N, I);
+	vector V = -normalize(I);
+	vector r = reflect(I, Nf);
 	color lighting = Ka * ambient() + Kd * diffuse(Nf) + Ks * specular(Nf, V, roughness);
 	Oi = Os;
 	Ci = Os * Cs * lighting + trace(P, r) * reflectStrengh;
 	//Ci = (r+1)*0.5;
 }
 
-surface matte_opa(real Ka = 1;
-				real Kd = 1;)
+surface matte_opa(float Ka = 1;
+				float Kd = 1;)
 {
-	vec3 Nf = faceforward(N, I);
+	vector Nf = faceforward(N, I);
 	Oi = Os;
 	Ci = Os * Cs * (Kd * diffuse(N));
 }
 
-surface smoothstep_sample(real rim_width = 0.5;)
+surface smoothstep_sample(float rim_width = 0.5;)
 {
-	vec3 nf = faceforward(N, I);
-	vec3 i = normalize(-I);
-	real dot = 1 - nf.i;
-	real diffusecolor = smoothstep(1 - rim_width, 1, dot);
+	vector nf = faceforward(N, I);
+	vector i = normalize(-I);
+	float dot = 1 - nf.i;
+	float diffusecolor = smoothstep(1 - rim_width, 1, dot);
 	
 	Oi = Os;
 	Ci = Oi * Cs * diffusecolor;

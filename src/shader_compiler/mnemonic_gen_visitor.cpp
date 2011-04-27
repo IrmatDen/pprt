@@ -14,6 +14,22 @@
 using namespace std;
 using namespace boost;
 
+namespace
+{
+    // Shader category names
+    static const std::wstring SC_SURFACE(L"surface");
+
+    // Type names
+    static const std::wstring TN_FLOAT(L"float");
+    static const std::wstring TN_VECTOR(L"vector");
+    static const std::wstring TN_NORMAL(L"normal");
+    static const std::wstring TN_POINT(L"point");
+    static const std::wstring TN_COLOR(L"color");
+
+    // Misc. ?
+    static const std::wstring MISC_TYPE_CTOR(L"type_ctor");
+}
+
 std::string wstringToString(const std::wstring &ws)
 {
 	return std::string(ws.begin(), ws.end());
@@ -47,7 +63,7 @@ void MnemonicGenVisitor::visit(ShaderRootNode &node)
 	memory::destroy(shader);
 	shader = 0;
 
-	if (node.getChildren()->at(0)->getImage() == L"surface")
+	if (node.getChildren()->at(0)->getImage() == SC_SURFACE)
 		shader = memory::construct<CompiledShader>(CompiledShader::ST_Surface);
 	else
 		return; // Other shaders not yet supported
@@ -67,17 +83,17 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 	// Get type
 	ASTNode *typeNode = node.getParent()->getParent()->getChildren()->at(0);
 	const wstring &type = typeNode->getImage();
-	if (type == L"color")
+	if (type == TN_COLOR)
 	{
 		v.type = VT_Color;
 		v.content = Color(0.f);
 	}
-	else if(type == L"real")
+	else if(type == TN_FLOAT)
 	{
 		v.type = VT_Float;
 		v.content = 0.f;
 	}
-	else if(type == L"vec3")
+	else if(type == TN_VECTOR)
 	{
 		v.type = VT_Vector;
 		v.content = Vector3(0.f);
@@ -98,9 +114,9 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			try
 			{
 				float value = lexical_cast<float>(wstringToString(initializer->getImage()));
-				if (type == L"color")
+				if (type == TN_COLOR)
 					v.content = Color((float)value);
-				else if (type == L"real")
+				else if (type == TN_FLOAT)
 					v.content = value;
 
 				initializationHandled = true;
@@ -110,7 +126,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 				// if it's not a float, then it probably is a var, and so initialization is deferred at runtime.
 			}
 		}
-		else if (initializer->getImage() == L"type_ctor")
+		else if (initializer->getImage() == MISC_TYPE_CTOR)
 		{
 			vector<ASTNode*> &typeCtorChildren = *initializer->getChildren();
 			wstring ctorName = typeCtorChildren[0]->getImage();
@@ -126,7 +142,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 				{
 					initializationHandled = false;
 				}
-				else if (type == L"color")
+				else if (type == TN_COLOR)
 				{
 					try
 					{
@@ -143,7 +159,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			// Checks on constantnes is done, do the proper initialization.
 			if (initializationHandled)
 			{
-				if (type == L"color")
+				if (type == TN_COLOR)
 				{
 					switch(args.size())
 					{
@@ -174,7 +190,7 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 						break;
 					}
 				}
-				else if (type == L"real")
+				else if (type == TN_FLOAT)
 				{
 					assert(args.size() == 1);
 					v.content = lexical_cast<float>(wstringToString(args[0]->getImage()));

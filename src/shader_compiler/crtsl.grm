@@ -18,7 +18,7 @@ identifier      = {ID Head}{ID Tail}*
 stringconstant  = '"' {String Chars}* '"'
 number          = {Number}+('.'{Number}+)?
 shader_type     = light | surface | volume | displacement | transformation | imager
-type            = real |string | vec3 | color
+type            = float |string | vector | normal | point | color
 
 ! ------------------------------------------------- Rules
 

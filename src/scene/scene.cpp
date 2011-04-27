@@ -318,7 +318,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Point3 p = r.origin + r.direction() * 0.0001f;
+	const Point3 p = r.origin + r.direction() * 0.01f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -326,7 +326,8 @@ void Scene::diffuse(const Ray &r, Color &out) const
 	while (*light)
 	{
 		// Check if the current light is occluded
-		Vector3 L2P = (*light)->pos - p;
+        // FIXME HACK shouldn't need this matrix mult, should I?
+		Vector3 L2P = Vector3((cam.worldToObjectN * ((*light)->pos - p)).get128());
 		const float t = length(L2P);
 		L2P /= t;
 		const float L2PdotN = dot(L2P, dir);
@@ -368,7 +369,7 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Point3 p = r.origin + dir * 0.0001f;
+	const Point3 p = r.origin + dir * 0.01f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -376,11 +377,9 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 	while (*light)
 	{
 		// Check if the current light is occluded
-		Vector3 L2P = (*light)->pos - p;
-
-		Vectormath::floatInVec t(_mm_sqrt_ps(_vmathVfDot3( L2P.get128(), L2P.get128() )));
-
-		//Vectormath::floatInVec t = length(L2P);
+        // FIXME HACK shouldn't need this matrix mult, should I?
+		Vector3 L2P = Vector3((cam.worldToObjectN * ((*light)->pos - p)).get128());
+		const float t = length(L2P);
 		L2P /= t;
 		const float L2PdotN = dot(L2P, dir);
 		
@@ -401,7 +400,10 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 		{
 			const Vector3 H = normalize(L2P + viewDir);
 			const float NdH = dot(dir, H);
-			const float specMult = static_cast<float>(pow(max(0.f, NdH), 1/roughness));
+
+            //! \note The current roughness modifier (8.f) emulates Aqsis, which emulates BMRT
+            const float roughnessModifier = 8.f;
+			const float specMult = static_cast<float>(pow(max(0.f, NdH), roughnessModifier / roughness));
 
 			if (!hit)
 				out += (*light)->color * specMult;

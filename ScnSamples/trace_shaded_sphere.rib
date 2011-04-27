@@ -1,8 +1,10 @@
 Option "searchpath" "shader" ["./samples_shaders:&"]
+Option "usethreads" [1]
 
 Display "reflect_sphere.png" "framebuffer" "rgba"
 Format 800 600 1
 Projection "perspective" "fov" 45
+PixelSamples 8 8
 
 Rotate -22 0 1 0
 Rotate -15 1 0 0
@@ -11,21 +13,23 @@ Translate 2 -1.2 0
 Background 0 0 0
 
 WorldBegin
-	PointLight -4 -1.5 3 0.8 0.8 0.8
-	PointLight 10 0 -50 0.2 0.2 0.2
+	AttributeBegin
+		PointLight -4 -1.5 3 0.8 0.8 0.8
+		PointLight 10 0 -50 0.2 0.2 0.2
 
-	Translate 0 -0.8 5
-	Color 1 0 0
-	Surface "reflect_sample" "roughness" 0.0005
-	Sphere 1
+		Translate 0 -0.8 5
+		Color 1 0 0
+		Surface "reflect_sample_additive" "roughness" 0.15# "reflectStrengh" 0.5
+		Sphere 1
 
-	Translate -0.8 1.6 0
-	Color 0 1 0
-	Surface "matte"
-	Sphere 1
+		Translate -0.8 1.6 0
+		Color 0 1 0
+		Surface "matte"
+		Sphere 1
 
-	Translate 1.6 0 0
-	Color 0 0 1
-	Surface "reflect_sample" "roughness" 0.005
-	Sphere 1
+		Translate 1.6 0 0
+		Color 0 0 1
+		Surface "reflect_sample_additive" "roughness" 0.15# "reflectStrengh" 0.5
+		Sphere 1
+	AttributeEnd
 WorldEnd

@@ -51,7 +51,10 @@ void CompiledShader::trace()
 
 	// 2 parameters expected: origin & direction
 	r.origin = Point3(execStack.pop<Vector3>());
-	r.setDirection(execStack.pop<Vector3>());
+    
+    const Vector3 &dir = execStack.pop<Vector3>();
+    // FIXME HACK Bring back our ray direction in expected world space
+    r.setDirection(Vector3((scene->camera().objectToWorldN * dir).get128()));
 	
 	r.origin += r.direction() * 0.001f;
 	

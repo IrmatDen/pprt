@@ -26,7 +26,7 @@ surface diffuse_sample()
 surface specular_sample(real roughness=0.1;)
 {
 	Oi = Os;
-	Ci = Os * Cs * (diffuse(N) * 0.5 + 0.5 * specular(N, -normalize(I), roughness));
+	Ci = Os * Cs * (diffuse(N) * 0.5 + 0.5 * specular(N, -I, roughness));
 }
 
 surface reflect_sample(
@@ -36,12 +36,29 @@ surface reflect_sample(
 						real roughness = 0.1;
 						real reflectStrengh = 1;)
 {
-	vec3 Nf = faceforward(normalize(N), I);
+	vec3 Nf = faceforward(N, I);
 	vec3 V = -normalize(I);
 	vec3 r = reflect(I, Nf);
 	color lighting = Ka * ambient() + Kd * diffuse(Nf) + Ks * specular(Nf, V, roughness);
 	Oi = Os;
 	Ci = Os * Cs * ((1 - reflectStrengh) * lighting + trace(P, r) * reflectStrengh);
+	#Ci = (r+1)*0.5;
+}
+
+surface reflect_sample_additive(
+						real Ka = 1;
+						real Kd = 0.5;
+						real Ks = 0.5;
+						real roughness = 0.1;
+						real reflectStrengh = 1;)
+{
+	vec3 Nf = faceforward(N, I);
+	vec3 V = -normalize(I);
+	vec3 r = reflect(I, Nf);
+	color lighting = Ka * ambient() + Kd * diffuse(Nf) + Ks * specular(Nf, V, roughness);
+	Oi = Os;
+	Ci = Os * Cs * lighting + trace(P, r) * reflectStrengh;
+	#Ci = (r+1)*0.5;
 }
 
 surface matte_opa(real Ka = 1;

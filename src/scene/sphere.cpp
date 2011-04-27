@@ -50,9 +50,9 @@ bool Sphere::hit(const Ray &ray, IntersectionInfo &ii) const
 	const Point3 localHitP(localRayOrigin + ray.maxT * localRayDir);
 
 	ii.P  = Point3((objectToWorld * localHitP).get128());
-	ii.N  = Vector3(localHitP) * invr;
-	ii.N  = Vector3((worldToObjectN * ii.N).get128());
-    ii.Ng = ii.N;
+	ii.Ng = Vector3(localHitP) * invr;
+	ii.Ng = Vector3((worldToObjectN * ii.Ng).get128());
+    ii.N  = ii.Ng;
 
     ii.Cs = color;
     ii.Os = opacity;

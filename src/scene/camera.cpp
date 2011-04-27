@@ -53,6 +53,7 @@ void Camera::finalize(CameraModel model, const Matrix4 &worldToCam, float aspect
     worldToObjectN.setElem(2, 3, 0.f);
     worldToObjectN.setElem(3, 3, 1.f);
     worldToObjectN = transpose(inverse(worldToObjectN));
+    objectToWorldN = inverse(worldToObjectN);
 }
 
 void Camera::project(float x, float y, Ray &r) const

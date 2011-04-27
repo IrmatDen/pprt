@@ -53,14 +53,7 @@ void Geometry::setShaderParams(const ShaderParams &p)
 
 	shaderParams = p;
 	for(ShaderParams::iterator it = shaderParams.begin(); it != shaderParams.end(); ++it)
-	{
 		shader->setVarValue(it->name, it->value);
-	}
-
-	VarValue _MM_ALIGN16 tmp(color);
-	shader->setVarValueByIndex(CompiledShader::Cs, tmp);
-	tmp = opacity;
-	shader->setVarValueByIndex(CompiledShader::Os, tmp);
 }
 
 bool Geometry::hasShader() const

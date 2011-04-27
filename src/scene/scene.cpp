@@ -318,7 +318,7 @@ void Scene::diffuse(const Ray &r, Color &out) const
 
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Point3 p = r.origin + r.direction() * 0.01f;
+	const Point3 p = r.origin + r.direction() * 0.0001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -339,7 +339,8 @@ void Scene::diffuse(const Ray &r, Color &out) const
 		}
 
 		ray.maxT = t;
-		ray.setDirection(L2P);
+        // FIXME HACK Bring back our ray direction in expected world space
+		ray.setDirection(Vector3((cam.objectToWorldN * L2P).get128()));
 		bool hit;
 		Color opacity(all_zero());
 		Color influencedColor = trace(ray, hit, opacity);
@@ -369,7 +370,7 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 	Color visibility, influencedColor;
 	
 	// Slightly shift the origin to avoid hitting the same object
-	const Point3 p = r.origin + dir * 0.01f;
+	const Point3 p = r.origin + dir * 0.0001f;
 
 	Ray ray(r);
 	ray.origin = p;
@@ -388,8 +389,9 @@ void Scene::specular(const Ray &r, const Vector3 &viewDir, float roughness, Colo
 			++light;
 			continue;
 		}
-
-		ray.setDirection(L2P);
+        
+        // FIXME HACK Bring back our ray direction in expected world space
+		ray.setDirection(Vector3((cam.objectToWorldN * L2P).get128()));
 
 		bool hit;
 		Color opacity(all_zero());

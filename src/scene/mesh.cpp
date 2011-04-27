@@ -61,6 +61,11 @@ struct Mesh::Face
 
     bool hit(const Ray &ray, IntersectionInfo &ii)
     {
+        // Check orientation
+        if (dot(plane.n, ray.direction()) > 0)
+            return false;
+
+        // Check & get point in polygon's plane
 	    float dist;
         Point3 pointInPlane;
         if (!plane.intersection(ray, dist, pointInPlane) || dist > ray.maxT)
@@ -312,11 +317,13 @@ bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
 {
 	Ray localRay(worldToObject * ray);
 
+    IntersectionInfo proxyInfo;
+
     // Get closest face
     Face *closestFace = nullptr;
     for (size_t faceIndex = 0; faceIndex != nFaces; faceIndex++)
     {
-        if (faces[faceIndex].hit(localRay, ii))
+        if (faces[faceIndex].hit(localRay, proxyInfo))
             closestFace = &faces[faceIndex];
     }
 
@@ -324,6 +331,7 @@ bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
     if (closestFace == nullptr)
         return false;
 
+    ii = proxyInfo;
     closestFace->refineHit(ii);
 	ii.P  = Point3((objectToWorld * ii.P).get128());
 	ii.N  = Vector3((worldToObjectN * ii.N).get128());

@@ -5,6 +5,8 @@
 
 using namespace Vectormath::Aos;
 
+typedef Vector3 Normal;
+
 template <typename T>
 inline float deg2rad(T deg)
 {

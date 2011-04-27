@@ -34,6 +34,51 @@ namespace
     {
 	    return std::string(ws.begin(), ws.end());
     }
+
+    template <typename T>
+    T initFromSingleFloat(ASTNode &arg)
+    {
+        return T(lexical_cast<float>(wstringToString(arg.getImage())));
+    }
+
+    template <typename T>
+    T initFromTriple(ASTNode &arg1, ASTNode &arg2, ASTNode &arg3)
+    {
+        return T(lexical_cast<float>(wstringToString(arg1.getImage())),
+				 lexical_cast<float>(wstringToString(arg2.getImage())),
+				 lexical_cast<float>(wstringToString(arg3.getImage())));
+    }
+
+    template <typename T>
+    T initFromArgs(const vector<ASTNode*> &args)
+    {
+		switch(args.size())
+		{
+		case 1:
+			return initFromSingleFloat<T>(*args[0]);
+
+		case 3:
+            return initFromTriple<T>(*args[0], *args[1], *args[2]);
+
+		default:
+			cout << "Wrong number of arguments given <somewhere>. Default initialization ensue." << endl;
+		}
+        return T();
+    }
+
+    template <typename T>
+    T initFromSingleArg(const vector<ASTNode*> &args)
+    {
+		switch(args.size())
+		{
+		case 1:
+			return initFromSingleFloat<T>(*args[0]);
+
+		default:
+			cout << "Wrong number of arguments given <somewhere>. Default initialization ensue." << endl;
+		}
+        return T();
+    }
 }
 
 MnemonicGenVisitor::MnemonicGenVisitor(ShaderManager &shaderManager)
@@ -99,6 +144,21 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 		v.type = VT_Vector;
 		v.content = Vector3(0.f);
 	}
+	else if(type == TN_NORMAL)
+	{
+		v.type = VT_Normal;
+		v.content = Normal(0.f);
+	}
+	else if(type == TN_POINT)
+	{
+		v.type = VT_Point;
+		v.content = Point3(0.f);
+	}
+    else
+    {
+        wcout << L"Unsupported typename: " << type << endl;
+        return;
+    }
 
 	// Get var name
 	v.name = wstringToString(node.getChildren()->at(0)->getImage());
@@ -115,10 +175,29 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			try
 			{
 				float value = lexical_cast<float>(wstringToString(initializer->getImage()));
-				if (type == TN_COLOR)
-					v.content = Color((float)value);
-				else if (type == TN_FLOAT)
+
+                switch(v.type)
+                {
+                case VT_Color:
+					v.content = Color(value);
+                    break;
+
+                case VT_Float:
 					v.content = value;
+                    break;
+
+                case VT_Vector:
+					v.content = Vector3(value);
+                    break;
+
+                case VT_Normal:
+					v.content = Normal(value);
+                    break;
+
+                case VT_Point:
+					v.content = Point3(value);
+                    break;
+                }
 
 				initializationHandled = true;
 			}
@@ -139,15 +218,17 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			initializationHandled = true;
 			for (size_t i = 0; i < args.size(); i++)
 			{
+                // If one of the argument is not a terminal, it is a compound expression and initialization is deferred at runtime
 				if (args[i]->getChildren()->size() != 0)
 				{
 					initializationHandled = false;
 				}
-				else if (type == TN_COLOR)
+				else // Should insert a switch for the type for types not initialized by floats (eg. strings)
 				{
 					try
 					{
-						float value = lexical_cast<float>(wstringToString(args[i]->getImage()));
+                        // We're not sure to be interested by the actual value for now (there may be expression as initializers later on)
+						float dummyValue = lexical_cast<float>(wstringToString(args[i]->getImage()));
 					}
 					catch (bad_lexical_cast &)
 					{
@@ -160,42 +241,28 @@ void MnemonicGenVisitor::visit(VarDefExprNode &node)
 			// Checks on constantnes is done, do the proper initialization.
 			if (initializationHandled)
 			{
-				if (type == TN_COLOR)
-				{
-					switch(args.size())
-					{
-					case 1:
-						v.content = Color((float)lexical_cast<float>(wstringToString(args[0]->getImage())));
-						break;
+                switch (v.type)
+                {
+                case VT_Color:
+					v.content = initFromArgs<Color>(args);
+                    break;
 
-					case 3:
-						{
-							Color c((float)lexical_cast<float>(wstringToString(args[0]->getImage())),
-									(float)lexical_cast<float>(wstringToString(args[1]->getImage())),
-									(float)lexical_cast<float>(wstringToString(args[2]->getImage())));
-							v.content = c;
-							break;
-						}
+                case VT_Float:
+					v.content = initFromSingleArg<float>(args);
+                    break;
 
-					case 4:
-						{
-							Color c((float)lexical_cast<float>(wstringToString(args[0]->getImage())),
-									(float)lexical_cast<float>(wstringToString(args[1]->getImage())),
-									(float)lexical_cast<float>(wstringToString(args[2]->getImage())));
-							v.content = c;
-							break;
-						}
+                case VT_Vector:
+					v.content = initFromArgs<Vector3>(args);
+                    break;
 
-					default:
-						// Nothing atm.
-						break;
-					}
-				}
-				else if (type == TN_FLOAT)
-				{
-					assert(args.size() == 1);
-					v.content = lexical_cast<float>(wstringToString(args[0]->getImage()));
-				}
+                case VT_Normal:
+					v.content = initFromArgs<Normal>(args);
+                    break;
+
+                case VT_Point:
+					v.content = initFromArgs<Point3>(args);
+                    break;
+                }
 			}
 		}
 

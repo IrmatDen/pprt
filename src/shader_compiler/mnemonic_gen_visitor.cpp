@@ -28,11 +28,12 @@ namespace
 
     // Misc. ?
     static const std::wstring MISC_TYPE_CTOR(L"type_ctor");
-}
+    
 
-std::string wstringToString(const std::wstring &ws)
-{
-	return std::string(ws.begin(), ws.end());
+    std::string wstringToString(const std::wstring &ws)
+    {
+	    return std::string(ws.begin(), ws.end());
+    }
 }
 
 MnemonicGenVisitor::MnemonicGenVisitor(ShaderManager &shaderManager)

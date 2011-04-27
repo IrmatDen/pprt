@@ -6,7 +6,8 @@ Display "pointspolygon.png" "framebuffer" "rgba"
 Format 800 600 1
 Projection "perspective" "fov" 45
 
-Translate 0 0 5
+Translate 0 0 2.5
+Rotate -25 1 0 0
 Rotate -45 0 1 0
 
 WorldBegin

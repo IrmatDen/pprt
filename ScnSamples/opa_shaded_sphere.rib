@@ -151,14 +151,16 @@ WorldBegin
 		AttributeEnd
 	AttributeEnd
 
-	Surface "reflect_sample"
-	Translate 3 0 0
-	TransformBegin
-		Translate 0 0 7
-		Sphere 1
-	TransformEnd
-	TransformBegin
-		Translate 0 0 9
-		Sphere 1
-	TransformEnd
+	AttributeBegin
+		Surface "reflect_sample" "reflectStrengh" .5
+		Translate 3 0 0
+		TransformBegin
+			Translate 0 0 7
+			Sphere 1
+		TransformEnd
+		TransformBegin
+			Translate 0 0 9
+			Sphere 1
+		TransformEnd
+	AttributeEnd
 WorldEnd

@@ -71,7 +71,7 @@ struct Mesh::Face
 	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	    {
 		    const Vector3 PToCurrent = pointInPlane - getVertexAt(vIdx).pos;
-		    if (dot(edgeNormals[vIdx], PToCurrent) < 0.001f)
+		    if (dot(edgeNormals[vIdx], PToCurrent) < 0.000001f)
 			    insideCount++;
 	    }
 	    if (insideCount < nVertices)
@@ -98,8 +98,8 @@ struct Mesh::Face
 		    const size_t next	= (vIdx + 1) % nVertices;
  
 		    // Determine if point is almost on an edge
-		    /* FIXME something's wrong with this method
-            const Vector3 PToCurrent = ii.point - getVertexAt(vIdx).pos;
+		    // FIXME something's wrong with this method
+            const Vector3 PToCurrent = ii.P - getVertexAt(vIdx).pos;
 		    const Vector3 nextToCurrent	= getVertexAt(next).pos - getVertexAt(vIdx).pos;
 		    const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
 		    const float ntcSqrdLen	= lengthSqr(nextToCurrent);
@@ -109,13 +109,13 @@ struct Mesh::Face
 			    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
 				    weights[wIdx] = 0.f;
 
-			    const float w = lengthSqr(PToCurrent) / ntcSqrdLen;
+			    const float w = length(PToCurrent) / sqrt(ntcSqrdLen);
 			    weights[vIdx] = 1.f - w;
 			    weights[next] = w;
 
 			    shouldNormalizeWeights = false;
 			    break;
-		    }*/
+		    }
 
 		    const float cot1		= cotangeant(ii.P, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
 		    const float cot2		= cotangeant(ii.P, getVertexAt(vIdx).pos, getVertexAt(next).pos);

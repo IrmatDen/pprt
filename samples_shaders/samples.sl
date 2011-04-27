@@ -42,7 +42,7 @@ surface reflect_sample(
 	color lighting = Ka * ambient() + Kd * diffuse(Nf) + Ks * specular(Nf, V, roughness);
 	Oi = Os;
 	Ci = Os * Cs * ((1 - reflectStrengh) * lighting + trace(P, r) * reflectStrengh);
-	#Ci = (r+1)*0.5;
+	//Ci = (r+1)*0.5;
 }
 
 surface reflect_sample_additive(
@@ -58,7 +58,7 @@ surface reflect_sample_additive(
 	color lighting = Ka * ambient() + Kd * diffuse(Nf) + Ks * specular(Nf, V, roughness);
 	Oi = Os;
 	Ci = Os * Cs * lighting + trace(P, r) * reflectStrengh;
-	#Ci = (r+1)*0.5;
+	//Ci = (r+1)*0.5;
 }
 
 surface matte_opa(real Ka = 1;

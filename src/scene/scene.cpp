@@ -32,7 +32,7 @@ Scene::Scene()
 		rt_objects(nullptr), rt_lights(nullptr),
 		bvhRoot(nullptr),
 		imgStore(nullptr), fb(nullptr), renderThread(nullptr), tracer(nullptr),
-		threadingEnabled(true), xInvSamples(1.f), yInvSamples(1.f), maxTraceDetph(8)
+		threadingEnabled(true), xInvSamples(0.5f), yInvSamples(0.5f), maxTraceDetph(8)
 {
 	shaderManager.setScene(*this);
 }

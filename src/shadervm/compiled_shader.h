@@ -169,7 +169,7 @@ private:
 	// Functions
 		// Type constructors
 		void colorCtor();
-		void vec3Ctor();
+		void vectorCtor();
 
 		// Mathematical functions
 		void smoothstep();

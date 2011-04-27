@@ -14,7 +14,7 @@ void CompiledShader::colorCtor()
 	execStack.push(Color(r, g, b));
 }
 
-void CompiledShader::vec3Ctor()
+void CompiledShader::vectorCtor()
 {
 	float &x = execStack.pop<float>();
 	float &y = execStack.pop<float>();

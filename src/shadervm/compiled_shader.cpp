@@ -36,7 +36,7 @@ void initOpCodeMappings()
 	// Function name - fn pointers mapping
 		// Type ctors
 	CompiledShader::fnMappings["color"]		= CompiledShader::FunctionInfo(MK_SHADERFUNC(colorCtor), 3, VT_Color);
-	CompiledShader::fnMappings["vec3"]		= CompiledShader::FunctionInfo(MK_SHADERFUNC(vec3Ctor), 3, VT_Vector);
+	CompiledShader::fnMappings["vector"]	= CompiledShader::FunctionInfo(MK_SHADERFUNC(vectorCtor), 3, VT_Vector);
 	
 		// Mathematical
 	CompiledShader::fnMappings["smoothstep"]	= CompiledShader::FunctionInfo(MK_SHADERFUNC(smoothstep), 3, VT_Float);

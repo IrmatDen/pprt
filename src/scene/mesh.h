@@ -2,6 +2,8 @@
 #define PPRT_MESH_H
 
 #include "geometry.h"
+#include "bvh.h"
+#include "../aligned_vector.h"
 #include "../memory.h"
 #include "../math/plane.h"
 
@@ -60,10 +62,35 @@ public:
 	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
 
 private:
-	struct Vertex;
-	struct Face;
+	struct Vertex
+    {
+	    Point3	pos;
+        Vector3 n;
+        Color   cs, os;
+    };
 
+	struct Face
+    {
+        Mesh *owner;
+
+        size_t  nVertices;
+        size_t  *verticesIndex;
+
+        Plane   plane;
+        Vector3 *edgeNormals;
+
+        inline Mesh::Vertex& getVertexAt(size_t idx) const;
+        AABB getAABB() const;
+        Point3 position() const;
+        void build(const Mesh::MeshCreationData &data, size_t currentIndex);
+
+        bool hit(const Ray &ray, IntersectionInfo &ii) const;
+        void refineHit(IntersectionInfo &ii) const;
+    };
     friend struct Face;
+
+    typedef AlignedVector<Face*>    Faces;
+    typedef BVH<Face, Faces, 1024>  FacesBVH;
 
 private:
 	void buildAABB();
@@ -75,7 +102,9 @@ private:
 	Vertex	*	vertices;
 
     size_t      nFaces;
-    Face    *   faces;
+    Face *      facesPool;
+    Faces       faces;
+    FacesBVH    bvh;
 
 	// TLS for barycentric coordinates
 	mutable memory::TLPool	barCoordProvider;

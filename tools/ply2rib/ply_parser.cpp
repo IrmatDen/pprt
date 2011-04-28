@@ -41,7 +41,7 @@ bool ply::ply_parser::parse(std::istream& istream)
     stringstream >> std::ws;
     if (stringstream.eof()) {
       if (warning_callback_) {
-        warning_callback_(line_number_, "ignoring line ‘" + line + "’");
+        warning_callback_(line_number_, "ignoring line '" + line + "'");
       }
     }
     else {
@@ -76,7 +76,7 @@ bool ply::ply_parser::parse(std::istream& istream)
         }
         if (version != "1.0") {
           if (error_callback_) {
-            error_callback_(line_number_, "version ‘" + version + "’ is not supported");
+            error_callback_(line_number_, "version '" + version + "' is not supported");
           }
           return false;
         }
@@ -368,7 +368,7 @@ bool ply::ply_parser::parse(std::istream& istream)
       // unknown keyword
       else {
         if (warning_callback_) {
-          warning_callback_(line_number_, "ignoring line ‘" + line + "’");
+          warning_callback_(line_number_, "ignoring line '" + line + "'");
         }
       }
 

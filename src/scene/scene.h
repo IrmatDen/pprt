@@ -1,6 +1,7 @@
 #ifndef PPRT_SCENE_H
 #define PPRT_SCENE_H
 
+#include "bvh.h"
 #include "camera.h"
 #include "color.h"
 #include "geometry.h"
@@ -16,7 +17,6 @@
 
 #include <SFML/System/Thread.hpp>
 
-class BVH;
 template <typename PixelStoreT> class Framebuffer;
 template <typename PixelStoreT> class TraceBlock;
 
@@ -82,6 +82,9 @@ public:
 	void		specular(const Ray &r, const Vector3 &viewDir, float roughness, Color &out) const;
 
 private:
+    typedef BVH<Geometry, Geometries> SceneBVH;
+
+private:
 	std::string				sceneFileName;
 
 	std::string				displayName;
@@ -108,7 +111,7 @@ private:
 	Geometry	**	rt_objects;
 	Light		**	rt_lights;
 
-	BVH			*	bvhRoot;
+	SceneBVH *	bvhRoot;
 };
 
 #endif

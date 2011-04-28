@@ -121,7 +121,7 @@ void Scene::prepare()
 		rt_lights[loop] = *it;
 	rt_lights[loop] = 0;
 	
-	bvhRoot = memory::construct<BVH>();
+	bvhRoot = memory::construct<SceneBVH>();
 	bvhRoot->build(objects);
 }
 

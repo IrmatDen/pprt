@@ -204,7 +204,6 @@
     <ClCompile Include="src\ribparser\actors_transform.cpp" />
     <ClCompile Include="src\ribparser\ribparser.cpp" />
     <ClCompile Include="src\scene\aabb.cpp" />
-    <ClCompile Include="src\scene\bvh.cpp" />
     <ClCompile Include="src\scene\camera.cpp" />
     <ClCompile Include="src\scene\disk.cpp" />
     <ClCompile Include="src\scene\geometry.cpp" />
@@ -280,6 +279,7 @@
     <CustomBuild Include="src\shader_compiler\crtsl.grm">
       <FileType>Document</FileType>
     </CustomBuild>
+    <None Include="src\scene\bvh.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -11,7 +11,7 @@ AABB::AABB()
 
 bool AABB::hit(const Ray &ray, float &tmin, float &tmax) const
 {
-    /*
+    
 	// First, unpack everything
 	_MM_ALIGN16 float rayOrigin[4];
 	_MM_ALIGN16 float rayInvDir[4];
@@ -57,25 +57,7 @@ bool AABB::hit(const Ray &ray, float &tmin, float &tmax) const
 	storess(lmin, &tmin);
 	storess(lmax, &tmax);
     
-	return hit;*/
-
-    const __m128
-        l1 = mulps(ray.invDir.get128(), subps(_min.get128(), ray.origin.get128())),
-        l2 = mulps(ray.invDir.get128(), subps(_max.get128(), ray.origin.get128())),
-        l1a = minps(l1, sse::plus_inf),  l2a = minps(l2, sse::plus_inf),
-        l1b = maxps(l1, sse::minus_inf), l2b = maxps(l2, sse::minus_inf);
-	
-    const __m128
-        lmax = maxps(l1a,l2a),
-        lmin = minps(l1b,l2b);
-	
-    if(mask_all(orps(cmpltps(lmax, all_zero()),cmpgtps(lmin, lmax))))
-        return false;
-
-    tmin = minElem(Vector3(lmin));
-    tmax = maxElem(Vector3(lmax));
-    
-    return true;
+	return hit;
 }
 
 float AABB::distanceTo(const AABB &other) const

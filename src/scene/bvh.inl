@@ -1,17 +1,17 @@
-#include <limits>
-#include <set>
-#include <vector>
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::BVH()
+    : root(0)
+{
+}
 
-#include "bvh.h"
-
-using namespace std;
-
-BVH::~BVH()
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::~BVH()
 {
 	clear();
 }
 
-void BVH::build(const Scene::Geometries &objects)
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+void BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::build(const ObjectContainer &objects)
 {
 	root = memory::construct<BVHNode>();
 	setAABBFor(root->aabb, objects);
@@ -19,12 +19,14 @@ void BVH::build(const Scene::Geometries &objects)
 	buildSubTree(*root, objects);
 }
 
-void BVH::clear()
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+void BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::clear()
 {
 	memory::destroy(root);
 }
 
-void BVH::setAABBFor(AABB &aabb, const Scene::Geometries &objects) const
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+void BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::setAABBFor(AABB &aabb, const ObjectContainer &objects) const
 {
 	if (objects.size() == 0)
 	{
@@ -32,28 +34,29 @@ void BVH::setAABBFor(AABB &aabb, const Scene::Geometries &objects) const
 		return;
 	}
 
-	aabb = objects[0]->getAABB();
-	for(Scene::Geometries::const_iterator it = objects.begin() + 1; it != objects.end(); ++it)
+	aabb = objects.at(0)->getAABB();
+	for(ObjectContainer::const_iterator it = objects.begin() + 1; it != objects.end(); ++it)
 		aabb.mergeWith((*it)->getAABB());
 }
 
-void BVH::buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects)
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+void BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::buildSubTree(BVHNode &currentNode, const ObjectContainer &objects)
 {
-	if (objects.size() <= BVHNode::MaxObjPerLeaf)
+	if (objects.size() <= MaxObjectsPerLeaf)
 	{
 		currentNode.isLeaf		= true;
 		currentNode.objCount	= objects.size();
-		currentNode.objects		= memory::construct<Geometry*>((size_t)currentNode.objCount);
+		currentNode.objects		= memory::construct<Object*>((size_t)currentNode.objCount);
 		int idx = 0;
-		for (Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it, ++idx)
+		for (ObjectContainer::const_iterator it = objects.begin(); it != objects.end(); ++it, ++idx)
 			currentNode.objects[idx] = *it;
 		return;
 	}
 
 	SplitAxis sa = bestNodeCut(currentNode.aabb, objects);
 
-	Scene::Geometries leftObjects;
-	Scene::Geometries rightObjects;
+	ObjectContainer leftObjects;
+	ObjectContainer rightObjects;
 	currentNode.left = memory::construct<BVHNode>();
 	currentNode.right = memory::construct<BVHNode>();
 
@@ -62,7 +65,7 @@ void BVH::buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects)
 	else
 	{
 		bool pair = true;
-		for(Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it, pair = !pair)
+		for(ObjectContainer::const_iterator it = objects.begin(); it != objects.end(); ++it, pair = !pair)
 		{
 			if (pair)
 				leftObjects.push_back(*it);
@@ -75,9 +78,11 @@ void BVH::buildSubTree(BVHNode &currentNode, const Scene::Geometries &objects)
 	buildSubTree(*currentNode.right, rightObjects);
 }
 
-BVH::SplitAxis BVH::bestNodeCut(const AABB &aabb, const Scene::Geometries &objects) const
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+typename BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::SplitAxis
+BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::bestNodeCut(const AABB &aabb, const ObjectContainer &objects) const
 {
-	Scene::Geometries leftGeo, rightGeo;
+	ObjectContainer leftGeo, rightGeo;
 	AABB leftAABB, rightAABB;
 	float cost, bestCost = numeric_limits<float>::infinity();
 	SplitAxis bestCut = SA_None;
@@ -109,22 +114,23 @@ BVH::SplitAxis BVH::bestNodeCut(const AABB &aabb, const Scene::Geometries &objec
 	return bestCut;
 }
 
-void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &objects,
-					   Scene::Geometries &leftObjects, Scene::Geometries &rightObjects,
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+void BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::splitObjects(SplitAxis sa, const AABB &aabb, const ObjectContainer &objects,
+					   ObjectContainer &leftObjects, ObjectContainer &rightObjects,
 					   AABB &leftAABB, AABB &rightAABB
 					  ) const
 {
-	swap(leftObjects, Scene::Geometries());
+	swap(leftObjects, ObjectContainer());
 	leftAABB = AABB();
-	swap(rightObjects, Scene::Geometries());
+	swap(rightObjects, ObjectContainer());
 	rightAABB = AABB();
 
 	float cutCoord;
 	cutCoord = aabb._min[sa] + (aabb._max[sa] - aabb._min[sa]) / 2;
 
-	for (Scene::Geometries::const_iterator it = objects.begin(); it != objects.end(); ++it)
+	for (ObjectContainer::const_iterator it = objects.begin(); it != objects.end(); ++it)
 	{
-		Geometry *g = *it;
+		Object *g = *it;
 
 		switch(sa)
 		{
@@ -170,13 +176,15 @@ void BVH::splitObjects(SplitAxis sa, const AABB &aabb, const Scene::Geometries &
 	}
 }
 
-const Geometry* BVH::findClosest(const Ray &ray, IntersectionInfo &ii) const
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+const Object* BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::findClosest(const Ray &ray, IntersectionInfo &ii) const
 {
 	float tmin, tmax;
 	return innerTraverse(root, ray, tmin, tmax, ii);
 }
 
-const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &tmin, float &tmax, IntersectionInfo &ii) const
+template<typename Object, typename ObjectContainer, int MaxObjectsPerLeaf>
+const Object* BVH<Object, ObjectContainer, MaxObjectsPerLeaf>::innerTraverse(BVHNode *node, const Ray &ray, float &tmin, float &tmax, IntersectionInfo &ii) const
 {
 	float thisMin, thisMax;
 	if (!node->aabb.hit(ray, thisMin, thisMax) || ray.maxT < thisMin || ray.minT > thisMax)
@@ -187,13 +195,13 @@ const Geometry* BVH::innerTraverse(BVHNode *node, const Ray &ray, float &tmin, f
 
 	if (!node->isLeaf)
 	{
-		const Geometry *lResult(innerTraverse(node->left, ray, tmin, tmax, ii));
-		const Geometry *rResult(innerTraverse(node->right, ray, tmin, tmax, ii));
+		const Object *lResult(innerTraverse(node->left, ray, tmin, tmax, ii));
+		const Object *rResult(innerTraverse(node->right, ray, tmin, tmax, ii));
 		
 		return rResult ? rResult : lResult;
 	}
 
-	const Geometry *closest(0);
+	const Object *closest(0);
 	for (int i = 0; i < node->objCount; i++)
 	{
 		if (node->objects[i]->hit(ray, ii))

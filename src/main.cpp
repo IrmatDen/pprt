@@ -14,8 +14,9 @@ int main(int argc, char **argv)
 	//string scnFile = "ScnSamples/opa_shaded_sphere.rib";
 	//string scnFile = "ScnSamples/smoothstep.rib";
 	//string scnFile = "ScnSamples/mix.rib";
-	string scnFile = "ScnSamples/spheres_plane.rib";
+	//string scnFile = "ScnSamples/spheres_plane.rib";
     //string scnFile = "ScnSamples/pointspolygons.rib";
+	string scnFile = "ScnSamples/t2_head.rib";
 
 	Scene scn;
 	bool scnLoaded = scn.loadSceneFile(scnFile);

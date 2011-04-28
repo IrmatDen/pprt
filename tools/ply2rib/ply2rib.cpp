@@ -16,23 +16,9 @@ using namespace std::tr1::placeholders;
 class Ply2Rib
 {
 public:
-    // Constructing the object start the actual conversion
     Ply2Rib();
     
     bool convert(const string &plyName, istream& plyIStream, ostream& ribOStream);
-
-private:
-    struct Vertex
-    {
-        float x, y, z;
-    };
-    friend ostream& operator<<(ostream &out, const Ply2Rib::Vertex &v);
-    
-    struct Face
-    {
-        size_t verticesCount;
-        vector<size_t>  vertexIndices;
-    };
 
 // PLY handling
 private:
@@ -54,15 +40,18 @@ private:
 
     // Vertex callbacks
     void vertex_begin();
+    void vertex_end();
     void vertex_x_callback(ply::float32 x);
     void vertex_y_callback(ply::float32 y);
     void vertex_z_callback(ply::float32 z);
-    void vertex_end();
+    void vertex_nx_callback(ply::float32 nx);
+    void vertex_ny_callback(ply::float32 ny);
+    void vertex_nz_callback(ply::float32 nz);
 
     // Faces callbacks
     void face_begin();
     void face_vertex_indices_begin(ply::uint8 size);
-    void face_vertex_indices_element(ply::int32 vertex_index);
+    void face_vertex_indices_element(ply::uint32 vertex_index);
     void face_vertex_indices_end();
     void face_end();
 
@@ -71,24 +60,50 @@ private:
     void writeRIB();
 
 private:
+    struct Vertex
+    {
+        Vertex() : x(0.f), y(0.f), z(0.f) {}
+        float x, y, z;
+    };
+    typedef Vertex VertexNormal;
+
+    friend ostream& operator<<(ostream &out, const Ply2Rib::Vertex &v);
+    
+    struct Face
+    {
+        Face() : verticesCount(0) {}
+        size_t verticesCount;
+        vector<size_t>  vertexIndices;
+    };
+
+private:
     ostream* rib;
+
+    bool perVertexNormalsSpecified;
 
     Vertex currentVertex;
     vector<Vertex> vertices;
+
+    VertexNormal currentNormal;
+    vector<VertexNormal> verticesNormals;
 
     Face currentFace;
     vector<Face> faces;
 };
 
+Ply2Rib::Ply2Rib()
+    :   rib(nullptr),
+        perVertexNormalsSpecified(false)
+{
+}
+
+//---------------------------------------------------------------------------------
+// Internal types
+
 ostream& operator<<(ostream &out, const Ply2Rib::Vertex &v)
 {
     out << v.x << " " << v.y << " " << v.z;
     return out;
-}
-
-Ply2Rib::Ply2Rib()
-    : rib(nullptr)
-{
 }
 
 //---------------------------------------------------------------------------------
@@ -132,6 +147,21 @@ function<void (ply::float32)> Ply2Rib::scalar_property_definition_callback(const
         {
             return bind(&Ply2Rib::vertex_z_callback, this, _1);
         }
+        if (property_name == "nx")
+        {
+            perVertexNormalsSpecified = true;
+            return bind(&Ply2Rib::vertex_nx_callback, this, _1);
+        }
+        else if (property_name == "ny")
+        {
+            perVertexNormalsSpecified = true;
+            return bind(&Ply2Rib::vertex_ny_callback, this, _1);
+        }
+        else if (property_name == "nz")
+        {
+            perVertexNormalsSpecified = true;
+            return bind(&Ply2Rib::vertex_nz_callback, this, _1);
+        }
         else
         {
             return 0;
@@ -145,23 +175,34 @@ function<void (ply::float32)> Ply2Rib::scalar_property_definition_callback(const
 
 template <>
 tuple< function<void (ply::uint8)>,
+       function<void (ply::uint32)>,
+       function<void ()>
+     >
+Ply2Rib::list_property_definition_callback(const string& element_name, const string& property_name)
+{
+    if (element_name == "face")
+    {
+        if (property_name == "vertex_index" || property_name == "vertex_indices")
+        {
+            return tuple<function<void (ply::uint8)>, function<void (ply::uint32)>, function<void ()> >(
+                    bind(&Ply2Rib::face_vertex_indices_begin, this, _1),
+                    bind(&Ply2Rib::face_vertex_indices_element, this, _1),
+                    bind(&Ply2Rib::face_vertex_indices_end, this)
+                );
+        }
+    }
+
+    return tuple<function<void (ply::uint8)>, function<void (ply::int32)>, function<void ()> >(0, 0, 0);
+}
+
+template <>
+tuple< function<void (ply::uint8)>,
        function<void (ply::int32)>,
        function<void ()>
      >
 Ply2Rib::list_property_definition_callback(const string& element_name, const string& property_name)
 {
-    if ((element_name == "face") && (property_name == "vertex_index"))
-    {
-        return tuple<function<void (ply::uint8)>, function<void (ply::int32)>, function<void ()> >(
-                bind(&Ply2Rib::face_vertex_indices_begin, this, _1),
-                bind(&Ply2Rib::face_vertex_indices_element, this, _1),
-                bind(&Ply2Rib::face_vertex_indices_end, this)
-            );
-    }
-    else
-    {
-        return tuple<function<void (ply::uint8)>, function<void (ply::int32)>, function<void ()> >(0, 0, 0);
-    }
+    return list_property_definition_callback<ply::uint8, ply::uint32>(element_name, property_name);
 }
 
 //---------------------------------------------------------------------------------
@@ -198,6 +239,9 @@ void Ply2Rib::vertex_begin()
 void Ply2Rib::vertex_end()
 {
     vertices.push_back(currentVertex);
+
+    if (perVertexNormalsSpecified)
+        verticesNormals.push_back(currentNormal);
 }
 
 void Ply2Rib::vertex_x_callback(ply::float32 x)
@@ -213,6 +257,21 @@ void Ply2Rib::vertex_y_callback(ply::float32 y)
 void Ply2Rib::vertex_z_callback(ply::float32 z)
 {
     currentVertex.z = z;
+}
+
+void Ply2Rib::vertex_nx_callback(ply::float32 nx)
+{
+    currentNormal.x = nx;
+}
+
+void Ply2Rib::vertex_ny_callback(ply::float32 ny)
+{
+    currentNormal.y = ny;
+}
+
+void Ply2Rib::vertex_nz_callback(ply::float32 nz)
+{
+    currentNormal.z = nz;
 }
 
 //---------------------------------------------------------------------------------
@@ -233,7 +292,7 @@ void Ply2Rib::face_vertex_indices_begin(ply::uint8 size)
     currentFace.verticesCount = size;
 }
 
-void Ply2Rib::face_vertex_indices_element(ply::int32 vertex_index)
+void Ply2Rib::face_vertex_indices_element(ply::uint32 vertex_index)
 {
     currentFace.vertexIndices.push_back(vertex_index);
 }
@@ -266,12 +325,26 @@ void Ply2Rib::writeRIB()
                      f.vertexIndices.end(),
                      ostream_iterator<size_t>(out, " "));
             } );
-        out << "] ";
+        ostream::pos_type pos = out.tellp();
+        out.seekp(pos - ostream::pos_type(1));
+        out << "]";
 
-        // Write our vertices'
+        // Write our vertices' coordinates
         out << endl << "\t\t\"P\" [";
-        copy(vertices.begin(), vertices.end(), ostream_iterator<Vertex>(out, " "));
-        out << "] ";
+        copy(vertices.begin(), vertices.end(), ostream_iterator<Vertex>(out, "\n\t\t     "));
+        pos = out.tellp();
+        out.seekp(pos - ostream::pos_type(1));
+        out << "]";
+
+        // Write our optional per-vertex normals
+        if (perVertexNormalsSpecified)
+        {
+            out << endl << "\t\t\"N\" [";
+            copy(verticesNormals.begin(), verticesNormals.end(), ostream_iterator<VertexNormal>(out, "\n\t\t     "));
+            pos = out.tellp();
+            out.seekp(pos - ostream::pos_type(1));
+            out << "]";
+        }
 
     out << endl << "AttributeEnd" << endl;
 }
@@ -296,7 +369,7 @@ bool Ply2Rib::convert(const string &plyName, istream& plyIStream, ostream& ribOS
 
     // Set our element callback (for vertices' indices etc...)
     ply::ply_parser::list_property_definition_callbacks_type list_property_definition_callbacks;
-    ply::at<ply::uint8, ply::int32>(list_property_definition_callbacks) = bind(&Ply2Rib::list_property_definition_callback<ply::uint8, ply::int32>, this, _1, _2);
+    ply::at<ply::uint8, ply::uint32>(list_property_definition_callbacks) = bind(&Ply2Rib::list_property_definition_callback<ply::uint8, ply::uint32>, this, _1, _2);
     ply_parser.list_property_definition_callbacks(list_property_definition_callbacks);
 
     // Set our property callback (to handle begin/end of elements)
@@ -317,6 +390,8 @@ string getDefaultRibFileFrom(const string &inFile)
 
 int main(int argc, char **argv)
 {
+    bool waitInputBeforeQuit = false;
+
     po::options_description desc("Usage");
     desc.add_options()
         ("help", "Display this message")
@@ -328,14 +403,18 @@ int main(int argc, char **argv)
     // Validate input/display help
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
-    if (vm.count("help") != 0 || vm.count("in") == 0)
+    if ((vm.count("help") != 0 || vm.count("in") == 0) && argc != 2)
     {
         cout << desc << endl;
         return 0;
     }
 
-    // Get input file
-    const string plyFile = vm["in"].as<string>();
+    // The "downside" to not using argument
+    if (argc == 2)
+        waitInputBeforeQuit = true;
+
+    // Get input file (try to interpret the 2nd argument as a ply filepath, if user drag&dropped a file)
+    const string plyFile = vm.count("in") != 0 ? vm["in"].as<string>() : argv[1];
     if (plyFile.substr(plyFile.size() - 4) != ".ply")
     {
         cout << desc << endl;
@@ -355,6 +434,12 @@ int main(int argc, char **argv)
         cout << "An error occured while parsing " << plyFile << endl;
     else
         cout << "Succesfully converted " << plyFile << " to " << ribFile << endl;
+
+    if (waitInputBeforeQuit)
+    {
+        cout << "Press any key to leave...";
+        cin.get();
+    }
 
     return 0;
 }

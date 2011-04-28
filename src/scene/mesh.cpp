@@ -5,168 +5,175 @@
 
 using namespace std;
 
-struct Mesh::Vertex
+inline Mesh::Vertex& Mesh::Face::getVertexAt(size_t idx) const
 {
-	Point3	pos;
-    Vector3 n;
-    Color   cs, os;
-};
+    return owner->vertices[verticesIndex[idx]];
+}
 
-struct Mesh::Face
+AABB Mesh::Face::getAABB() const
 {
-    Mesh *owner;
-
-    size_t  nVertices;
-    size_t  *verticesIndex;
-
-    Plane   plane;
-    Vector3 *edgeNormals;
-
-    void build(const Mesh::MeshCreationData &data, size_t currentIndex)
+    // Yeah, I'm doing it on the fly... Bigger mesh's bvh build times, but smaller Face, so...
+    AABB ret;
+    ret._min = ret._max = getVertexAt(0).pos;
+    for (size_t i = 1; i != nVertices; i++)
     {
-        nVertices = data.vertexPerFaces[currentIndex];
-        verticesIndex = memory::allocate<size_t>(nVertices);
-
-        size_t vIdx = 0;
-        for_each(verticesIndex, verticesIndex + nVertices, [&] (size_t &v) { v = data.faces[currentIndex][vIdx++]; } );
-
-	    // Get supporting plane
-	    //! \todo Search valid points instead of assuming the first 3 are...
-        plane = Plane::fromPoints(getVertexAt(0).pos,
-                                  getVertexAt(1).pos,
-                                  getVertexAt(2).pos);
-
-        // Generate each edges normals & generate default vertex normals
-        edgeNormals = memory::allocate<Vector3>(nVertices);
-	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-	    {
-		    const size_t next			= (vIdx + 1) % nVertices;
-            Vertex &currentVertex       = getVertexAt(vIdx);
-            const Vertex &nextVertex    = getVertexAt(next);
-
-		    const Vector3 nextToCurrent	= nextVertex.pos - currentVertex.pos;
-            edgeNormals[vIdx]           = cross(normalize(nextToCurrent), plane.n);
-
-            if (lengthSqr(currentVertex.n) < 0.001)
-                currentVertex.n = plane.n;
-            else
-                currentVertex.n += plane.n;
-        }
+		ret._min = minPerElem(ret._min, getVertexAt(i).pos);
+		ret._max = maxPerElem(ret._max, getVertexAt(i).pos);
     }
+    
+    return ret;
+}
 
-    inline Mesh::Vertex& getVertexAt(size_t idx)
-    {
-        return owner->vertices[verticesIndex[idx]];
-    }
+Point3 Mesh::Face::position() const
+{
+    // Same thing here: on the fly.
+    Point3 ret(getVertexAt(0).pos);
+    for (size_t i = 1; i != nVertices; i++)
+		ret += Vector3(getVertexAt(i).pos);
+    ret = Point3(Vector3(ret) * (1 / static_cast<float>(nVertices)));
+    
+    return ret;
+}
 
-    bool hit(const Ray &ray, IntersectionInfo &ii)
-    {
-        // Check orientation
-        if (dot(plane.n, ray.direction()) > 0)
-            return false;
+void Mesh::Face::build(const Mesh::MeshCreationData &data, size_t currentIndex)
+{
+    nVertices = data.vertexPerFaces[currentIndex];
+    verticesIndex = memory::allocate<size_t>(nVertices);
 
-        // Check & get point in polygon's plane
-	    float dist;
-        Point3 pointInPlane;
-        if (!plane.intersection(ray, dist, pointInPlane) || dist > ray.maxT)
-		    return false;
+    size_t vIdx = 0;
+    for_each(verticesIndex, verticesIndex + nVertices, [&] (size_t &v) { v = data.faces[currentIndex][vIdx++]; } );
 
-	    // Test point-in-polygon (lazy mode)
-	    size_t insideCount = 0;
-	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-	    {
-		    const Vector3 PToCurrent = pointInPlane - getVertexAt(vIdx).pos;
-		    if (dot(edgeNormals[vIdx], PToCurrent) < 0.000001f)
-			    insideCount++;
-	    }
-	    if (insideCount < nVertices)
-		    return false;
+	// Get supporting plane
+	//! \todo Search valid points instead of assuming the first 3 are...
+    plane = Plane::fromPoints(getVertexAt(0).pos,
+                                getVertexAt(1).pos,
+                                getVertexAt(2).pos);
 
-        ii.P = pointInPlane;
-        ray.maxT = dist;
-        
-        return true;
-    }
+    // Generate each edges normals & generate default vertex normals
+    edgeNormals = memory::allocate<Vector3>(nVertices);
+	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+	{
+		const size_t next			= (vIdx + 1) % nVertices;
+        Vertex &currentVertex       = getVertexAt(vIdx);
+        const Vertex &nextVertex    = getVertexAt(next);
 
-    void refineHit(IntersectionInfo &ii)
-    {
-	    // Compute barycentric coordinates based on
-	    // "Generalized Barycentric Coordinates on Irregular Polygons"
-	    // by Meyer et al. (2002)
-	    // Published in JGT Vol. 7, Nr 1, 2002
-	    float *weights	= reinterpret_cast<float*>(owner->barCoordProvider.local()->ordered_malloc(nVertices));
-	    float weightSum	= 0.f;
-        bool shouldNormalizeWeights = true;
-	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-	    {
-		    const size_t prev	= (vIdx + nVertices - 1) % nVertices;
-		    const size_t next	= (vIdx + 1) % nVertices;
- 
-		    // Determine if point is almost on an edge
-		    // FIXME something's wrong with this method
-            const Vector3 PToCurrent = ii.P - getVertexAt(vIdx).pos;
-		    const Vector3 nextToCurrent	= getVertexAt(next).pos - getVertexAt(vIdx).pos;
-		    const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
-		    const float ntcSqrdLen	= lengthSqr(nextToCurrent);
-		    if (area <= numeric_limits<float>::epsilon() * ntcSqrdLen)
-		    {
-			    // Reset all weights and interpolate between this vertex and the next
-			    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-				    weights[wIdx] = 0.f;
+		const Vector3 nextToCurrent	= nextVertex.pos - currentVertex.pos;
+        edgeNormals[vIdx]           = cross(normalize(nextToCurrent), plane.n);
 
-			    const float w = length(PToCurrent) / sqrt(ntcSqrdLen);
-			    weights[vIdx] = 1.f - w;
-			    weights[next] = w;
-
-			    shouldNormalizeWeights = false;
-			    break;
-		    }
-
-		    const float cot1		= cotangeant(ii.P, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
-		    const float cot2		= cotangeant(ii.P, getVertexAt(vIdx).pos, getVertexAt(next).pos);
-		    const float distSqrd	= lengthSqr(ii.P - getVertexAt(vIdx).pos);
-		    weights[vIdx]			= (cot1 + cot2) / distSqrd;
-		    weightSum				+= weights[vIdx];
-	    }
-	
-	    // Normalize weights
-        if (shouldNormalizeWeights)
-        {
-		    const float invWeightSum = 1.f / weightSum;
-		    for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
-			    weights[wIdx] *= invWeightSum;
-        }
-        
-        ii.N   = Vector3(0.f);
-        ii.Cs  = Color(0.f);
-        ii.Os  = Color(0.f);
-	    for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
-        {
-            if (owner->vertexFormat.test(Mesh::HasNormals))
-		        ii.N  += getVertexAt(vIdx).n * weights[vIdx];
-            ii.Cs      += getVertexAt(vIdx).cs * weights[vIdx];
-            ii.Os      += getVertexAt(vIdx).os * weights[vIdx];
-        }
-        ii.Ng = plane.n;
-
-        if (!owner->vertexFormat.test(Mesh::HasNormals))
-            ii.N = ii.Ng;
+        if (lengthSqr(currentVertex.n) < 0.001)
+            currentVertex.n = plane.n;
         else
-            ii.N = normalize(ii.N);
-
-        if (!owner->vertexFormat.test(Mesh::HasColors))
-            ii.Cs = owner->color;
-        if (!owner->vertexFormat.test(Mesh::HasOpacities))
-            ii.Os = owner->opacity;
-        /*if (dotps(ii.normal.get128(), (-ray.direction()).get128()).m128_f32[0] < 0.f)
-        {
-	        owner->barCoordProvider.local()->ordered_free(weights, nVertices);
-            return false;
-        }*/
-
-	    owner->barCoordProvider.local()->ordered_free(weights, nVertices);
+            currentVertex.n += plane.n;
     }
-};
+}
+
+bool Mesh::Face::hit(const Ray &ray, IntersectionInfo &ii) const
+{
+    // Check orientation
+    if (dot(plane.n, ray.direction()) > 0)
+        return false;
+
+    // Check & get point in polygon's plane
+	float dist;
+    Point3 pointInPlane;
+    if (!plane.intersection(ray, dist, pointInPlane) || dist > ray.maxT)
+		return false;
+
+	// Test point-in-polygon (lazy mode)
+	size_t insideCount = 0;
+	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+	{
+		const Vector3 PToCurrent = pointInPlane - getVertexAt(vIdx).pos;
+		if (dot(edgeNormals[vIdx], PToCurrent) < 0.000001f)
+			insideCount++;
+	}
+	if (insideCount < nVertices)
+		return false;
+
+    ii.P = pointInPlane;
+    ray.maxT = dist;
+        
+    return true;
+}
+
+void Mesh::Face::refineHit(IntersectionInfo &ii) const
+{
+	// Compute barycentric coordinates based on
+	// "Generalized Barycentric Coordinates on Irregular Polygons"
+	// by Meyer et al. (2002)
+	// Published in JGT Vol. 7, Nr 1, 2002
+	float *weights	= reinterpret_cast<float*>(owner->barCoordProvider.local()->ordered_malloc(nVertices));
+	float weightSum	= 0.f;
+    bool shouldNormalizeWeights = true;
+	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+	{
+		const size_t prev	= (vIdx + nVertices - 1) % nVertices;
+		const size_t next	= (vIdx + 1) % nVertices;
+ 
+		// Determine if point is almost on an edge
+		// FIXME something's wrong with this method
+        const Vector3 PToCurrent = ii.P - getVertexAt(vIdx).pos;
+		const Vector3 nextToCurrent	= getVertexAt(next).pos - getVertexAt(vIdx).pos;
+		const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
+		const float ntcSqrdLen	= lengthSqr(nextToCurrent);
+		if (area <= numeric_limits<float>::epsilon() * ntcSqrdLen)
+		{
+			// Reset all weights and interpolate between this vertex and the next
+			for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+				weights[wIdx] = 0.f;
+
+			const float w = length(PToCurrent) / sqrt(ntcSqrdLen);
+			weights[vIdx] = 1.f - w;
+			weights[next] = w;
+
+			shouldNormalizeWeights = false;
+			break;
+		}
+
+		const float cot1		= cotangeant(ii.P, getVertexAt(vIdx).pos, getVertexAt(prev).pos);
+		const float cot2		= cotangeant(ii.P, getVertexAt(vIdx).pos, getVertexAt(next).pos);
+		const float distSqrd	= lengthSqr(ii.P - getVertexAt(vIdx).pos);
+		weights[vIdx]			= (cot1 + cot2) / distSqrd;
+		weightSum				+= weights[vIdx];
+	}
+	
+	// Normalize weights
+    if (shouldNormalizeWeights)
+    {
+		const float invWeightSum = 1.f / weightSum;
+		for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
+			weights[wIdx] *= invWeightSum;
+    }
+        
+    ii.N   = Vector3(0.f);
+    ii.Cs  = Color(0.f);
+    ii.Os  = Color(0.f);
+	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
+    {
+        if (owner->vertexFormat.test(Mesh::HasNormals))
+		    ii.N  += getVertexAt(vIdx).n * weights[vIdx];
+        ii.Cs      += getVertexAt(vIdx).cs * weights[vIdx];
+        ii.Os      += getVertexAt(vIdx).os * weights[vIdx];
+    }
+    ii.Ng = plane.n;
+
+    if (!owner->vertexFormat.test(Mesh::HasNormals))
+        ii.N = ii.Ng;
+    else
+        ii.N = normalize(ii.N);
+
+    if (!owner->vertexFormat.test(Mesh::HasColors))
+        ii.Cs = owner->color;
+    if (!owner->vertexFormat.test(Mesh::HasOpacities))
+        ii.Os = owner->opacity;
+    /*if (dotps(ii.normal.get128(), (-ray.direction()).get128()).m128_f32[0] < 0.f)
+    {
+	    owner->barCoordProvider.local()->ordered_free(weights, nVertices);
+        return false;
+    }*/
+
+	owner->barCoordProvider.local()->ordered_free(weights, nVertices);
+}
 
 //----------------------------------------------------------------------
 // MeshCreationData
@@ -258,15 +265,17 @@ Mesh* Mesh::create(Scene *scn, const Matrix4 &obj2world, const MeshCreationData 
 
     // Build faces infos
     result->nFaces = data.facesCount;
-    result->faces = memory::allocate<Face>(result->nFaces);
-    size_t idx = 0;
-    for_each(result->faces, result->faces + result->nFaces,
-        [&] (Face &f)
-        {
-            f.owner = result;
-            f.build(data, idx);
-            idx++;
-        } );
+    result->facesPool = memory::allocate<Face>(result->nFaces);
+    Face *facePoolEntry = result->facesPool;
+    for (size_t fIdx = 0; fIdx != result->nFaces; fIdx++, facePoolEntry++)
+    {
+        Face *newFace = facePoolEntry;
+        newFace->owner = result;
+        newFace->build(data, fIdx);
+
+        result->faces.push_back(newFace);
+    }
+    result->bvh.build(result->faces);
 
     // Finalize default per-vertex normals & copy additional per-vertex data
 	for (vIdx = 0; vIdx != result->nVertices; vIdx++)
@@ -300,7 +309,7 @@ Mesh::Mesh(Scene *scn, const Matrix4 &obj2world)
 Mesh::~Mesh()
 {
 	memory::deallocate(vertices);
-	memory::deallocate(faces);
+	memory::deallocate(facesPool);
 }
 
 void Mesh::buildAABB()
@@ -311,6 +320,8 @@ void Mesh::buildAABB()
 			aabb._min = minPerElem(aabb._min, v.pos);
 			aabb._max = maxPerElem(aabb._max, v.pos);
 		} );
+    aabb._min = Point3((objectToWorld * aabb._min).get128());
+    aabb._max = Point3((objectToWorld * aabb._max).get128());
 }
 
 bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
@@ -320,12 +331,13 @@ bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
     IntersectionInfo proxyInfo;
 
     // Get closest face
-    Face *closestFace = nullptr;
-    for (size_t faceIndex = 0; faceIndex != nFaces; faceIndex++)
+    const Face *closestFace = bvh.findClosest(localRay, proxyInfo);
+    /*Face *closestFace = nullptr;
+    for(Faces::const_iterator it = faces.begin(); it != faces.end(); ++it)
     {
-        if (faces[faceIndex].hit(localRay, proxyInfo))
-            closestFace = &faces[faceIndex];
-    }
+        if ((*it)->hit(localRay, proxyInfo))
+            closestFace = *it;
+    }*/
 
 	// Fill intersection info
     if (closestFace == nullptr)

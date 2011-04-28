@@ -14,7 +14,7 @@
       <workload>
        <launch_app.app_parameters></launch_app.app_parameters>
        <system.duration type="null"></system.duration>
-       <launch_app.app_to_launch>F:\src\pprt\Release\pprt.exe</launch_app.app_to_launch>
+       <launch_app.app_to_launch>F:\src\pprt\bin\pprt.exe</launch_app.app_to_launch>
        <launch_app.working_folder>F:\src\pprt</launch_app.working_folder>
        <result_directory.path>F:\src\pprt\VTune\pprt\r@@@{at}</result_directory.path>
        <context>

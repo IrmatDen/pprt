@@ -53,9 +53,6 @@
     <ClCompile Include="src\scene\aabb.cpp">
       <Filter>Source Files\scene</Filter>
     </ClCompile>
-    <ClCompile Include="src\scene\bvh.cpp">
-      <Filter>Source Files\scene</Filter>
-    </ClCompile>
     <ClCompile Include="src\scene\camera.cpp">
       <Filter>Source Files\scene</Filter>
     </ClCompile>
@@ -257,6 +254,9 @@
     </None>
     <None Include="Shaders\samples.crtsl">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="src\scene\bvh.inl">
+      <Filter>Header Files\scene</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

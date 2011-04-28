@@ -357,7 +357,7 @@ inline void ply::ply_parser::parse_scalar_property_definition(const std::string&
   }
   if (!scalar_property_callback) {
     if (warning_callback_) {
-      warning_callback_(line_number_, "property ‘" + std::string(type_traits<scalar_type>::name()) + " " + property_name + "’ of element ‘" + current_element_->name + "’ is not handled");
+      warning_callback_(line_number_, "property '" + std::string(type_traits<scalar_type>::name()) + " " + property_name + "' of element '" + current_element_->name + "' is not handled");
     }
   }
   current_element_->properties.push_back(std::tr1::shared_ptr<property>(new scalar_property<scalar_type>(property_name, scalar_property_callback)));

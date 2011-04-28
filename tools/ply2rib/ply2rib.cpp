@@ -2,8 +2,10 @@
 
 #include <boost/program_options.hpp>
 
-#include <iostream>
+#include <algorithm>
 #include <fstream>
+#include <iostream>
+#include <iterator>
 #include <vector>
 
 namespace po = boost::program_options;
@@ -23,9 +25,15 @@ private:
     {
         float x, y, z;
     };
+    friend ostream& operator<<(ostream &out, const Ply2Rib::Vertex &v);
     
-    typedef vector<size_t>  Face;
+    struct Face
+    {
+        size_t verticesCount;
+        vector<size_t>  vertexIndices;
+    };
 
+// PLY handling
 private:
     // Setup
     tuple<function<void()>, function<void()> > element_definition_callback(const string& element_name, size_t count);
@@ -50,9 +58,15 @@ private:
     void vertex_end();
 
     // Faces callbacks
+    void face_begin();
     void face_vertex_indices_begin(ply::uint8 size);
     void face_vertex_indices_element(ply::int32 vertex_index);
     void face_vertex_indices_end();
+    void face_end();
+
+// Outputting to RIB
+private:
+    void writeRIB();
 
 private:
     ostream* rib;
@@ -63,6 +77,12 @@ private:
     Face currentFace;
     vector<Face> faces;
 };
+
+ostream& operator<<(ostream &out, const Ply2Rib::Vertex &v)
+{
+    out << v.x << " " << v.y << " " << v.z;
+    return out;
+}
 
 Ply2Rib::Ply2Rib()
     : rib(nullptr)
@@ -79,6 +99,12 @@ tuple<function<void()>, function<void()> > Ply2Rib::element_definition_callback(
         return tuple<function<void()>, function<void()> >(
                 bind(&Ply2Rib::vertex_begin, this),
                 bind(&Ply2Rib::vertex_end, this)
+            );
+    }
+    else if (element_name == "face") {
+        return tuple<function<void()>, function<void()> >(
+                bind(&Ply2Rib::face_begin, this),
+                bind(&Ply2Rib::face_end, this)
             );
     }
     else
@@ -184,30 +210,69 @@ void Ply2Rib::vertex_z_callback(ply::float32 z)
 //---------------------------------------------------------------------------------
 // Faces functions
 
+void Ply2Rib::face_begin()
+{
+    currentFace.vertexIndices.clear();
+}
+
+void Ply2Rib::face_end()
+{
+    faces.push_back(currentFace);
+}
+
 void Ply2Rib::face_vertex_indices_begin(ply::uint8 size)
 {
-    currentFace.reserve(size);
+    currentFace.verticesCount = size;
 }
 
 void Ply2Rib::face_vertex_indices_element(ply::int32 vertex_index)
 {
-    currentFace.push_back(vertex_index);
+    currentFace.vertexIndices.push_back(vertex_index);
 }
 
 void Ply2Rib::face_vertex_indices_end()
 {
-    faces.push_back(currentFace);
-    currentFace.clear();
 }
 
 //---------------------------------------------------------------------------------
 // Conversion
 
+void Ply2Rib::writeRIB()
+{
+    ostream &out(*rib);
+
+    out << "AttributeBegin" << endl << "\t";
+        out << "PointsPolygons ";
+
+        // Write how many vertices per faces we have
+        out << "[";
+            for_each(faces.begin(), faces.end(), [&] (const Face &f) { out << f.verticesCount << " "; } );
+        out << "]";
+
+        // Write our vertices' indices for each face
+        out << endl << "\t\t[";
+        for_each(faces.begin(), faces.end(),
+            [&] (const Face &f)
+            {
+                copy(f.vertexIndices.begin(),
+                     f.vertexIndices.end(),
+                     ostream_iterator<size_t>(out, " "));
+            } );
+        out << "] ";
+
+        // Write our vertices'
+        out << endl << "\t\t\"P\" [";
+        copy(vertices.begin(), vertices.end(), ostream_iterator<Vertex>(out, " "));
+        out << "] ";
+
+    out << endl << "AttributeEnd" << endl;
+}
+
 bool Ply2Rib::convert(const string &plyName, istream& plyIStream, ostream& ribOStream)
 {
     rib = &ribOStream;
     (*rib) << "##RenderMan RIB-Structure 1.1" << endl;
-    (*rib) << "##Creator pprt::Ply2Rib (from " << plyName << ")" << endl;
+    (*rib) << "##Creator pprt::Ply2Rib (from " << plyName << ")" << endl << endl;
 
     ply::ply_parser ply_parser;
 
@@ -226,11 +291,11 @@ bool Ply2Rib::convert(const string &plyName, istream& plyIStream, ostream& ribOS
     ply_parser.list_property_definition_callbacks(list_property_definition_callbacks);
 
     // Set our property callback (to handle begin/end of elements)
-    /*ply::ply_parser::list_property_definition_callbacks_type list_property_definition_callbacks;
-    ply::at<ply::uint8, ply::int32>(list_property_definition_callbacks) = bind(&Ply2Rib::list_property_definition_callback<ply::uint8, ply::int32>, this, _1, _2);
-    ply_parser.list_property_definition_callbacks(list_property_definition_callbacks);*/
+    ply_parser.element_definition_callback(bind(&Ply2Rib::element_definition_callback, this, _1, _2));
 
-    return ply_parser.parse(plyIStream);
+    bool res = ply_parser.parse(plyIStream);
+    writeRIB();
+    return res;
 }
 
 //---------------------------------------------------------------------------------

@@ -10,7 +10,8 @@
 
 namespace po = boost::program_options;
 using namespace std;
-using namespace placeholders;
+using namespace std::tr1;
+using namespace std::tr1::placeholders;
 
 class Ply2Rib
 {
@@ -49,6 +50,7 @@ private:
     void info_callback(const string& filename, size_t line_number, const string& message);
     void warning_callback(const string& filename, size_t line_number, const string& message);
     void error_callback(const string& filename, size_t line_number, const string& message);
+    void comment_callback(const string& filename, const string& content);
 
     // Vertex callbacks
     void vertex_begin();
@@ -180,6 +182,12 @@ void Ply2Rib::error_callback(const string& filename, size_t line_number, const s
     cout << "[ERROR] " << filename << " (line " << line_number << "): " << message << endl;
 }
 
+void Ply2Rib::comment_callback(const string& filename, const string& content)
+{
+    // Strip out the "comment " prefix
+    (*rib) << "# Comment from original ply (" << filename << "): " << content.substr(8) << endl;
+}
+
 //---------------------------------------------------------------------------------
 // Vertices functions
 
@@ -241,8 +249,8 @@ void Ply2Rib::writeRIB()
 {
     ostream &out(*rib);
 
-    out << "AttributeBegin" << endl << "\t";
-        out << "PointsPolygons ";
+    out << endl << "AttributeBegin" << endl << "\t";
+    out << "PointsPolygons ";
 
         // Write how many vertices per faces we have
         out << "[";
@@ -272,13 +280,14 @@ bool Ply2Rib::convert(const string &plyName, istream& plyIStream, ostream& ribOS
 {
     rib = &ribOStream;
     (*rib) << "##RenderMan RIB-Structure 1.1" << endl;
-    (*rib) << "##Creator pprt::Ply2Rib (from " << plyName << ")" << endl << endl;
+    (*rib) << "##Creator pprt::ply2rib (from " << plyName << ")" << endl << endl;
 
     ply::ply_parser ply_parser;
 
     ply_parser.info_callback(bind(&Ply2Rib::info_callback, this, ref(plyName), _1, _2));
     ply_parser.warning_callback(bind(&Ply2Rib::warning_callback, this, ref(plyName), _1, _2));
     ply_parser.error_callback(bind(&Ply2Rib::error_callback, this, ref(plyName), _1, _2)); 
+    ply_parser.comment_callback(bind(&Ply2Rib::comment_callback, this, ref(plyName), _1)); 
 
     // Set our scalar callback (for vertices' coordinates etc...)
     ply::ply_parser::scalar_property_definition_callbacks_type scalar_property_definition_callbacks;

@@ -175,9 +175,6 @@
     <ClInclude Include="src\shadervm\symtab.h">
       <Filter>Header Files\shadervm</Filter>
     </ClInclude>
-    <ClInclude Include="src\shadervm\varvalue.h">
-      <Filter>Header Files\shadervm</Filter>
-    </ClInclude>
     <ClInclude Include="src\shader_compiler\CRTSL_grammar_constants.h">
       <Filter>Header Files\shader_compiler</Filter>
     </ClInclude>

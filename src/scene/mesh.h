@@ -90,7 +90,7 @@ private:
     friend struct Face;
 
     typedef AlignedVector<Face*>    Faces;
-    typedef BVH<Face, Faces, 1024>  FacesBVH;
+    typedef BVH<Face, Faces, 4>  FacesBVH;
 
 private:
 	void buildAABB();

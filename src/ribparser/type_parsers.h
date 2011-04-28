@@ -233,6 +233,9 @@ struct vec3_parser
 	template <typename ScannerT>
 	int operator()(ScannerT const &scan, result_t &result) const
 	{
+        typedef real_parser<float, real_parser_policies<float> > float_parser;
+        float_parser fparser;
+
 		if (scan.at_end())
 			return -1;
 
@@ -247,10 +250,12 @@ struct vec3_parser
 		float res[3];
 		for (int i = 0; i < 3; i++)
 		{
-			matched = tools::scanFloat(scan, res[i], false);
+            auto match = fparser.parse(scan);
+            matched = match.length();
 			if (matched == -1)
 				return -1;
 			len += matched;
+            res[i] = match.value();
 
 			// Don't remove last space to allow for the blank_p rule to parse as expected
 			if (i != 2)

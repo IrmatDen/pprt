@@ -11,7 +11,6 @@ AABB::AABB()
 
 bool AABB::hit(const Ray &ray, float &tmin, float &tmax) const
 {
-    
 	// First, unpack everything
 	_MM_ALIGN16 float rayOrigin[4];
 	_MM_ALIGN16 float rayInvDir[4];

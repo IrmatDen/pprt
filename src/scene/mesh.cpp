@@ -84,11 +84,13 @@ bool Mesh::Face::hit(const Ray &ray, IntersectionInfo &ii) const
 	for (size_t vIdx = 0; vIdx != nVertices; vIdx++)
 	{
 		const Vector3 PToCurrent = pointInPlane - getVertexAt(vIdx).pos;
-		if (dot(edgeNormals[vIdx], PToCurrent) < 0.000001f)
-			insideCount++;
+#ifdef SSE4
+		if (dotps(edgeNormals[vIdx].get128(), PToCurrent.get128()).m128_f32[0] > -0.000001f)
+#else
+		if (dot(edgeNormals[vIdx], PToCurrent) > 0.001f)
+#endif
+			return false;
 	}
-	if (insideCount < nVertices)
-		return false;
 
     ii.P = pointInPlane;
     ray.maxT = dist;
@@ -111,8 +113,7 @@ void Mesh::Face::refineHit(IntersectionInfo &ii) const
 		const size_t next	= (vIdx + 1) % nVertices;
  
 		// Determine if point is almost on an edge
-		// FIXME something's wrong with this method
-        const Vector3 PToCurrent = ii.P - getVertexAt(vIdx).pos;
+		const Vector3 PToCurrent = ii.P - getVertexAt(vIdx).pos;
 		const Vector3 nextToCurrent	= getVertexAt(next).pos - getVertexAt(vIdx).pos;
 		const float area		= lengthSqr(cross(nextToCurrent, PToCurrent));
 		const float ntcSqrdLen	= lengthSqr(nextToCurrent);
@@ -144,7 +145,7 @@ void Mesh::Face::refineHit(IntersectionInfo &ii) const
 		for (size_t wIdx = 0; wIdx != nVertices; wIdx++)
 			weights[wIdx] *= invWeightSum;
     }
-        
+    
     ii.N   = Vector3(0.f);
     ii.Cs  = Color(0.f);
     ii.Os  = Color(0.f);
@@ -166,11 +167,6 @@ void Mesh::Face::refineHit(IntersectionInfo &ii) const
         ii.Cs = owner->color;
     if (!owner->vertexFormat.test(Mesh::HasOpacities))
         ii.Os = owner->opacity;
-    /*if (dotps(ii.normal.get128(), (-ray.direction()).get128()).m128_f32[0] < 0.f)
-    {
-	    owner->barCoordProvider.local()->ordered_free(weights, nVertices);
-        return false;
-    }*/
 
 	owner->barCoordProvider.local()->ordered_free(weights, nVertices);
 }

@@ -17,8 +17,13 @@ Plane::Plane()
 // From Geometric Tools for Computer Graphics (Schneider/Eberly)
 bool Plane::intersection(const Ray &ray, float &dist, Point3 &intersection) const
 {
+#ifdef SSE4
 	const float denominator = dotps(ray.direction().get128(), n.get128()).m128_f32[0];
 	const float dotNOd		= dotps(Vector3(ray.origin).get128(), n.get128()).m128_f32[0] + d;
+#else
+	const float denominator = dot(ray.direction(), n);
+	const float dotNOd		= dot(Vector3(ray.origin), n) + d;
+#endif
 
 	// Check if ray is parallel
 	if (abs(denominator) < 0.001f)

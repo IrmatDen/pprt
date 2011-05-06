@@ -9,16 +9,31 @@ bool Sphere::hit(const Ray &ray, IntersectionInfo &ii) const
 	const Vector3 localRayOriginAsVec(localRayOrigin);
 	const Vector3 localRayDir	((worldToObject * ray.direction()).get128());
 
+#ifdef SSE4
 	const __m128 a = dotps(localRayDir.get128(), localRayDir.get128());
 	const __m128 b = mulps(set1ps(2), dotps(localRayDir.get128(), localRayOriginAsVec.get128()));
 	const __m128 rv = set1ps(r);
 	const __m128 c = subps(dotps(localRayOriginAsVec.get128(), localRayOriginAsVec.get128()), mulps(rv, rv));
 	
-	// Solve quadratic
 	const float ar = a.m128_f32[0];
 	const float br = b.m128_f32[0];
 	const float cr = c.m128_f32[0];
+	
+	// Solve quadratic
 	const float d = (subps(mulps(b,b), mulps(set1ps(4), mulps(a, c)))).m128_f32[0];
+#else
+	const float a = dot(localRayDir, localRayDir);
+	const float b = 2.f * dot(localRayDir, localRayOriginAsVec);
+	const float c = dot(localRayOriginAsVec, localRayOriginAsVec) - r*r;
+	
+	const float ar = a;
+	const float br = b;
+	const float cr = c;
+	
+	// Solve quadratic
+	const float d = b*b - 4.f * a*c;
+#endif
+
 	if (d < 0)
 		return false;
 	

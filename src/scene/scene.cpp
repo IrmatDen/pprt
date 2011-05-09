@@ -72,17 +72,18 @@ bool Scene::reloadSceneFile()
 	clear();
 
 	RibParser::Parser scnParser(*this);
+	const __int64 begin = timeGetTime();
 	bool parseRes = scnParser.parseFile(sceneFileName);
+	const __int64 parseStep = timeGetTime();
 	
 	if (parseRes)
 	{
-		cout << endl << "Parsed \"" << sceneFileName << "\" successfully!" << endl;
+		cout << endl << "Parsed \"" << sceneFileName << "\" successfully! (" << parseStep - begin << " ms)" << endl;
 
 		cout << "Preparing scene..." << endl;
-		__int64 begin = timeGetTime();
 		prepare();
-		__int64 end = timeGetTime();
-		cout << "Finished preparing, duration: " << end - begin << " ms" << endl;
+		const __int64 prepareStep = timeGetTime();
+		cout << "Finished preparing, duration: " << prepareStep - parseStep << " ms" << endl;
 
 		render();
 	}
@@ -113,7 +114,7 @@ Camera& Scene::camera()
 void Scene::prepare()
 {
 	for(Geometries::iterator it = objects.begin(); it != objects.end(); ++it)
-		(*it)->prepareShader();
+		(*it)->prepare();
 
 	rt_lights = memory::construct<Light*>(lights.size() + 1);
 	int loop = 0;

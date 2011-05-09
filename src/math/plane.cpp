@@ -43,6 +43,6 @@ bool Plane::intersection(const Ray &ray, float &dist, Point3 &intersection) cons
 	if (dist < 0)
 		return false;
 
-	intersection = Point3(ray.origin + dist * ray.direction());
+	intersection = ray.origin + dist * ray.direction();
 	return true;
 }

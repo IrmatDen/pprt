@@ -5,6 +5,17 @@
 
 using namespace std;
 
+struct Mesh::Triangle : public Mesh::Face
+{
+    virtual bool hit(const Ray &ray, IntersectionInfo &ii) const
+	{
+	}
+
+    virtual void refineHit(IntersectionInfo &ii) const
+	{
+	}
+};
+
 inline Mesh::Vertex& Mesh::Face::getVertexAt(size_t idx) const
 {
     return owner->vertices[verticesIndex[idx]];
@@ -46,8 +57,8 @@ void Mesh::Face::build(const Mesh::MeshCreationData &data, size_t currentIndex)
 	// Get supporting plane
 	//! \todo Search valid points instead of assuming the first 3 are...
     plane = Plane::fromPoints(getVertexAt(0).pos,
-                                getVertexAt(1).pos,
-                                getVertexAt(2).pos);
+                              getVertexAt(1).pos,
+                              getVertexAt(2).pos);
 
     // Generate each edges normals & generate default vertex normals
     edgeNormals = memory::allocate<Vector3>(nVertices);
@@ -261,7 +272,7 @@ Mesh* Mesh::create(Scene *scn, const Matrix4 &obj2world, const MeshCreationData 
 
     // Build faces infos
     result->nFaces = data.facesCount;
-    result->facesPool = memory::allocate<Face>(result->nFaces);
+    result->facesPool = memory::construct<Face>(result->nFaces);
     Face *facePoolEntry = result->facesPool;
     for (size_t fIdx = 0; fIdx != result->nFaces; fIdx++, facePoolEntry++)
     {
@@ -271,7 +282,6 @@ Mesh* Mesh::create(Scene *scn, const Matrix4 &obj2world, const MeshCreationData 
 
         result->faces.push_back(newFace);
     }
-    result->bvh.build(result->faces);
 
     // Finalize default per-vertex normals & copy additional per-vertex data
 	for (vIdx = 0; vIdx != result->nVertices; vIdx++)
@@ -320,6 +330,11 @@ void Mesh::buildAABB()
     aabb._max = Point3((objectToWorld * aabb._max).get128());
 }
 
+void Mesh::onPrepare()
+{
+    bvh.build(faces);
+}
+
 bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
 {
 	Ray localRay(worldToObject * ray);
@@ -328,12 +343,6 @@ bool Mesh::hit(const Ray &ray, IntersectionInfo &ii) const
 
     // Get closest face
     const Face *closestFace = bvh.findClosest(localRay, proxyInfo);
-    /*Face *closestFace = nullptr;
-    for(Faces::const_iterator it = faces.begin(); it != faces.end(); ++it)
-    {
-        if ((*it)->hit(localRay, proxyInfo))
-            closestFace = *it;
-    }*/
 
 	// Fill intersection info
     if (closestFace == nullptr)

@@ -44,11 +44,13 @@ public:
 
 	void					setShaderParams(const ShaderParams &p);
 
-	void					prepareShader();
+	void					prepare();
 
 protected:
 	Geometry(Scene *scn = nullptr);
 	Geometry(Scene *scn, const Matrix4 &obj2world);
+
+	virtual void			onPrepare()		{ ; }
 
 protected:
     Scene               *   scene;

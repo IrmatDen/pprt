@@ -61,9 +61,11 @@ bool Geometry::hasShader() const
 	return shader != 0 && shader->shaderType() != CompiledShader::ST_Invalid;
 }
 
-void Geometry::prepareShader()
+void Geometry::prepare()
 {
 	assert(shader);
 	shader->finalize();
+
+	onPrepare();
 }
 

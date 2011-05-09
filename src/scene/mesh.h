@@ -61,6 +61,9 @@ public:
 
 	virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
 
+protected:
+	virtual void onPrepare() override;
+
 private:
 	struct Vertex
     {
@@ -84,10 +87,13 @@ private:
         Point3 position() const;
         void build(const Mesh::MeshCreationData &data, size_t currentIndex);
 
-        bool hit(const Ray &ray, IntersectionInfo &ii) const;
-        void refineHit(IntersectionInfo &ii) const;
+        virtual bool hit(const Ray &ray, IntersectionInfo &ii) const;
+        virtual void refineHit(IntersectionInfo &ii) const;
     };
     friend struct Face;
+
+	struct Triangle;
+	friend struct Triangle;
 
     typedef AlignedVector<Face*>    Faces;
     typedef BVH<Face, Faces, 4>  FacesBVH;

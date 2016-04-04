@@ -8,7 +8,7 @@ Convex polygons are currently NOT decomposed into triangles. Instead, generic ba
 
 Not sure if it'll work everywhere, but since smoothness is guaranteed, in theory it should, right? :)
 
-Aqsis (1.4 & 1.6 tested only) have a different rendering, but I'm not sure it's a proof of correctness. Anyway, it's not everyday you render such polygons.
+Aqsis (1.4 & 1.6 tested only) have a different rendering, but I'm not sure it's a proof of correctness (I mean compared to the real Renderman). Anyway, it's not everyday you render such polygons.
   * Aqsis:
 ![http://dbulant.free.fr/pprt_images/aqsis_polygon_generalizedbarcoords.png](http://dbulant.free.fr/pprt_images/aqsis_polygon_generalizedbarcoords.png)
   * pprt:
